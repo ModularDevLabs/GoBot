@@ -1,0 +1,7 @@
+DiscordBot.md
+.modbot.config.json
+modbot
+dist/
+modbot.sqlite
+modbot.sqlite-shm
+modbot.sqlite-wal
