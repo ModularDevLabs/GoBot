@@ -46,6 +46,14 @@ func (s *Service) handleTicketMessage(ctx context.Context, m *discordgo.MessageC
 	if err != nil || !ok || ticket.Status != "open" {
 		return
 	}
+	_ = s.repos.Tickets.AppendMessage(ctx, models.TicketMessageRow{
+		TicketID:     ticket.ID,
+		GuildID:      ticket.GuildID,
+		ChannelID:    ticket.ChannelID,
+		AuthorUserID: m.Author.ID,
+		Content:      strings.TrimSpace(m.Content),
+		CreatedAt:    time.Now().UTC(),
+	})
 	if strings.EqualFold(content, closePhrase) && s.canCloseTicket(m, ticket, settings) {
 		if err := s.closeTicket(ctx, ticket, settings, "closed by command"); err != nil {
 			s.logger.Error("close ticket failed id=%d guild=%s err=%v", ticket.ID, ticket.GuildID, err)
@@ -105,16 +113,28 @@ func (s *Service) openTicket(ctx context.Context, guildID, creatorUserID, subjec
 	if settings.TicketLogChannelID != "" {
 		_, _ = s.session.ChannelMessageSend(settings.TicketLogChannelID, fmt.Sprintf("Ticket #%d opened by <@%s> in <#%s>.", id, creatorUserID, ch.ID))
 	}
+	_ = s.repos.Tickets.AppendMessage(ctx, models.TicketMessageRow{
+		TicketID:     id,
+		GuildID:      guildID,
+		ChannelID:    ch.ID,
+		AuthorUserID: "system",
+		Content:      fmt.Sprintf("Ticket opened: subject=%s", subject),
+		CreatedAt:    time.Now().UTC(),
+	})
 	return row, nil
 }
 
 func (s *Service) closeTicket(ctx context.Context, ticket models.TicketRow, settings models.GuildSettings, reason string) error {
+	transcriptLines, _ := s.BuildTicketTranscript(ctx, ticket.GuildID, ticket.ID, 2000)
 	if err := s.repos.Tickets.Close(ctx, ticket.GuildID, ticket.ID); err != nil {
 		return err
 	}
 	_, _ = s.session.ChannelMessageSend(ticket.ChannelID, "Ticket closed. Archiving channel.")
 	if settings.TicketLogChannelID != "" {
 		_, _ = s.session.ChannelMessageSend(settings.TicketLogChannelID, fmt.Sprintf("Ticket #%d closed (%s).", ticket.ID, reason))
+		if transcriptLines != "" {
+			_, _ = s.session.ChannelMessageSend(settings.TicketLogChannelID, "Transcript:\n"+transcriptLines)
+		}
 	}
 	_, err := s.session.ChannelDelete(ticket.ChannelID)
 	return err
@@ -133,4 +153,33 @@ func (s *Service) CloseTicketByID(ctx context.Context, guildID string, id int64)
 		return err
 	}
 	return s.closeTicket(ctx, t, settings, "closed from dashboard")
+}
+
+func (s *Service) BuildTicketTranscript(ctx context.Context, guildID string, id int64, limit int) (string, error) {
+	rows, err := s.repos.Tickets.ListMessages(ctx, guildID, id, limit)
+	if err != nil {
+		return "", err
+	}
+	if len(rows) == 0 {
+		return "_no transcript messages_", nil
+	}
+	var b strings.Builder
+	for i, row := range rows {
+		if i >= limit {
+			break
+		}
+		if i > 0 {
+			b.WriteString("\n")
+		}
+		b.WriteString(row.CreatedAt.Format(time.RFC3339))
+		b.WriteString(" | ")
+		b.WriteString(row.AuthorUserID)
+		b.WriteString(" | ")
+		b.WriteString(strings.ReplaceAll(row.Content, "\n", " "))
+	}
+	out := b.String()
+	if len(out) > 1800 {
+		out = out[:1800] + "...(truncated)"
+	}
+	return "```text\n" + out + "\n```", nil
 }

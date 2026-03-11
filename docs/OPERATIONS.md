@@ -28,6 +28,8 @@ Stop: `Ctrl+C`
 - **Scheduled**: Configure recurring messages with channel, content, and interval minutes.
 - **Verification**: On join, assigns unverified role and prompts user to type verification phrase in the configured channel.
 - **Tickets**: Users open tickets from inbox phrase; bot creates private channels and supports close command/dashboard close.
+- **Tickets**: Transcript can be viewed from the dashboard and is included in ticket-log messages on close.
+- **Tickets**: Optional inactivity auto-close runs continuously based on `ticket_auto_close_minutes`.
 - Full field-by-field settings reference: `docs/SETTINGS.md`.
 
 ## Activity tracking lifecycle

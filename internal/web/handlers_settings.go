@@ -59,6 +59,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			TicketLogChannelID      string          `json:"ticket_log_channel_id"`
 			TicketOpenPhrase        string          `json:"ticket_open_phrase"`
 			TicketClosePhrase       string          `json:"ticket_close_phrase"`
+			TicketAutoCloseMinutes  int             `json:"ticket_auto_close_minutes"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -106,6 +107,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.TicketLogChannelID = cfg.TicketLogChannelID
 		current.TicketOpenPhrase = cfg.TicketOpenPhrase
 		current.TicketClosePhrase = cfg.TicketClosePhrase
+		current.TicketAutoCloseMinutes = cfg.TicketAutoCloseMinutes
 
 		if err := s.repos.Settings.Upsert(r.Context(), current); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

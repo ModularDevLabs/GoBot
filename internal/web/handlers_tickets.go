@@ -26,10 +26,6 @@ func (s *Server) handleTickets(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleTicketDetail(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
 	guildID := r.URL.Query().Get("guild_id")
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -37,7 +33,7 @@ func (s *Server) handleTicketDetail(w http.ResponseWriter, r *http.Request) {
 	}
 	path := strings.TrimPrefix(r.URL.Path, "/api/modules/tickets/")
 	parts := strings.Split(path, "/")
-	if len(parts) != 2 || parts[1] != "close" {
+	if len(parts) != 2 {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -46,9 +42,29 @@ func (s *Server) handleTicketDetail(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if err := s.discord.CloseTicketByID(r.Context(), guildID, id); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	switch parts[1] {
+	case "close":
+		if r.Method != http.MethodPost {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		if err := s.discord.CloseTicketByID(r.Context(), guildID, id); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+	case "transcript":
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
+		text, err := s.discord.BuildTicketTranscript(r.Context(), guildID, id, 4000)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		writeJSON(w, map[string]any{"ticket_id": id, "transcript": text})
+	default:
+		w.WriteHeader(http.StatusNotFound)
 	}
-	w.WriteHeader(http.StatusNoContent)
 }

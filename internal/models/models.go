@@ -41,6 +41,7 @@ type GuildSettings struct {
 	TicketLogChannelID      string          `json:"ticket_log_channel_id"`
 	TicketOpenPhrase        string          `json:"ticket_open_phrase"`
 	TicketClosePhrase       string          `json:"ticket_close_phrase"`
+	TicketAutoCloseMinutes  int             `json:"ticket_auto_close_minutes"`
 }
 
 type MemberRow struct {
@@ -110,6 +111,16 @@ type TicketRow struct {
 	Status        string     `json:"status"`
 	CreatedAt     time.Time  `json:"created_at"`
 	ClosedAt      *time.Time `json:"closed_at,omitempty"`
+}
+
+type TicketMessageRow struct {
+	ID           int64     `json:"id"`
+	TicketID     int64     `json:"ticket_id"`
+	GuildID      string    `json:"guild_id"`
+	ChannelID    string    `json:"channel_id"`
+	AuthorUserID string    `json:"author_user_id"`
+	Content      string    `json:"content"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type GuildInfo struct {
@@ -182,5 +193,6 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		VerificationPhrase:      "!verify",
 		TicketOpenPhrase:        "!ticket",
 		TicketClosePhrase:       "!close",
+		TicketAutoCloseMinutes:  0,
 	}
 }

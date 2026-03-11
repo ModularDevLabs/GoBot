@@ -252,6 +252,12 @@ Each schedule contains:
 - Type: string
 - Default: `!close`
 
+37. `ticket_auto_close_minutes`
+- UI label: `Auto-close inactive (minutes, 0=off)` (Tickets module)
+- Type: integer
+- Default: `0`
+- When greater than zero, open tickets with no recent ticket-channel activity for this many minutes are auto-closed.
+
 ## Advanced Per-Guild Setting (API/DB)
 
 This setting exists in the model/API and is not currently exposed in the dashboard form.

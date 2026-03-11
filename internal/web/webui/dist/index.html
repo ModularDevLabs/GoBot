@@ -699,6 +699,10 @@
                   Close phrase
                   <input id="settingsTicketClosePhrase" placeholder="!close" />
                 </label>
+                <label>
+                  Auto-close inactive (minutes, 0=off)
+                  <input id="settingsTicketAutoClose" type="number" min="0" />
+                </label>
               </div>
             </article>
           </div>
@@ -729,6 +733,7 @@
             </div>
             <div id="ticketsTable"></div>
           </div>
+          <pre id="ticketTranscript" class="event-log" style="margin-top:12px; min-height:120px; max-height:240px;"></pre>
         </div>
       </section>
     </main>

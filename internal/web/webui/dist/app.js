@@ -262,6 +262,7 @@ async function loadSettings() {
   qs('#settingsTicketLogChannel').value = cfg.ticket_log_channel_id || '';
   qs('#settingsTicketOpenPhrase').value = cfg.ticket_open_phrase || '!ticket';
   qs('#settingsTicketClosePhrase').value = cfg.ticket_close_phrase || '!close';
+  qs('#settingsTicketAutoClose').value = cfg.ticket_auto_close_minutes || 0;
   syncModuleBadges();
   await loadInvitePermissionStatus();
   await loadReactionRoleRules();
@@ -773,6 +774,7 @@ async function saveTicketsModule() {
       ticket_log_channel_id: qs('#settingsTicketLogChannel').value.trim(),
       ticket_open_phrase: qs('#settingsTicketOpenPhrase').value.trim(),
       ticket_close_phrase: qs('#settingsTicketClosePhrase').value.trim(),
+      ticket_auto_close_minutes: parseInt(qs('#settingsTicketAutoClose').value, 10) || 0,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -806,7 +808,10 @@ async function loadTickets() {
       <div>${row.subject || ''}</div>
       <div>${row.status}</div>
       <div>${formatDate(row.created_at)}</div>
-      <div>${row.status === 'open' ? `<button class="ghost" data-ticket-close="${row.id}">Close</button>` : ''}</div>
+      <div>
+        ${row.status === 'open' ? `<button class="ghost" data-ticket-close="${row.id}">Close</button>` : ''}
+        <button class="ghost" data-ticket-transcript="${row.id}">Transcript</button>
+      </div>
     `;
     table.appendChild(div);
   });
@@ -815,6 +820,12 @@ async function loadTickets() {
 async function closeTicket(id) {
   if (!id) return;
   await apiFetch(`/api/modules/tickets/${id}/close?guild_id=${state.guildId}`, { method: 'POST' });
+}
+
+async function loadTicketTranscript(id) {
+  if (!id) return;
+  const res = await apiFetch(`/api/modules/tickets/${id}/transcript?guild_id=${state.guildId}`);
+  qs('#ticketTranscript').textContent = res.transcript || '';
 }
 
 function formatDate(value) {
@@ -1077,14 +1088,24 @@ function wireEvents() {
   });
 
   qs('#ticketsTable').addEventListener('click', async (e) => {
-    const btn = e.target.closest('button[data-ticket-close]');
-    if (!btn) return;
-    try {
-      await closeTicket(btn.getAttribute('data-ticket-close'));
-      showToast('Ticket closed.');
-      await loadTickets();
-    } catch (err) {
-      showToast(`Close ticket failed: ${err.message}`, 'error');
+    const closeBtn = e.target.closest('button[data-ticket-close]');
+    if (closeBtn) {
+      try {
+        await closeTicket(closeBtn.getAttribute('data-ticket-close'));
+        showToast('Ticket closed.');
+        await loadTickets();
+      } catch (err) {
+        showToast(`Close ticket failed: ${err.message}`, 'error');
+      }
+      return;
+    }
+    const transcriptBtn = e.target.closest('button[data-ticket-transcript]');
+    if (transcriptBtn) {
+      try {
+        await loadTicketTranscript(transcriptBtn.getAttribute('data-ticket-transcript'));
+      } catch (err) {
+        showToast(`Load transcript failed: ${err.message}`, 'error');
+      }
     }
   });
 

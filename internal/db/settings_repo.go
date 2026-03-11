@@ -121,5 +121,8 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.TicketClosePhrase == "" {
 		cfg.TicketClosePhrase = def.TicketClosePhrase
 	}
+	if cfg.TicketAutoCloseMinutes < 0 {
+		cfg.TicketAutoCloseMinutes = 0
+	}
 	return cfg
 }
