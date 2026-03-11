@@ -16,6 +16,7 @@ const FEATURE_AUDIT = 'audit_log_stream';
 const FEATURE_INVITE = 'invite_tracker';
 const FEATURE_AUTOMOD = 'automod';
 const FEATURE_REACTION_ROLES = 'reaction_roles';
+const FEATURE_WARNINGS = 'warnings';
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
   if (!badgeEl || !cardEl) return;
@@ -32,12 +33,14 @@ function syncModuleBadges() {
   const inviteEnabled = qs('#settingsInviteEnabled').value === 'true';
   const autoModEnabled = qs('#settingsAutoModEnabled').value === 'true';
   const reactionRolesEnabled = qs('#settingsReactionRolesEnabled').value === 'true';
+  const warningsEnabled = qs('#settingsWarningsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
   setModuleBadge(auditEnabled, qs('#moduleAuditBadge'), qs('#moduleAuditCard'));
   setModuleBadge(inviteEnabled, qs('#moduleInviteBadge'), qs('#moduleInviteCard'));
   setModuleBadge(autoModEnabled, qs('#moduleAutoModBadge'), qs('#moduleAutoModCard'));
   setModuleBadge(reactionRolesEnabled, qs('#moduleReactionRolesBadge'), qs('#moduleReactionRolesCard'));
+  setModuleBadge(warningsEnabled, qs('#moduleWarningsBadge'), qs('#moduleWarningsCard'));
 }
 
 const qs = (sel) => document.querySelector(sel);
@@ -233,9 +236,14 @@ async function loadSettings() {
   qs('#settingsAutoModDupThreshold').value = cfg.automod_dup_threshold || 3;
   qs('#settingsAutoModIgnoreChannels').value = (cfg.automod_ignore_channel_ids || []).join(',');
   qs('#settingsAutoModIgnoreRoles').value = (cfg.automod_ignore_role_ids || []).join(',');
+  qs('#settingsWarningsEnabled').value = String(!!flags[FEATURE_WARNINGS]);
+  qs('#settingsWarningLogChannel').value = cfg.warning_log_channel_id || '';
+  qs('#settingsWarnQuarantineThreshold').value = cfg.warn_quarantine_threshold || 3;
+  qs('#settingsWarnKickThreshold').value = cfg.warn_kick_threshold || 5;
   syncModuleBadges();
   await loadInvitePermissionStatus();
   await loadReactionRoleRules();
+  await loadWarnings();
 }
 
 async function loadInvitePermissionStatus() {
@@ -533,6 +541,82 @@ async function deleteReactionRoleRule(id) {
   await apiFetch(`/api/modules/reaction-roles/rules/${id}?guild_id=${state.guildId}`, { method: 'DELETE' });
 }
 
+async function saveWarningsModule() {
+  const restore = setBusy(qs('#warningsSave'), 'Saving...');
+  const status = qs('#warningsStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_WARNINGS]: qs('#settingsWarningsEnabled').value === 'true',
+      },
+      warning_log_channel_id: qs('#settingsWarningLogChannel').value.trim(),
+      warn_quarantine_threshold: parseInt(qs('#settingsWarnQuarantineThreshold').value, 10),
+      warn_kick_threshold: parseInt(qs('#settingsWarnKickThreshold').value, 10),
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Warnings module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Warnings save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadWarnings() {
+  const table = qs('#warningsTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/warnings?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row warn-row';
+    div.innerHTML = `
+      <div>${row.user_id}</div>
+      <div>${row.actor_user_id}</div>
+      <div>${row.reason || ''}</div>
+      <div>${formatDate(row.created_at)}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function issueWarning() {
+  const restore = setBusy(qs('#warnIssue'), 'Issuing...');
+  const status = qs('#warnStatus');
+  status.textContent = 'Issuing...';
+  try {
+    const payload = {
+      user_id: qs('#warnUserId').value.trim(),
+      reason: qs('#warnReason').value.trim(),
+    };
+    const res = await apiFetch(`/api/modules/warnings/issue?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Warning issued (count=${res.count}${res.auto_action ? `, auto=${res.auto_action}` : ''})`;
+    showToast('Warning issued.');
+    await loadWarnings();
+    await loadActions();
+  } catch (err) {
+    status.textContent = 'Issue failed.';
+    showToast(`Issue warning failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 function formatDate(value) {
   if (!value) return '—';
   const date = new Date(value);
@@ -726,14 +810,18 @@ function wireEvents() {
   qs('#inviteSave').onclick = saveInviteTracker;
   qs('#automodSave').onclick = saveAutoMod;
   qs('#reactionRolesSave').onclick = saveReactionRoles;
+  qs('#warningsSave').onclick = saveWarningsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
+  qs('#warnRefresh').onclick = () => loadWarnings().catch((err) => showToast(`Warnings load failed: ${err.message}`, 'error'));
+  qs('#warnIssue').onclick = issueWarning;
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsInviteEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAutoModEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsReactionRolesEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsWarningsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
   qs('#memberStatus').addEventListener('change', reloadMembersForFilters);
   qs('#memberStatus').addEventListener('input', reloadMembersForFilters);
@@ -824,6 +912,7 @@ async function refreshAll() {
   await loadEvents();
   await loadSettings();
   await loadReactionRoleRules();
+  await loadWarnings();
 }
 
 async function bootstrap() {

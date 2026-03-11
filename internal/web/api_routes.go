@@ -25,6 +25,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/modules/invite/status", s.handleInviteModuleStatus)
 	api.HandleFunc("/api/modules/reaction-roles/rules", s.handleReactionRoleRules)
 	api.HandleFunc("/api/modules/reaction-roles/rules/", s.handleReactionRoleRuleDetail)
+	api.HandleFunc("/api/modules/warnings", s.handleWarnings)
+	api.HandleFunc("/api/modules/warnings/issue", s.handleWarningIssue)
 
 	mux.Handle("/api/", s.authMiddleware(api))
 

@@ -46,6 +46,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			AutoModAction           string          `json:"automod_action"`
 			AutoModIgnoreChannelIDs []string        `json:"automod_ignore_channel_ids"`
 			AutoModIgnoreRoleIDs    []string        `json:"automod_ignore_role_ids"`
+			WarningLogChannelID     string          `json:"warning_log_channel_id"`
+			WarnQuarantineThreshold int             `json:"warn_quarantine_threshold"`
+			WarnKickThreshold       int             `json:"warn_kick_threshold"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&cfg); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
@@ -80,6 +83,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.AutoModAction = cfg.AutoModAction
 		current.AutoModIgnoreChannelIDs = cfg.AutoModIgnoreChannelIDs
 		current.AutoModIgnoreRoleIDs = cfg.AutoModIgnoreRoleIDs
+		current.WarningLogChannelID = cfg.WarningLogChannelID
+		current.WarnQuarantineThreshold = cfg.WarnQuarantineThreshold
+		current.WarnKickThreshold = cfg.WarnKickThreshold
 
 		if err := s.repos.Settings.Upsert(r.Context(), current); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)

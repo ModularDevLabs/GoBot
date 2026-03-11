@@ -71,6 +71,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `invite_tracker=false`
 - `automod=false`
 - `reaction_roles=false`
+- `warnings=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
 
 10. `welcome_channel_id`
@@ -164,6 +165,22 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - UI label: `Ignored role IDs (comma)` (AutoMod module)
 - Type: list of Discord role IDs
 - Members with any ignored role are skipped by AutoMod.
+
+24. `warning_log_channel_id`
+- UI label: `Log channel ID` (Warnings module)
+- Type: Discord channel ID (string)
+
+25. `warn_quarantine_threshold`
+- UI label: `Quarantine threshold` (Warnings module)
+- Type: integer
+- Default: `3`
+- At or above this warning count, warning issuance auto-queues quarantine.
+
+26. `warn_kick_threshold`
+- UI label: `Kick threshold` (Warnings module)
+- Type: integer
+- Default: `5`
+- At or above this warning count, warning issuance auto-queues kick.
 
 ## Reaction Roles Rules
 

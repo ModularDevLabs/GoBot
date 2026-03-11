@@ -31,6 +31,7 @@
         <button data-view="invites">Invite Tracker</button>
         <button data-view="automod">AutoMod</button>
         <button data-view="reactionroles">Reaction Roles</button>
+        <button data-view="warnings">Warnings</button>
         <button data-view="settings">Settings</button>
       </nav>
       <div class="sidebar-footer">
@@ -470,6 +471,73 @@
               <div>Action</div>
             </div>
             <div id="rrRulesTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-warnings" class="view">
+        <div class="panel">
+          <div class="panel-header">Warnings Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleWarningsCard">
+              <div class="module-head">
+                <div class="module-title">Warnings</div>
+                <span class="module-badge off" id="moduleWarningsBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Issue manual warnings and auto-escalate to quarantine/kick at thresholds.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsWarningsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Log channel ID
+                  <input id="settingsWarningLogChannel" />
+                </label>
+                <label>
+                  Quarantine threshold
+                  <input id="settingsWarnQuarantineThreshold" type="number" min="1" />
+                </label>
+                <label>
+                  Kick threshold
+                  <input id="settingsWarnKickThreshold" type="number" min="1" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="warningsSave" class="primary">Save warnings module</button>
+            <span id="warningsStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Issue Warning</div>
+          <div class="form-grid">
+            <label>
+              Target user ID
+              <input id="warnUserId" />
+            </label>
+            <label>
+              Reason
+              <input id="warnReason" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="warnIssue" class="primary">Issue warning</button>
+            <button id="warnRefresh" class="ghost">Refresh history</button>
+            <span id="warnStatus" class="status-line"></span>
+          </div>
+          <div class="table" style="margin-top: 12px;">
+            <div class="table-row table-header warn-row">
+              <div>User</div>
+              <div>Actor</div>
+              <div>Reason</div>
+              <div>Created</div>
+            </div>
+            <div id="warningsTable"></div>
           </div>
         </div>
       </section>

@@ -40,6 +40,7 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Settings:      &SettingsRepo{db: db},
 		Backfill:      &BackfillRepo{db: db},
 		ReactionRoles: &ReactionRolesRepo{db: db},
+		Warnings:      &WarningsRepo{db: db},
 	}
 }
 
@@ -49,4 +50,5 @@ type Repositories struct {
 	Settings      *SettingsRepo
 	Backfill      *BackfillRepo
 	ReactionRoles *ReactionRolesRepo
+	Warnings      *WarningsRepo
 }

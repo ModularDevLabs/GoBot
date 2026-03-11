@@ -79,6 +79,14 @@ func (s *Service) Close() error {
 	return s.session.Close()
 }
 
+func (s *Service) SendChannelMessage(channelID, content string) (string, error) {
+	msg, err := s.session.ChannelMessageSend(channelID, content)
+	if err != nil || msg == nil {
+		return "", err
+	}
+	return msg.ID, nil
+}
+
 func (s *Service) StartWorkers(ctx context.Context) {
 	go s.runActionWorker(ctx)
 }

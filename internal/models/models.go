@@ -28,6 +28,9 @@ type GuildSettings struct {
 	AutoModAction           string          `json:"automod_action"`
 	AutoModIgnoreChannelIDs []string        `json:"automod_ignore_channel_ids"`
 	AutoModIgnoreRoleIDs    []string        `json:"automod_ignore_role_ids"`
+	WarningLogChannelID     string          `json:"warning_log_channel_id"`
+	WarnQuarantineThreshold int             `json:"warn_quarantine_threshold"`
+	WarnKickThreshold       int             `json:"warn_kick_threshold"`
 }
 
 type MemberRow struct {
@@ -67,6 +70,15 @@ type ReactionRoleRule struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 
+type WarningRow struct {
+	ID          int64     `json:"id"`
+	GuildID     string    `json:"guild_id"`
+	UserID      string    `json:"user_id"`
+	ActorUserID string    `json:"actor_user_id"`
+	Reason      string    `json:"reason"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -79,6 +91,7 @@ const (
 	FeatureInviteTracker   = "invite_tracker"
 	FeatureAutoMod         = "automod"
 	FeatureReactionRoles   = "reaction_roles"
+	FeatureWarnings        = "warnings"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -103,6 +116,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureInviteTracker:   false,
 			FeatureAutoMod:         false,
 			FeatureReactionRoles:   false,
+			FeatureWarnings:        false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",
@@ -119,10 +133,12 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			"action_failed",
 			"automod_action",
 		},
-		AutoModBlockLinks:   true,
-		AutoModBlockedWords: []string{},
-		AutoModDupWindowSec: 20,
-		AutoModDupThreshold: 3,
-		AutoModAction:       "delete_warn",
+		AutoModBlockLinks:       true,
+		AutoModBlockedWords:     []string{},
+		AutoModDupWindowSec:     20,
+		AutoModDupThreshold:     3,
+		AutoModAction:           "delete_warn",
+		WarnQuarantineThreshold: 3,
+		WarnKickThreshold:       5,
 	}
 }

@@ -54,6 +54,16 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_reaction_rules_guild
 		ON reaction_role_rules(guild_id, message_id);`,
+		`CREATE TABLE IF NOT EXISTS warnings (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			actor_user_id TEXT NOT NULL,
+			reason TEXT,
+			created_at TEXT NOT NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_warnings_guild_user
+		ON warnings(guild_id, user_id, created_at);`,
 	}
 
 	for _, stmt := range stmts {
