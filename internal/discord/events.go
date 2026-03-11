@@ -38,7 +38,10 @@ func (s *Service) OnMessageCreate(_ *discordgo.Session, m *discordgo.MessageCrea
 	s.handleAppealMessage(ctx, m, settings)
 	s.handleTicketMessage(ctx, m, settings)
 	s.handleVerificationMessage(m, settings)
-	s.handleAutoMod(ctx, m, settings)
+	handledCustomCommand := s.handleCustomCommandMessage(ctx, m, settings)
+	if !handledCustomCommand {
+		s.handleAutoMod(ctx, m, settings)
+	}
 	cutoff := time.Now().AddDate(0, 0, -settings.InactiveDays)
 	_, _ = s.repos.Activity.UpsertActivityIfStale(ctx, m.GuildID, m.Author.ID, m.ChannelID, m.Timestamp, username, globalName, displayName, cutoff)
 }

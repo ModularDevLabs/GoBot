@@ -35,26 +35,28 @@ func Open(path string) (*sql.DB, error) {
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		Activity:      &ActivityRepo{db: db},
-		Actions:       &ActionsRepo{db: db},
-		Settings:      &SettingsRepo{db: db},
-		Backfill:      &BackfillRepo{db: db},
-		ReactionRoles: &ReactionRolesRepo{db: db},
-		Warnings:      &WarningsRepo{db: db},
-		Scheduled:     &ScheduledMessagesRepo{db: db},
-		Tickets:       &TicketsRepo{db: db},
-		Appeals:       &AppealsRepo{db: db},
+		Activity:       &ActivityRepo{db: db},
+		Actions:        &ActionsRepo{db: db},
+		Settings:       &SettingsRepo{db: db},
+		Backfill:       &BackfillRepo{db: db},
+		ReactionRoles:  &ReactionRolesRepo{db: db},
+		Warnings:       &WarningsRepo{db: db},
+		Scheduled:      &ScheduledMessagesRepo{db: db},
+		Tickets:        &TicketsRepo{db: db},
+		Appeals:        &AppealsRepo{db: db},
+		CustomCommands: &CustomCommandsRepo{db: db},
 	}
 }
 
 type Repositories struct {
-	Activity      *ActivityRepo
-	Actions       *ActionsRepo
-	Settings      *SettingsRepo
-	Backfill      *BackfillRepo
-	ReactionRoles *ReactionRolesRepo
-	Warnings      *WarningsRepo
-	Scheduled     *ScheduledMessagesRepo
-	Tickets       *TicketsRepo
-	Appeals       *AppealsRepo
+	Activity       *ActivityRepo
+	Actions        *ActionsRepo
+	Settings       *SettingsRepo
+	Backfill       *BackfillRepo
+	ReactionRoles  *ReactionRolesRepo
+	Warnings       *WarningsRepo
+	Scheduled      *ScheduledMessagesRepo
+	Tickets        *TicketsRepo
+	Appeals        *AppealsRepo
+	CustomCommands *CustomCommandsRepo
 }

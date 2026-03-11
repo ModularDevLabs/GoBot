@@ -113,6 +113,15 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_appeals_guild_status
 		ON appeals(guild_id, status, created_at);`,
+		`CREATE TABLE IF NOT EXISTS custom_commands (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			trigger TEXT NOT NULL,
+			response TEXT NOT NULL,
+			created_at TEXT NOT NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_custom_commands_guild_trigger
+		ON custom_commands(guild_id, trigger);`,
 	}
 
 	for _, stmt := range stmts {

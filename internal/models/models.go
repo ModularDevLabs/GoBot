@@ -145,6 +145,14 @@ type AppealRow struct {
 	ReviewedAt *time.Time `json:"reviewed_at,omitempty"`
 }
 
+type CustomCommandRow struct {
+	ID        int64     `json:"id"`
+	GuildID   string    `json:"guild_id"`
+	Trigger   string    `json:"trigger"`
+	Response  string    `json:"response"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -164,6 +172,7 @@ const (
 	FeatureAntiRaid        = "anti_raid"
 	FeatureAnalytics       = "analytics"
 	FeatureAppeals         = "appeals"
+	FeatureCustomCommands  = "custom_commands"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -195,6 +204,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureAntiRaid:        false,
 			FeatureAnalytics:       false,
 			FeatureAppeals:         false,
+			FeatureCustomCommands:  false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

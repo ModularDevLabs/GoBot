@@ -38,6 +38,7 @@
         <button data-view="antiraid">Anti-Raid</button>
         <button data-view="analytics">Analytics</button>
         <button data-view="appeals">Appeals</button>
+        <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
       </nav>
       <div class="sidebar-footer">
@@ -886,6 +887,56 @@
               <div>Action</div>
             </div>
             <div id="appealsTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-customcommands" class="view">
+        <div class="panel">
+          <div class="panel-header">Custom Commands Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleCustomCommandsCard">
+              <div class="module-head">
+                <div class="module-title">Custom Commands</div>
+                <span class="module-badge off" id="moduleCustomCommandsBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Respond to exact trigger messages with configured responses.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsCustomCommandsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="customCommandsSave" class="primary">Save custom commands module</button>
+            <span id="customCommandsStatus" class="status-line"></span>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Commands</div>
+          <div class="filters">
+            <input id="customCommandTrigger" placeholder="Trigger (example: !rules)" />
+            <input id="customCommandResponse" placeholder="Response message" />
+            <button id="customCommandAdd" class="primary">Add Command</button>
+          </div>
+          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <button id="customCommandsRefresh" class="ghost">Refresh</button>
+            <span id="customCommandEditStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header custom-command-row">
+              <div>Trigger</div>
+              <div>Response</div>
+              <div>Created</div>
+              <div>Action</div>
+            </div>
+            <div id="customCommandsTable"></div>
           </div>
         </div>
       </section>

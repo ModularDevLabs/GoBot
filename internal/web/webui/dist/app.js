@@ -23,6 +23,7 @@ const FEATURE_TICKETS = 'tickets';
 const FEATURE_ANTI_RAID = 'anti_raid';
 const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_APPEALS = 'appeals';
+const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
   if (!badgeEl || !cardEl) return;
@@ -46,6 +47,7 @@ function syncModuleBadges() {
   const antiRaidEnabled = qs('#settingsAntiRaidEnabled').value === 'true';
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
+  const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
   setModuleBadge(auditEnabled, qs('#moduleAuditBadge'), qs('#moduleAuditCard'));
@@ -59,6 +61,7 @@ function syncModuleBadges() {
   setModuleBadge(antiRaidEnabled, qs('#moduleAntiRaidBadge'), qs('#moduleAntiRaidCard'));
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
+  setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
 
 const qs = (sel) => document.querySelector(sel);
@@ -285,6 +288,7 @@ async function loadSettings() {
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
   qs('#settingsAppealsPhrase').value = cfg.appeals_open_phrase || '!appeal';
+  qs('#settingsCustomCommandsEnabled').value = String(!!flags[FEATURE_CUSTOM_COMMANDS]);
   syncModuleBadges();
   await loadInvitePermissionStatus();
   await loadReactionRoleRules();
@@ -292,6 +296,7 @@ async function loadSettings() {
   await loadScheduledMessages();
   await loadTickets();
   await loadAppeals();
+  await loadCustomCommands();
 }
 
 async function loadInvitePermissionStatus() {
@@ -981,6 +986,85 @@ async function resolveAppeal(id) {
   });
 }
 
+async function saveCustomCommandsModule() {
+  const restore = setBusy(qs('#customCommandsSave'), 'Saving...');
+  const status = qs('#customCommandsStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_CUSTOM_COMMANDS]: qs('#settingsCustomCommandsEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Custom commands module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Custom commands save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadCustomCommands() {
+  const table = qs('#customCommandsTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/custom-commands/commands?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row custom-command-row';
+    div.innerHTML = `
+      <div>${row.trigger}</div>
+      <div>${row.response}</div>
+      <div>${formatDate(row.created_at)}</div>
+      <div><button class="ghost" data-cc-delete="${row.id}">Delete</button></div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function addCustomCommand() {
+  const restore = setBusy(qs('#customCommandAdd'), 'Adding...');
+  const status = qs('#customCommandEditStatus');
+  status.textContent = 'Adding...';
+  try {
+    const payload = {
+      trigger: qs('#customCommandTrigger').value.trim(),
+      response: qs('#customCommandResponse').value.trim(),
+    };
+    await apiFetch(`/api/modules/custom-commands/commands?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Added at ${new Date().toLocaleTimeString()}`;
+    showToast('Custom command added.');
+    qs('#customCommandTrigger').value = '';
+    qs('#customCommandResponse').value = '';
+    await loadCustomCommands();
+  } catch (err) {
+    status.textContent = 'Add failed.';
+    showToast(`Add command failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function deleteCustomCommand(id) {
+  if (!id) return;
+  await apiFetch(`/api/modules/custom-commands/commands/${id}?guild_id=${state.guildId}`, { method: 'DELETE' });
+}
+
 function formatDate(value) {
   if (!value) return '—';
   const date = new Date(value);
@@ -1181,6 +1265,7 @@ function wireEvents() {
   qs('#antiRaidSave').onclick = saveAntiRaidModule;
   qs('#analyticsSave').onclick = saveAnalyticsModule;
   qs('#appealsSave').onclick = saveAppealsModule;
+  qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
   qs('#warnRefresh').onclick = () => loadWarnings().catch((err) => showToast(`Warnings load failed: ${err.message}`, 'error'));
@@ -1191,6 +1276,8 @@ function wireEvents() {
   qs('#ticketStatusFilter').addEventListener('change', () => loadTickets().catch((err) => showToast(`Tickets load failed: ${err.message}`, 'error')));
   qs('#appealsRefresh').onclick = () => loadAppeals().catch((err) => showToast(`Appeals load failed: ${err.message}`, 'error'));
   qs('#appealStatusFilter').addEventListener('change', () => loadAppeals().catch((err) => showToast(`Appeals load failed: ${err.message}`, 'error')));
+  qs('#customCommandsRefresh').onclick = () => loadCustomCommands().catch((err) => showToast(`Commands load failed: ${err.message}`, 'error'));
+  qs('#customCommandAdd').onclick = addCustomCommand;
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1204,6 +1291,7 @@ function wireEvents() {
   qs('#settingsAntiRaidEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
   qs('#memberStatus').addEventListener('change', reloadMembersForFilters);
   qs('#memberStatus').addEventListener('input', reloadMembersForFilters);
@@ -1282,6 +1370,18 @@ function wireEvents() {
     }
   });
 
+  qs('#customCommandsTable').addEventListener('click', async (e) => {
+    const delBtn = e.target.closest('button[data-cc-delete]');
+    if (!delBtn) return;
+    try {
+      await deleteCustomCommand(delBtn.getAttribute('data-cc-delete'));
+      showToast('Custom command deleted.');
+      await loadCustomCommands();
+    } catch (err) {
+      showToast(`Delete command failed: ${err.message}`, 'error');
+    }
+  });
+
   qs('#membersTable').addEventListener('change', (e) => {
     const checkbox = e.target.closest('.member-select');
     if (!checkbox) return;
@@ -1344,6 +1444,7 @@ async function refreshAll() {
   await loadScheduledMessages();
   await loadTickets();
   await loadAppeals();
+  await loadCustomCommands();
 }
 
 async function bootstrap() {

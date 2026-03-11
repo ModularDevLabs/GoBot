@@ -78,6 +78,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `anti_raid=false`
 - `analytics=false`
 - `appeals=false`
+- `custom_commands=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
 
 10. `welcome_channel_id`
@@ -309,6 +310,15 @@ Each schedule contains:
 - UI label: `Open phrase` (Appeals module)
 - Type: string
 - Default: `!appeal`
+
+## Custom Commands Rules
+
+Configured in the `Custom Commands` module UI and stored in `custom_commands`.
+
+Each command contains:
+
+1. `trigger` (exact message text, case-insensitive match)
+2. `response` (message sent when trigger matches)
 
 ## Advanced Per-Guild Setting (API/DB)
 
