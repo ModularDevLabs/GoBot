@@ -44,6 +44,7 @@
         <button data-view="suggestions">Suggestions</button>
         <button data-view="keywordalerts">Keyword Alerts</button>
         <button data-view="afk">AFK</button>
+        <button data-view="reminders">Reminders</button>
         <button data-view="appeals">Appeals</button>
         <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
@@ -1176,6 +1177,61 @@
           <div class="panel-actions">
             <button id="afkSave" class="primary">Save AFK module</button>
             <span id="afkStatus" class="status-line"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-reminders" class="view">
+        <div class="panel">
+          <div class="panel-header">Reminders Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleRemindersCard">
+              <div class="module-head">
+                <div class="module-title">Reminders</div>
+                <span class="module-badge off" id="moduleRemindersBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Queue one-time reminders to send at a specific time.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsRemindersEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Default channel ID
+                  <input id="settingsRemindersChannel" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="remindersSave" class="primary">Save reminders module</button>
+            <span id="remindersStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Queued Reminders</div>
+          <div class="filters">
+            <input id="reminderChannel" placeholder="Channel ID (optional)" />
+            <input id="reminderContent" placeholder="Reminder content" />
+            <button id="reminderAdd" class="primary">Add</button>
+          </div>
+          <div class="filters">
+            <input id="reminderRunAt" type="datetime-local" />
+            <div></div>
+            <button id="remindersRefresh" class="ghost">Refresh</button>
+          </div>
+          <div class="status-line" id="remindersRunStatus"></div>
+          <div class="table" style="margin-top: 12px;">
+            <div class="table-row table-header reminder-row">
+              <div>ID</div>
+              <div>Content</div>
+              <div>Run At</div>
+              <div>Status</div>
+            </div>
+            <div id="remindersTable"></div>
           </div>
         </div>
       </section>

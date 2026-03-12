@@ -105,6 +105,7 @@ func (s *Service) StartWorkers(ctx context.Context) {
 	go s.runScheduledWorker(ctx)
 	go s.runTicketWorker(ctx)
 	go s.runAnalyticsWorker(ctx)
+	go s.runRemindersWorker(ctx)
 }
 
 func (s *Service) ListGuilds(ctx context.Context) ([]models.GuildInfo, error) {

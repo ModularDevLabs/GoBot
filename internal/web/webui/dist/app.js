@@ -29,6 +29,7 @@ const FEATURE_POLLS = 'polls';
 const FEATURE_SUGGESTIONS = 'suggestions';
 const FEATURE_KEYWORD_ALERTS = 'keyword_alerts';
 const FEATURE_AFK = 'afk';
+const FEATURE_REMINDERS = 'reminders';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -60,6 +61,7 @@ function syncModuleBadges() {
   const suggestionsEnabled = qs('#settingsSuggestionsEnabled').value === 'true';
   const keywordAlertsEnabled = qs('#settingsKeywordAlertsEnabled').value === 'true';
   const afkEnabled = qs('#settingsAFKEnabled').value === 'true';
+  const remindersEnabled = qs('#settingsRemindersEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -81,6 +83,7 @@ function syncModuleBadges() {
   setModuleBadge(suggestionsEnabled, qs('#moduleSuggestionsBadge'), qs('#moduleSuggestionsCard'));
   setModuleBadge(keywordAlertsEnabled, qs('#moduleKeywordAlertsBadge'), qs('#moduleKeywordAlertsCard'));
   setModuleBadge(afkEnabled, qs('#moduleAFKBadge'), qs('#moduleAFKCard'));
+  setModuleBadge(remindersEnabled, qs('#moduleRemindersBadge'), qs('#moduleRemindersCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -326,6 +329,8 @@ async function loadSettings() {
   qs('#settingsKeywordAlertWords').value = (cfg.keyword_alert_words || []).join(',');
   qs('#settingsAFKEnabled').value = String(!!flags[FEATURE_AFK]);
   qs('#settingsAFKPhrase').value = cfg.afk_set_phrase || '!afk';
+  qs('#settingsRemindersEnabled').value = String(!!flags[FEATURE_REMINDERS]);
+  qs('#settingsRemindersChannel').value = cfg.reminders_channel_id || '';
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -343,6 +348,7 @@ async function loadSettings() {
   await loadGiveaways();
   await loadPolls();
   await loadSuggestions();
+  await loadReminders();
 }
 
 async function loadInvitePermissionStatus() {
@@ -1216,6 +1222,36 @@ async function saveAFKModule() {
   }
 }
 
+async function saveRemindersModule() {
+  const restore = setBusy(qs('#remindersSave'), 'Saving...');
+  const status = qs('#remindersStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_REMINDERS]: qs('#settingsRemindersEnabled').value === 'true',
+      },
+      reminders_channel_id: qs('#settingsRemindersChannel').value.trim(),
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Reminders module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Reminders save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function loadGiveaways() {
   const table = qs('#giveawaysTable');
   if (!table || !state.guildId) return;
@@ -1355,6 +1391,50 @@ async function decideSuggestion(id, action) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ note }),
   });
+}
+
+async function loadReminders() {
+  const table = qs('#remindersTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/reminders?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row reminder-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.content}</div>
+      <div>${formatDate(row.run_at)}</div>
+      <div>${row.status}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function addReminder() {
+  const restore = setBusy(qs('#reminderAdd'), 'Adding...');
+  const status = qs('#remindersRunStatus');
+  status.textContent = 'Adding...';
+  try {
+    const payload = {
+      channel_id: qs('#reminderChannel').value.trim(),
+      content: qs('#reminderContent').value.trim(),
+      run_at: new Date(qs('#reminderRunAt').value).toISOString(),
+    };
+    await apiFetch(`/api/modules/reminders?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Added at ${new Date().toLocaleTimeString()}`;
+    showToast('Reminder queued.');
+    await loadReminders();
+  } catch (err) {
+    status.textContent = 'Add failed.';
+    showToast(`Reminder add failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
 }
 
 async function loadLeaderboard() {
@@ -1695,6 +1775,7 @@ function wireEvents() {
   qs('#suggestionsSave').onclick = saveSuggestionsModule;
   qs('#keywordAlertsSave').onclick = saveKeywordAlertsModule;
   qs('#afkSave').onclick = saveAFKModule;
+  qs('#remindersSave').onclick = saveRemindersModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1715,6 +1796,8 @@ function wireEvents() {
   qs('#pollStart').onclick = startPoll;
   qs('#suggestionsRefresh').onclick = () => loadSuggestions().catch((err) => showToast(`Suggestions load failed: ${err.message}`, 'error'));
   qs('#suggestionStatusFilter').addEventListener('change', () => loadSuggestions().catch((err) => showToast(`Suggestions load failed: ${err.message}`, 'error')));
+  qs('#remindersRefresh').onclick = () => loadReminders().catch((err) => showToast(`Reminders load failed: ${err.message}`, 'error'));
+  qs('#reminderAdd').onclick = addReminder;
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1734,6 +1817,7 @@ function wireEvents() {
   qs('#settingsSuggestionsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsKeywordAlertsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAFKEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsRemindersEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
@@ -1941,6 +2025,7 @@ async function refreshAll() {
   await loadGiveaways();
   await loadPolls();
   await loadSuggestions();
+  await loadReminders();
 }
 
 async function bootstrap() {

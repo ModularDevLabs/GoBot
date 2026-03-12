@@ -63,6 +63,7 @@ type GuildSettings struct {
 	KeywordAlertsChannelID  string          `json:"keyword_alerts_channel_id"`
 	KeywordAlertWords       []string        `json:"keyword_alert_words"`
 	AFKSetPhrase            string          `json:"afk_set_phrase"`
+	RemindersChannelID      string          `json:"reminders_channel_id"`
 	AppealsChannelID        string          `json:"appeals_channel_id"`
 	AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 	AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -235,6 +236,16 @@ type AFKStatusRow struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type ReminderRow struct {
+	ID        int64     `json:"id"`
+	GuildID   string    `json:"guild_id"`
+	ChannelID string    `json:"channel_id"`
+	Content   string    `json:"content"`
+	RunAt     time.Time `json:"run_at"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -260,6 +271,7 @@ const (
 	FeatureSuggestions     = "suggestions"
 	FeatureKeywordAlerts   = "keyword_alerts"
 	FeatureAFK             = "afk"
+	FeatureReminders       = "reminders"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 )
@@ -299,6 +311,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureSuggestions:     false,
 			FeatureKeywordAlerts:   false,
 			FeatureAFK:             false,
+			FeatureReminders:       false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 		},
