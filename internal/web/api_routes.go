@@ -21,6 +21,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/members", s.handleMembers)
 	api.HandleFunc("/api/members/", s.handleMemberDetail)
 	api.HandleFunc("/api/actions", s.handleActions)
+	api.HandleFunc("/api/actions/preflight", s.handleActionPreflight)
 	api.HandleFunc("/api/actions/", s.handleActionDetail)
 	api.HandleFunc("/api/modules/invite/status", s.handleInviteModuleStatus)
 	api.HandleFunc("/api/modules/permissions", s.handleModulePermissions)

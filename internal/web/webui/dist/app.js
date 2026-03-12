@@ -2156,6 +2156,15 @@ async function runBackfill() {
 
 async function createAction(userId, type, targetName) {
   if (!userId) return;
+  const preflight = await runActionPreflight(type, [userId]);
+  if (!preflight.allowed) {
+    showToast(`Action blocked: ${preflight.summary}`, 'error');
+    return;
+  }
+  if (preflight.summary) {
+    const proceed = confirm(`Preflight warning:\n${preflight.summary}\n\nContinue?`);
+    if (!proceed) return;
+  }
   const reason = prompt(`Reason for ${type} (optional):`);
   try {
     await apiFetch(`/api/actions/${type}?guild_id=${state.guildId}`, {
@@ -2176,6 +2185,15 @@ async function createBulkAction(selectedUserMap, type) {
     showToast('Select at least one member first.', 'error');
     return;
   }
+  const preflight = await runActionPreflight(type, userIds);
+  if (!preflight.allowed) {
+    showToast(`Bulk action blocked: ${preflight.summary}`, 'error');
+    return;
+  }
+  if (preflight.summary) {
+    const proceed = confirm(`Bulk preflight warning:\n${preflight.summary}\n\nContinue?`);
+    if (!proceed) return;
+  }
   const reason = prompt(`Reason for ${type} (optional):`);
   const payload = { user_ids: userIds, reason: reason || '', target_names: Object.fromEntries(selectedUserMap) };
   if (type === 'remove-roles') {
@@ -2194,6 +2212,36 @@ async function createBulkAction(selectedUserMap, type) {
     await loadMembers();
   } catch (err) {
     showToast(`Bulk action failed: ${err.message}`, 'error');
+  }
+}
+
+async function runActionPreflight(type, userIds) {
+  if (!state.guildId || !userIds || !userIds.length) {
+    return { allowed: true, summary: '' };
+  }
+  const actionType = String(type || '').replaceAll('-', '_');
+  try {
+    const res = await apiFetch(`/api/actions/preflight?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action_type: actionType, user_ids: userIds }),
+    });
+    const results = (res && res.results) || [];
+    const blocked = results.some((row) => row && row.allowed === false);
+    const messages = [];
+    results.forEach((row) => {
+      const issues = (row && row.issues) || [];
+      issues.forEach((issue) => {
+        if (!issue || !issue.message) return;
+        messages.push(`User ${row.target_user_id}: ${issue.message}`);
+      });
+    });
+    return {
+      allowed: !blocked,
+      summary: messages.slice(0, 5).join('\n'),
+    };
+  } catch (err) {
+    return { allowed: false, summary: `preflight failed: ${err.message}` };
   }
 }
 

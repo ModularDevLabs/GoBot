@@ -177,6 +177,45 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]any{"action_ids": ids})
 }
 
+func (s *Server) handleActionPreflight(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	guildID := r.URL.Query().Get("guild_id")
+	if guildID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	var payload struct {
+		ActionType string   `json:"action_type"`
+		UserIDs    []string `json:"user_ids"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	payload.ActionType = strings.TrimSpace(strings.ReplaceAll(payload.ActionType, "-", "_"))
+	if payload.ActionType == "" || len(payload.UserIDs) == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	results := make([]any, 0, len(payload.UserIDs))
+	for _, userID := range payload.UserIDs {
+		userID = strings.TrimSpace(userID)
+		if userID == "" {
+			continue
+		}
+		res, err := s.discord.PreflightAction(r.Context(), guildID, userID, payload.ActionType)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		results = append(results, res)
+	}
+	writeJSON(w, map[string]any{"results": results})
+}
+
 func toJSON(value any) string {
 	data, _ := json.Marshal(value)
 	return string(data)
