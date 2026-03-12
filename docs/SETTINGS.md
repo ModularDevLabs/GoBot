@@ -63,6 +63,24 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `false`: attempts guild-wide channel/category deny-overwrites for the quarantine role (except readme channel).
 - `true`: skips guild-wide overwrite pass (safer for permission-limited bots).
 
+8a. `action_dry_run`
+- UI label: `Action dry-run mode`
+- Type: boolean
+- Default: `false`
+- When enabled, moderation actions are validated but not enqueued/executed.
+
+8b. `action_require_confirm`
+- UI label: `Require confirm token`
+- Type: boolean
+- Default: `true`
+- Requires `confirm_token=CONFIRM` for destructive actions (`quarantine`, `kick`, `remove_roles`).
+
+8c. `action_two_person_approval`
+- UI label: `Two-person approval`
+- Type: boolean
+- Default: `false`
+- Requires a distinct `approver_user` value for destructive action requests.
+
 9. `feature_flags`
 - Type: object/map of booleans
 - Default:

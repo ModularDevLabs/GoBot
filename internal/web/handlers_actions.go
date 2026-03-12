@@ -139,6 +139,8 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 		RemoveAllExceptAllow bool              `json:"remove_all_except_allowlist"`
 		TargetName           string            `json:"target_name"`
 		TargetNames          map[string]string `json:"target_names"`
+		ConfirmToken         string            `json:"confirm_token"`
+		ApproverUser         string            `json:"approver_user"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -149,9 +151,39 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 	if actor == "" {
 		actor = "dashboard"
 	}
+	settings, err := s.repos.Settings.Get(r.Context(), guildID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	actionType := strings.ReplaceAll(path, "-", "_")
+	isDestructive := actionType == "kick" || actionType == "quarantine" || actionType == "remove_roles"
+	if isDestructive && settings.ActionRequireConfirm {
+		if strings.TrimSpace(strings.ToUpper(payload.ConfirmToken)) != "CONFIRM" {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte("missing confirm token"))
+			return
+		}
+	}
+	if isDestructive && settings.ActionTwoPersonApproval {
+		approver := strings.TrimSpace(payload.ApproverUser)
+		if approver == "" || strings.EqualFold(approver, actor) {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte("two-person approval requires distinct approver user"))
+			return
+		}
+	}
 	ids := make([]int64, 0, len(payload.UserIDs))
+	if settings.ActionDryRun {
+		writeJSON(w, map[string]any{
+			"dry_run":      true,
+			"action_type":  actionType,
+			"target_count": len(payload.UserIDs),
+			"reason":       strings.TrimSpace(payload.Reason),
+		})
+		return
+	}
 	for _, id := range payload.UserIDs {
 		targetName := payload.TargetName
 		if payload.TargetNames != nil {

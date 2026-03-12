@@ -2,6 +2,7 @@ const state = {
   token: localStorage.getItem('modbot_token') || '',
   guildId: localStorage.getItem('modbot_guild') || '',
   guilds: [],
+  currentSettings: null,
   modulePermissions: {},
   selectedUsers: new Map(),
   overviewPollTimer: null,
@@ -587,6 +588,7 @@ async function loadGuilds() {
 async function loadSettings() {
   if (!state.guildId) return;
   const cfg = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+  state.currentSettings = cfg;
   const flags = cfg.feature_flags || {};
   qs('#settingsInactive').value = cfg.inactive_days;
   qs('#settingsBackfill').value = cfg.backfill_days;
@@ -596,6 +598,9 @@ async function loadSettings() {
   qs('#settingsReadmeChannel').value = cfg.readme_channel_id || '';
   qs('#settingsAllowlist').value = (cfg.allowlist_role_ids || []).join(',');
   qs('#settingsSafeMode').value = String(cfg.safe_quarantine_mode);
+  qs('#settingsActionDryRun').value = String(!!cfg.action_dry_run);
+  qs('#settingsActionRequireConfirm').value = String(cfg.action_require_confirm !== false);
+  qs('#settingsActionTwoPerson').value = String(!!cfg.action_two_person_approval);
   qs('#settingsWelcomeEnabled').value = String(!!flags[FEATURE_WELCOME]);
   qs('#settingsWelcomeChannel').value = cfg.welcome_channel_id || '';
   qs('#settingsWelcomeMessage').value = cfg.welcome_message || '';
@@ -733,6 +738,9 @@ async function saveSettings() {
       readme_channel_id: qs('#settingsReadmeChannel').value.trim(),
       allowlist_role_ids: qs('#settingsAllowlist').value.split(',').map((v) => v.trim()).filter(Boolean),
       safe_quarantine_mode: qs('#settingsSafeMode').value === 'true',
+      action_dry_run: qs('#settingsActionDryRun').value === 'true',
+      action_require_confirm: qs('#settingsActionRequireConfirm').value === 'true',
+      action_two_person_approval: qs('#settingsActionTwoPerson').value === 'true',
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2201,12 +2209,20 @@ async function createAction(userId, type, targetName) {
     const proceed = confirm(`Preflight warning:\n${preflight.summary}\n\nContinue?`);
     if (!proceed) return;
   }
+  const safeguards = collectActionSafeguards(type);
+  if (safeguards.cancelled) return;
   const reason = prompt(`Reason for ${type} (optional):`);
   try {
     await apiFetch(`/api/actions/${type}?guild_id=${state.guildId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_ids: [userId], reason: reason || '', target_name: targetName || '' }),
+      body: JSON.stringify({
+        user_ids: [userId],
+        reason: reason || '',
+        target_name: targetName || '',
+        confirm_token: safeguards.confirmToken,
+        approver_user: safeguards.approverUser,
+      }),
     });
     showToast(`Action queued: ${type}`);
     await loadActions();
@@ -2230,8 +2246,16 @@ async function createBulkAction(selectedUserMap, type) {
     const proceed = confirm(`Bulk preflight warning:\n${preflight.summary}\n\nContinue?`);
     if (!proceed) return;
   }
+  const safeguards = collectActionSafeguards(type);
+  if (safeguards.cancelled) return;
   const reason = prompt(`Reason for ${type} (optional):`);
-  const payload = { user_ids: userIds, reason: reason || '', target_names: Object.fromEntries(selectedUserMap) };
+  const payload = {
+    user_ids: userIds,
+    reason: reason || '',
+    target_names: Object.fromEntries(selectedUserMap),
+    confirm_token: safeguards.confirmToken,
+    approver_user: safeguards.approverUser,
+  };
   if (type === 'remove-roles') {
     payload.remove_all_except_allowlist = true;
   }
@@ -2249,6 +2273,37 @@ async function createBulkAction(selectedUserMap, type) {
   } catch (err) {
     showToast(`Bulk action failed: ${err.message}`, 'error');
   }
+}
+
+function isDestructiveAction(type) {
+  return type === 'kick' || type === 'quarantine' || type === 'remove-roles';
+}
+
+function collectActionSafeguards(type) {
+  const cfg = state.currentSettings || {};
+  const destructive = isDestructiveAction(type);
+  let confirmToken = '';
+  let approverUser = '';
+  if (!destructive) {
+    return { cancelled: false, confirmToken, approverUser };
+  }
+  if (cfg.action_require_confirm !== false) {
+    const token = prompt('Type CONFIRM to queue this destructive action:');
+    if (!token || token.trim().toUpperCase() !== 'CONFIRM') {
+      showToast('Action cancelled: confirm token not provided.', 'error');
+      return { cancelled: true, confirmToken: '', approverUser: '' };
+    }
+    confirmToken = 'CONFIRM';
+  }
+  if (cfg.action_two_person_approval) {
+    const approver = prompt('Enter second approver user ID (must be different from actor):');
+    if (!approver || !approver.trim()) {
+      showToast('Action cancelled: approver required by policy.', 'error');
+      return { cancelled: true, confirmToken: '', approverUser: '' };
+    }
+    approverUser = approver.trim();
+  }
+  return { cancelled: false, confirmToken, approverUser };
 }
 
 async function runActionPreflight(type, userIds) {
