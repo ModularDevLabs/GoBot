@@ -3,8 +3,12 @@ package discord
 import (
 	"context"
 	"encoding/json"
+	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/ModularDevLabs/GoBot/internal/models"
 	"github.com/bwmarrin/discordgo"
@@ -26,6 +30,8 @@ func (s *Service) handleAutoMod(ctx context.Context, m *discordgo.MessageCreate,
 		}
 	}
 	reasons := s.automodReasons(m, settings)
+	ruleReasons, forcedAction := s.automodRuleReasons(m, settings)
+	reasons = append(reasons, ruleReasons...)
 	if len(reasons) == 0 {
 		return
 	}
@@ -34,7 +40,11 @@ func (s *Service) handleAutoMod(ctx context.Context, m *discordgo.MessageCreate,
 	joined := strings.Join(reasons, ", ")
 	s.emitAuditEvent(m.GuildID, "automod_action", "Message removed for "+joined+" user="+m.Author.ID)
 
-	switch settings.AutoModAction {
+	action := settings.AutoModAction
+	if forcedAction != "" {
+		action = forcedAction
+	}
+	switch action {
 	case "delete_only":
 		return
 	case "delete_quarantine":
@@ -77,6 +87,115 @@ func (s *Service) automodReasons(m *discordgo.MessageCreate, settings models.Gui
 		reasons = append(reasons, "duplicate_spam")
 	}
 	return reasons
+}
+
+func (s *Service) automodRuleReasons(m *discordgo.MessageCreate, settings models.GuildSettings) ([]string, string) {
+	if len(settings.AutoModRules) == 0 || m == nil {
+		return nil, ""
+	}
+	reasons := make([]string, 0, len(settings.AutoModRules))
+	forcedAction := ""
+	for _, rule := range settings.AutoModRules {
+		if !rule.Enabled {
+			continue
+		}
+		matched := false
+		switch strings.ToLower(strings.TrimSpace(rule.Type)) {
+		case "regex":
+			pattern := strings.TrimSpace(rule.Pattern)
+			if pattern == "" {
+				continue
+			}
+			if re, err := regexp.Compile(pattern); err == nil && re.MatchString(m.Content) {
+				matched = true
+			}
+		case "file_ext":
+			extRaw := strings.TrimSpace(rule.Pattern)
+			if extRaw == "" {
+				continue
+			}
+			exts := strings.Split(strings.ToLower(extRaw), ",")
+			extSet := map[string]struct{}{}
+			for _, ext := range exts {
+				norm := strings.TrimSpace(ext)
+				if norm == "" {
+					continue
+				}
+				if !strings.HasPrefix(norm, ".") {
+					norm = "." + norm
+				}
+				extSet[norm] = struct{}{}
+			}
+			for _, at := range m.Attachments {
+				if at == nil || at.Filename == "" {
+					continue
+				}
+				ext := strings.ToLower(filepath.Ext(at.Filename))
+				if _, ok := extSet[ext]; ok {
+					matched = true
+					break
+				}
+			}
+		case "mention_spam":
+			threshold := rule.Threshold
+			if threshold <= 0 {
+				threshold = 5
+			}
+			if len(m.Mentions) >= threshold {
+				matched = true
+			}
+		case "caps_ratio":
+			threshold := rule.Threshold
+			if threshold <= 0 {
+				if parsed, err := strconv.Atoi(strings.TrimSpace(rule.Pattern)); err == nil {
+					threshold = parsed
+				}
+			}
+			if threshold <= 0 {
+				threshold = 70
+			}
+			letters := 0
+			uppers := 0
+			for _, ch := range m.Content {
+				if unicode.IsLetter(ch) {
+					letters++
+					if unicode.IsUpper(ch) {
+						uppers++
+					}
+				}
+			}
+			if letters >= 8 {
+				ratio := (uppers * 100) / letters
+				if ratio >= threshold {
+					matched = true
+				}
+			}
+		default:
+			continue
+		}
+		if !matched {
+			continue
+		}
+		reasonName := strings.TrimSpace(rule.Name)
+		if reasonName == "" {
+			reasonName = "advanced_rule"
+		}
+		reasons = append(reasons, reasonName)
+		action := strings.TrimSpace(strings.ToLower(rule.Action))
+		switch action {
+		case "delete_quarantine":
+			forcedAction = "delete_quarantine"
+		case "delete_only":
+			if forcedAction != "delete_quarantine" {
+				forcedAction = "delete_only"
+			}
+		case "delete_warn":
+			if forcedAction == "" {
+				forcedAction = "delete_warn"
+			}
+		}
+	}
+	return reasons, forcedAction
 }
 
 func containsLink(content string) bool {

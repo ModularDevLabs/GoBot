@@ -103,7 +103,7 @@ body {
   color: var(--muted);
 }
 
-select, input {
+select, input, textarea {
   width: 100%;
   background: var(--panel-soft);
   border: 1px solid var(--border);
@@ -111,6 +111,10 @@ select, input {
   padding: 10px 12px;
   border-radius: 10px;
   font-family: inherit;
+}
+
+textarea {
+  resize: vertical;
 }
 
 .nav {

@@ -106,6 +106,9 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.AutoModAction == "" {
 		cfg.AutoModAction = def.AutoModAction
 	}
+	if cfg.AutoModRules == nil {
+		cfg.AutoModRules = []models.AutoModRule{}
+	}
 	if cfg.WarnQuarantineThreshold <= 0 {
 		cfg.WarnQuarantineThreshold = def.WarnQuarantineThreshold
 	}

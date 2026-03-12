@@ -2,6 +2,16 @@ package models
 
 import "time"
 
+type AutoModRule struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Enabled   bool   `json:"enabled"`
+	Type      string `json:"type"`
+	Pattern   string `json:"pattern"`
+	Threshold int    `json:"threshold"`
+	Action    string `json:"action"`
+}
+
 type GuildSettings struct {
 	GuildID                 string          `json:"guild_id"`
 	InactiveDays            int             `json:"inactive_days"`
@@ -28,6 +38,7 @@ type GuildSettings struct {
 	AutoModAction           string          `json:"automod_action"`
 	AutoModIgnoreChannelIDs []string        `json:"automod_ignore_channel_ids"`
 	AutoModIgnoreRoleIDs    []string        `json:"automod_ignore_role_ids"`
+	AutoModRules            []AutoModRule   `json:"automod_rules"`
 	WarningLogChannelID     string          `json:"warning_log_channel_id"`
 	WarnQuarantineThreshold int             `json:"warn_quarantine_threshold"`
 	WarnKickThreshold       int             `json:"warn_kick_threshold"`
@@ -356,6 +367,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		AutoModDupWindowSec:     20,
 		AutoModDupThreshold:     3,
 		AutoModAction:           "delete_warn",
+		AutoModRules:            []AutoModRule{},
 		WarnQuarantineThreshold: 3,
 		WarnKickThreshold:       5,
 		VerificationPhrase:      "!verify",

@@ -184,6 +184,18 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - Type: list of Discord role IDs
 - Members with any ignored role are skipped by AutoMod.
 
+24. `automod_rules`
+- UI label: `Advanced rules JSON` (AutoMod module)
+- Type: list of rule objects
+- Default: empty list
+- Supported rule `type` values:
+- `regex` (matches message content against `pattern`)
+- `file_ext` (matches attachment file extensions listed in `pattern`, comma-separated)
+- `mention_spam` (uses `threshold` as mention count)
+- `caps_ratio` (uses `threshold` as uppercase percentage; default `70`)
+- Optional per-rule `action` override:
+- `delete_warn`, `delete_only`, `delete_quarantine`
+
 24. `warning_log_channel_id`
 - UI label: `Log channel ID` (Warnings module)
 - Type: Discord channel ID (string)

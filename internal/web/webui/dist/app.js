@@ -616,6 +616,7 @@ async function loadSettings() {
   qs('#settingsAutoModDupThreshold').value = cfg.automod_dup_threshold || 3;
   qs('#settingsAutoModIgnoreChannels').value = (cfg.automod_ignore_channel_ids || []).join(',');
   qs('#settingsAutoModIgnoreRoles').value = (cfg.automod_ignore_role_ids || []).join(',');
+  qs('#settingsAutoModRules').value = JSON.stringify(cfg.automod_rules || [], null, 2);
   qs('#settingsWarningsEnabled').value = String(!!flags[FEATURE_WARNINGS]);
   qs('#settingsWarningLogChannel').value = cfg.warning_log_channel_id || '';
   qs('#settingsWarnQuarantineThreshold').value = cfg.warn_quarantine_threshold || 3;
@@ -878,6 +879,15 @@ async function saveAutoMod() {
   const status = qs('#automodStatus');
   status.textContent = 'Saving...';
   try {
+    let advancedRules = [];
+    const rawRules = qs('#settingsAutoModRules').value.trim();
+    if (rawRules) {
+      const parsed = JSON.parse(rawRules);
+      if (!Array.isArray(parsed)) {
+        throw new Error('Advanced rules JSON must be an array.');
+      }
+      advancedRules = parsed;
+    }
     const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
     const payload = {
       ...current,
@@ -892,6 +902,7 @@ async function saveAutoMod() {
       automod_dup_threshold: parseInt(qs('#settingsAutoModDupThreshold').value, 10),
       automod_ignore_channel_ids: qs('#settingsAutoModIgnoreChannels').value.split(',').map((v) => v.trim()).filter(Boolean),
       automod_ignore_role_ids: qs('#settingsAutoModIgnoreRoles').value.split(',').map((v) => v.trim()).filter(Boolean),
+      automod_rules: advancedRules,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
