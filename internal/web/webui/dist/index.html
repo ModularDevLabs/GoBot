@@ -39,6 +39,7 @@
         <button data-view="analytics">Analytics</button>
         <button data-view="starboard">Starboard</button>
         <button data-view="leveling">Leveling</button>
+        <button data-view="giveaways">Giveaways</button>
         <button data-view="appeals">Appeals</button>
         <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
@@ -922,6 +923,67 @@
               <div>Last XP</div>
             </div>
             <div id="levelingTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-giveaways" class="view">
+        <div class="panel">
+          <div class="panel-header">Giveaways Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleGiveawaysCard">
+              <div class="module-head">
+                <div class="module-title">Giveaways</div>
+                <span class="module-badge off" id="moduleGiveawaysBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Create giveaways and draw winners from users reacting with the configured emoji.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsGiveawaysEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Default channel ID
+                  <input id="settingsGiveawaysChannel" />
+                </label>
+                <label>
+                  Entry emoji
+                  <input id="settingsGiveawaysEmoji" placeholder="🎉" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="giveawaysSave" class="primary">Save giveaways module</button>
+            <span id="giveawaysStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Run Giveaway</div>
+          <div class="filters">
+            <input id="giveawayChannel" placeholder="Channel ID (optional)" />
+            <input id="giveawayPrize" placeholder="Prize" />
+            <button id="giveawayStart" class="primary">Start</button>
+          </div>
+          <div class="filters">
+            <input id="giveawayDuration" type="number" min="1" placeholder="Duration minutes" />
+            <input id="giveawayWinners" type="number" min="1" placeholder="Winner count" />
+            <button id="giveawaysRefresh" class="ghost">Refresh</button>
+          </div>
+          <div class="status-line" id="giveawaysRunStatus"></div>
+          <div class="table" style="margin-top: 12px;">
+            <div class="table-row table-header giveaway-row">
+              <div>ID</div>
+              <div>Prize</div>
+              <div>Entries</div>
+              <div>Status</div>
+              <div>Ends</div>
+              <div>Action</div>
+            </div>
+            <div id="giveawaysTable"></div>
           </div>
         </div>
       </section>

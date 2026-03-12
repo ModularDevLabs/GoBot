@@ -285,6 +285,10 @@ button[disabled] {
   grid-template-columns: 0.4fr 1.2fr 0.6fr 0.6fr 1fr;
 }
 
+.giveaway-row {
+  grid-template-columns: 0.4fr 1.5fr 0.6fr 0.7fr 1fr 0.6fr;
+}
+
 .table-row-quarantined {
   border-color: rgba(240, 106, 106, 0.55);
   box-shadow: inset 0 0 0 1px rgba(240, 106, 106, 0.2);
@@ -503,7 +507,7 @@ button[disabled] {
 @media (max-width: 980px) {
   .app { grid-template-columns: 1fr; }
   .sidebar { flex-direction: row; align-items: center; gap: 16px; overflow-x: auto; }
-  .nav { grid-auto-flow: column; grid-template-columns: repeat(22, auto); }
+  .nav { grid-auto-flow: column; grid-template-columns: repeat(23, auto); }
   .content { padding: 20px; }
   .stats { grid-template-columns: 1fr; }
   .filters { grid-template-columns: 1fr; }

@@ -79,6 +79,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `analytics=false`
 - `starboard=false`
 - `leveling=false`
+- `giveaways=false`
 - `appeals=false`
 - `custom_commands=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
@@ -328,15 +329,24 @@ Each schedule contains:
 - Type: integer
 - Default: `60`
 
-51. `appeals_channel_id`
+51. `giveaways_channel_id`
+- UI label: `Default channel ID` (Giveaways module)
+- Type: Discord channel ID (string)
+
+52. `giveaways_reaction_emoji`
+- UI label: `Entry emoji` (Giveaways module)
+- Type: string
+- Default: `🎉`
+
+53. `appeals_channel_id`
 - UI label: `Appeals channel ID` (Appeals module)
 - Type: Discord channel ID (string)
 
-52. `appeals_log_channel_id`
+54. `appeals_log_channel_id`
 - UI label: `Log channel ID (optional)` (Appeals module)
 - Type: Discord channel ID (string)
 
-53. `appeals_open_phrase`
+55. `appeals_open_phrase`
 - UI label: `Open phrase` (Appeals module)
 - Type: string
 - Default: `!appeal`

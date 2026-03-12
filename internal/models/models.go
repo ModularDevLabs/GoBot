@@ -55,6 +55,8 @@ type GuildSettings struct {
 	LevelingChannelID       string          `json:"leveling_channel_id"`
 	LevelingXPPerMessage    int             `json:"leveling_xp_per_message"`
 	LevelingCooldownSeconds int             `json:"leveling_cooldown_seconds"`
+	GiveawaysChannelID      string          `json:"giveaways_channel_id"`
+	GiveawaysReactionEmoji  string          `json:"giveaways_reaction_emoji"`
 	AppealsChannelID        string          `json:"appeals_channel_id"`
 	AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 	AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -180,6 +182,19 @@ type MemberLevelRow struct {
 	LastXPAt time.Time `json:"last_xp_at"`
 }
 
+type GiveawayRow struct {
+	ID          int64     `json:"id"`
+	GuildID     string    `json:"guild_id"`
+	ChannelID   string    `json:"channel_id"`
+	MessageID   string    `json:"message_id"`
+	Prize       string    `json:"prize"`
+	WinnerCount int       `json:"winner_count"`
+	EndsAt      time.Time `json:"ends_at"`
+	Status      string    `json:"status"`
+	CreatedAt   time.Time `json:"created_at"`
+	EntryCount  int       `json:"entry_count"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -200,6 +215,7 @@ const (
 	FeatureAnalytics       = "analytics"
 	FeatureStarboard       = "starboard"
 	FeatureLeveling        = "leveling"
+	FeatureGiveaways       = "giveaways"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 )
@@ -234,6 +250,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureAnalytics:       false,
 			FeatureStarboard:       false,
 			FeatureLeveling:        false,
+			FeatureGiveaways:       false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 		},
@@ -273,6 +290,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		StarboardThreshold:      3,
 		LevelingXPPerMessage:    10,
 		LevelingCooldownSeconds: 60,
+		GiveawaysReactionEmoji:  "🎉",
 		AppealsOpenPhrase:       "!appeal",
 	}
 }

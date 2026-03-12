@@ -24,6 +24,7 @@ const FEATURE_ANTI_RAID = 'anti_raid';
 const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_STARBOARD = 'starboard';
 const FEATURE_LEVELING = 'leveling';
+const FEATURE_GIVEAWAYS = 'giveaways';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -50,6 +51,7 @@ function syncModuleBadges() {
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
   const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
   const levelingEnabled = qs('#settingsLevelingEnabled').value === 'true';
+  const giveawaysEnabled = qs('#settingsGiveawaysEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -66,6 +68,7 @@ function syncModuleBadges() {
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
   setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
   setModuleBadge(levelingEnabled, qs('#moduleLevelingBadge'), qs('#moduleLevelingCard'));
+  setModuleBadge(giveawaysEnabled, qs('#moduleGiveawaysBadge'), qs('#moduleGiveawaysCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -298,6 +301,9 @@ async function loadSettings() {
   qs('#settingsLevelingChannel').value = cfg.leveling_channel_id || '';
   qs('#settingsLevelingXP').value = cfg.leveling_xp_per_message || 10;
   qs('#settingsLevelingCooldown').value = cfg.leveling_cooldown_seconds || 60;
+  qs('#settingsGiveawaysEnabled').value = String(!!flags[FEATURE_GIVEAWAYS]);
+  qs('#settingsGiveawaysChannel').value = cfg.giveaways_channel_id || '';
+  qs('#settingsGiveawaysEmoji').value = cfg.giveaways_reaction_emoji || '🎉';
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -312,6 +318,7 @@ async function loadSettings() {
   await loadAppeals();
   await loadCustomCommands();
   await loadLeaderboard();
+  await loadGiveaways();
 }
 
 async function loadInvitePermissionStatus() {
@@ -1032,6 +1039,89 @@ async function saveLevelingModule() {
   }
 }
 
+async function saveGiveawaysModule() {
+  const restore = setBusy(qs('#giveawaysSave'), 'Saving...');
+  const status = qs('#giveawaysStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_GIVEAWAYS]: qs('#settingsGiveawaysEnabled').value === 'true',
+      },
+      giveaways_channel_id: qs('#settingsGiveawaysChannel').value.trim(),
+      giveaways_reaction_emoji: qs('#settingsGiveawaysEmoji').value.trim() || '🎉',
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Giveaways module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Giveaways save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadGiveaways() {
+  const table = qs('#giveawaysTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/giveaways?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row giveaway-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.prize}</div>
+      <div>${row.entry_count}</div>
+      <div>${row.status}</div>
+      <div>${formatDate(row.ends_at)}</div>
+      <div>${row.status === 'open' ? `<button class="ghost" data-giveaway-draw="${row.id}">Draw</button>` : ''}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function startGiveaway() {
+  const restore = setBusy(qs('#giveawayStart'), 'Starting...');
+  const status = qs('#giveawaysRunStatus');
+  status.textContent = 'Starting...';
+  try {
+    const payload = {
+      channel_id: qs('#giveawayChannel').value.trim(),
+      prize: qs('#giveawayPrize').value.trim(),
+      duration_minutes: parseInt(qs('#giveawayDuration').value, 10) || 60,
+      winner_count: parseInt(qs('#giveawayWinners').value, 10) || 1,
+    };
+    await apiFetch(`/api/modules/giveaways/start?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Started at ${new Date().toLocaleTimeString()}`;
+    showToast('Giveaway started.');
+    await loadGiveaways();
+  } catch (err) {
+    status.textContent = 'Start failed.';
+    showToast(`Giveaway start failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function drawGiveaway(id) {
+  if (!id) return;
+  await apiFetch(`/api/modules/giveaways/${id}/draw?guild_id=${state.guildId}`, { method: 'POST' });
+}
+
 async function loadLeaderboard() {
   const table = qs('#levelingTable');
   if (!table || !state.guildId) return;
@@ -1365,6 +1455,7 @@ function wireEvents() {
   qs('#appealsSave').onclick = saveAppealsModule;
   qs('#starboardSave').onclick = saveStarboardModule;
   qs('#levelingSave').onclick = saveLevelingModule;
+  qs('#giveawaysSave').onclick = saveGiveawaysModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1379,6 +1470,8 @@ function wireEvents() {
   qs('#customCommandsRefresh').onclick = () => loadCustomCommands().catch((err) => showToast(`Commands load failed: ${err.message}`, 'error'));
   qs('#customCommandAdd').onclick = addCustomCommand;
   qs('#levelingRefresh').onclick = () => loadLeaderboard().catch((err) => showToast(`Leaderboard load failed: ${err.message}`, 'error'));
+  qs('#giveawaysRefresh').onclick = () => loadGiveaways().catch((err) => showToast(`Giveaways load failed: ${err.message}`, 'error'));
+  qs('#giveawayStart').onclick = startGiveaway;
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1393,6 +1486,7 @@ function wireEvents() {
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsGiveawaysEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
@@ -1485,6 +1579,18 @@ function wireEvents() {
     }
   });
 
+  qs('#giveawaysTable').addEventListener('click', async (e) => {
+    const drawBtn = e.target.closest('button[data-giveaway-draw]');
+    if (!drawBtn) return;
+    try {
+      await drawGiveaway(drawBtn.getAttribute('data-giveaway-draw'));
+      showToast('Giveaway drawn.');
+      await loadGiveaways();
+    } catch (err) {
+      showToast(`Giveaway draw failed: ${err.message}`, 'error');
+    }
+  });
+
   qs('#membersTable').addEventListener('change', (e) => {
     const checkbox = e.target.closest('.member-select');
     if (!checkbox) return;
@@ -1549,6 +1655,7 @@ async function refreshAll() {
   await loadAppeals();
   await loadCustomCommands();
   await loadLeaderboard();
+  await loadGiveaways();
 }
 
 async function bootstrap() {

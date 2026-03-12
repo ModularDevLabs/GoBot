@@ -19,6 +19,7 @@ func (s *Service) OnMessageReactionAdd(_ *discordgo.Session, evt *discordgo.Mess
 	defer cancel()
 	s.applyReactionRole(evt.GuildID, evt.ChannelID, evt.MessageID, evt.UserID, evt.Emoji, true)
 	s.handleStarboardReaction(ctx, evt.GuildID, evt.ChannelID, evt.MessageID, evt.Emoji)
+	s.handleGiveawayReaction(ctx, evt.GuildID, evt.ChannelID, evt.MessageID, evt.UserID, reactionEmojiKey(evt.Emoji))
 }
 
 func (s *Service) OnMessageReactionRemove(_ *discordgo.Session, evt *discordgo.MessageReactionRemove) {

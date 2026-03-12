@@ -36,6 +36,9 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/modules/custom-commands/commands", s.handleCustomCommands)
 	api.HandleFunc("/api/modules/custom-commands/commands/", s.handleCustomCommandDetail)
 	api.HandleFunc("/api/modules/leveling/leaderboard", s.handleLevelingLeaderboard)
+	api.HandleFunc("/api/modules/giveaways", s.handleGiveaways)
+	api.HandleFunc("/api/modules/giveaways/start", s.handleGiveawayStart)
+	api.HandleFunc("/api/modules/giveaways/", s.handleGiveawayDetail)
 
 	mux.Handle("/api/", s.authMiddleware(api))
 

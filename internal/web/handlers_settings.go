@@ -73,6 +73,8 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			LevelingChannelID       string          `json:"leveling_channel_id"`
 			LevelingXPPerMessage    int             `json:"leveling_xp_per_message"`
 			LevelingCooldownSeconds int             `json:"leveling_cooldown_seconds"`
+			GiveawaysChannelID      string          `json:"giveaways_channel_id"`
+			GiveawaysReactionEmoji  string          `json:"giveaways_reaction_emoji"`
 			AppealsChannelID        string          `json:"appeals_channel_id"`
 			AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 			AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -137,6 +139,8 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.LevelingChannelID = cfg.LevelingChannelID
 		current.LevelingXPPerMessage = cfg.LevelingXPPerMessage
 		current.LevelingCooldownSeconds = cfg.LevelingCooldownSeconds
+		current.GiveawaysChannelID = cfg.GiveawaysChannelID
+		current.GiveawaysReactionEmoji = cfg.GiveawaysReactionEmoji
 		current.AppealsChannelID = cfg.AppealsChannelID
 		current.AppealsLogChannelID = cfg.AppealsLogChannelID
 		current.AppealsOpenPhrase = cfg.AppealsOpenPhrase

@@ -151,6 +151,9 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.LevelingCooldownSeconds <= 0 {
 		cfg.LevelingCooldownSeconds = def.LevelingCooldownSeconds
 	}
+	if cfg.GiveawaysReactionEmoji == "" {
+		cfg.GiveawaysReactionEmoji = def.GiveawaysReactionEmoji
+	}
 	if cfg.AppealsOpenPhrase == "" {
 		cfg.AppealsOpenPhrase = def.AppealsOpenPhrase
 	}
