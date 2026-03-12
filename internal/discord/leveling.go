@@ -24,8 +24,16 @@ func (s *Service) handleLevelingMessage(ctx context.Context, m *discordgo.Messag
 	if cooldown <= 0 {
 		cooldown = 60
 	}
+	curve := settings.LevelingCurve
+	if curve == "" {
+		curve = "quadratic"
+	}
+	base := settings.LevelingXPBase
+	if base <= 0 {
+		base = 100
+	}
 
-	row, leveledUp, err := s.repos.Leveling.AddXPIfDue(ctx, m.GuildID, m.Author.ID, m.Author.Username, addXP, cooldown)
+	row, leveledUp, err := s.repos.Leveling.AddXPIfDue(ctx, m.GuildID, m.Author.ID, m.Author.Username, addXP, cooldown, curve, base)
 	if err != nil {
 		s.logger.Error("leveling update failed guild=%s user=%s err=%v", m.GuildID, m.Author.ID, err)
 		return

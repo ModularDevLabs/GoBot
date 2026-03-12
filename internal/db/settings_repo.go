@@ -151,6 +151,15 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.LevelingCooldownSeconds <= 0 {
 		cfg.LevelingCooldownSeconds = def.LevelingCooldownSeconds
 	}
+	if cfg.LevelingCurve == "" {
+		cfg.LevelingCurve = def.LevelingCurve
+	}
+	if cfg.LevelingCurve != "linear" && cfg.LevelingCurve != "quadratic" {
+		cfg.LevelingCurve = def.LevelingCurve
+	}
+	if cfg.LevelingXPBase <= 0 {
+		cfg.LevelingXPBase = def.LevelingXPBase
+	}
 	if cfg.GiveawaysReactionEmoji == "" {
 		cfg.GiveawaysReactionEmoji = def.GiveawaysReactionEmoji
 	}

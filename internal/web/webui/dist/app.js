@@ -37,6 +37,32 @@ const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 const NAV_GROUPS_STORAGE_KEY = 'modbot_nav_groups';
 const ACTIVE_VIEW_STORAGE_KEY = 'modbot_active_view';
 const THEME_STORAGE_KEY = 'modbot_theme';
+const MODULE_GUIDES = {
+  welcome: { title: 'How To Use', points: ['Enable the module and set a channel ID.', 'Use {user} and {server} tokens in the message template.', 'Save, then test with a new account join.'] },
+  goodbye: { title: 'How To Use', points: ['Enable and set a goodbye channel ID.', 'Tune the message template to match your community tone.', 'Save and verify with a member leave event.'] },
+  auditlog: { title: 'How To Use', points: ['Set the audit log channel ID first.', 'Keep only event types you care about in the list.', 'Use this as the central trail for moderation actions.'] },
+  invites: { title: 'How To Use', points: ['Set an invite log channel and enable the module.', 'Ensure bot has Manage Server permission in the guild.', 'Expect one warm-up join after restart before exact attribution.'] },
+  automod: { title: 'How To Use', points: ['Start with delete_warn for safe rollout.', 'Add blocked words and duplicate thresholds gradually.', 'Use ignored channels/roles to avoid staff workflow conflicts.'] },
+  reactionroles: { title: 'How To Use', points: ['Enable module, then add one rule per message/emoji mapping.', 'Use the exact message ID and channel ID from Discord.', 'Set remove-on-unreact if roles should be reversible.'] },
+  warnings: { title: 'How To Use', points: ['Enable and set optional warning log channel.', 'Issue warnings from the panel below to track history.', 'Configure quarantine/kick thresholds for auto-escalation.'] },
+  scheduled: { title: 'How To Use', points: ['Enable module and create recurring messages below.', 'Use conservative intervals at first to validate behavior.', 'Delete schedules that are no longer relevant.'] },
+  verification: { title: 'How To Use', points: ['Set verification channel + unverified role ID.', 'Keep phrase short and easy to type.', 'Optionally set verified role for post-verification assignment.'] },
+  tickets: { title: 'How To Use', points: ['Configure inbox channel, category, and support role.', 'Users open with the open phrase; staff/creator close via close phrase.', 'Set auto-close minutes to clean stale tickets automatically.'] },
+  antiraid: { title: 'How To Use', points: ['Set join threshold/window/cooldown to your server baseline.', 'Use verification_only first, then quarantine if needed.', 'Set alert channel so staff can react quickly during spikes.'] },
+  analytics: { title: 'How To Use', points: ['Enable module and set report channel ID.', 'Choose a weekly interval first for signal over noise.', 'Use reports to tune inactivity, warnings, and action policies.'] },
+  starboard: { title: 'How To Use', points: ['Set starboard channel + emoji + threshold.', 'Avoid setting threshold too low to prevent noise.', 'Verify the configured emoji matches your community usage.'] },
+  leveling: { title: 'How To Use', points: ['Set XP per message and cooldown to control XP velocity.', 'Choose curve + base to define XP needed per level.', 'Use leaderboard refresh to verify progression behavior.'] },
+  giveaways: { title: 'How To Use', points: ['Set default channel and entry emoji.', 'Start giveaways from the run panel below.', 'Draw winners after end time to announce results.'] },
+  polls: { title: 'How To Use', points: ['Set default poll channel and enable module.', 'Create polls with 2-5 options.', 'Close polls from the table to publish final vote summary.'] },
+  suggestions: { title: 'How To Use', points: ['Set suggestions channel (and optional log channel).', 'Users post suggestions; bot converts them into vote cards.', 'Approve/reject from the table and include moderation notes.'] },
+  keywordalerts: { title: 'How To Use', points: ['Set alert channel and comma-separated keywords.', 'Use specific terms to reduce false positives.', 'Review jump links from alerts for context before acting.'] },
+  afk: { title: 'How To Use', points: ['Set the AFK phrase (default !afk).', 'Users set AFK with optional reason.', 'Bot auto-clears AFK when users send a new message.'] },
+  reminders: { title: 'How To Use', points: ['Set default reminder channel (optional).', 'Create one-time reminders with exact run time below.', 'Worker sends due reminders and marks them sent.'] },
+  accountageguard: { title: 'How To Use', points: ['Set minimum account age in days.', 'Start with log_only to observe impact.', 'Escalate to quarantine/kick once thresholds are validated.'] },
+  membernotes: { title: 'How To Use', points: ['Enable and optionally set notes log channel.', 'Add moderation notes per user from the panel below.', 'Resolve notes when issues are closed out.'] },
+  appeals: { title: 'How To Use', points: ['Set appeals intake channel + phrase.', 'Users submit appeals in that channel.', 'Resolve with clear outcome notes for future audits.'] },
+  customcommands: { title: 'How To Use', points: ['Enable module and add trigger/response rules below.', 'Triggers are exact matches (case-insensitive).', 'Keep responses concise to avoid channel spam.'] },
+};
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
   if (!badgeEl || !cardEl) return;
@@ -145,6 +171,54 @@ function applyTheme(theme) {
   if (select && select.value !== normalized) {
     select.value = normalized;
   }
+}
+
+function injectModuleGuides() {
+  qsa('section.view[id^="view-"]').forEach((section) => {
+    const grid = section.querySelector('.modules-grid');
+    if (!grid) return;
+    if (grid.querySelector('.module-guide-card')) return;
+    const view = section.id.replace('view-', '');
+    const guide = MODULE_GUIDES[view];
+    if (!guide) return;
+
+    const card = document.createElement('article');
+    card.className = 'module-card module-guide-card';
+    const points = (guide.points || []).map((point) => `<li>${point}</li>`).join('');
+    const dynamicLeveling = view === 'leveling'
+      ? '<div class="module-guide-hint" id="levelingGuideExamples"></div>'
+      : '';
+    card.innerHTML = `
+      <div class="module-head">
+        <div class="module-title">${guide.title}</div>
+      </div>
+      <ul class="module-guide-list">${points}</ul>
+      ${dynamicLeveling}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function xpForLevelPreview(level, curve, base) {
+  if (level <= 0) return 0;
+  if (curve === 'linear') return level * base;
+  return level * level * base;
+}
+
+function updateLevelingGuideExamples() {
+  const host = qs('#levelingGuideExamples');
+  if (!host) return;
+  const curve = qs('#settingsLevelingCurve')?.value || 'quadratic';
+  const base = parseInt(qs('#settingsLevelingBase')?.value || '100', 10) || 100;
+  const xpPerMessage = parseInt(qs('#settingsLevelingXP')?.value || '10', 10) || 10;
+  const levels = [1, 2, 3, 5, 10];
+  const rows = levels.map((level) => {
+    const xp = xpForLevelPreview(level, curve, base);
+    const msgs = Math.ceil(xp / Math.max(1, xpPerMessage));
+    return `L${level}: ${xp} XP (~${msgs} msgs)`;
+  });
+  const curveLabel = curve === 'linear' ? 'linear' : 'quadratic';
+  host.textContent = `Current curve: ${curveLabel}, base: ${base}. Milestones -> ${rows.join(' | ')}`;
 }
 
 function loadNavGroupState() {
@@ -434,6 +508,8 @@ async function loadSettings() {
   qs('#settingsLevelingChannel').value = cfg.leveling_channel_id || '';
   qs('#settingsLevelingXP').value = cfg.leveling_xp_per_message || 10;
   qs('#settingsLevelingCooldown').value = cfg.leveling_cooldown_seconds || 60;
+  qs('#settingsLevelingCurve').value = cfg.leveling_curve || 'quadratic';
+  qs('#settingsLevelingBase').value = cfg.leveling_xp_base || 100;
   qs('#settingsGiveawaysEnabled').value = String(!!flags[FEATURE_GIVEAWAYS]);
   qs('#settingsGiveawaysChannel').value = cfg.giveaways_channel_id || '';
   qs('#settingsGiveawaysEmoji').value = cfg.giveaways_reaction_emoji || '🎉';
@@ -461,6 +537,7 @@ async function loadSettings() {
   qs('#settingsAppealsPhrase').value = cfg.appeals_open_phrase || '!appeal';
   qs('#settingsCustomCommandsEnabled').value = String(!!flags[FEATURE_CUSTOM_COMMANDS]);
   syncModuleBadges();
+  updateLevelingGuideExamples();
   await loadInvitePermissionStatus();
   await loadReactionRoleRules();
   await loadWarnings();
@@ -1177,6 +1254,8 @@ async function saveLevelingModule() {
       leveling_channel_id: qs('#settingsLevelingChannel').value.trim(),
       leveling_xp_per_message: parseInt(qs('#settingsLevelingXP').value, 10) || 10,
       leveling_cooldown_seconds: parseInt(qs('#settingsLevelingCooldown').value, 10) || 60,
+      leveling_curve: qs('#settingsLevelingCurve').value || 'quadratic',
+      leveling_xp_base: parseInt(qs('#settingsLevelingBase').value, 10) || 100,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2069,6 +2148,9 @@ function wireEvents() {
   qs('#settingsMemberNotesEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsLevelingCurve').addEventListener('change', updateLevelingGuideExamples);
+  qs('#settingsLevelingBase').addEventListener('input', updateLevelingGuideExamples);
+  qs('#settingsLevelingXP').addEventListener('input', updateLevelingGuideExamples);
   qs('#memberRefresh').onclick = loadMembers;
   qs('#memberStatus').addEventListener('change', reloadMembersForFilters);
   qs('#memberStatus').addEventListener('input', reloadMembersForFilters);
@@ -2252,6 +2334,8 @@ function wireEvents() {
   qs('#bulkRemoveRoles').onclick = () => createBulkAction(state.selectedUsers, 'remove-roles');
 
   initNavUI();
+  injectModuleGuides();
+  updateLevelingGuideExamples();
   startMemberFilterWatch();
 }
 

@@ -12,22 +12,30 @@ type LevelingRepo struct {
 	db *sql.DB
 }
 
-func XPForLevel(level int) int {
+func XPForLevel(level int, curve string, base int) int {
 	if level <= 0 {
 		return 0
 	}
-	return level * level * 100
+	if base <= 0 {
+		base = 100
+	}
+	switch curve {
+	case "linear":
+		return level * base
+	default:
+		return level * level * base
+	}
 }
 
-func LevelForXP(xp int) int {
+func LevelForXP(xp int, curve string, base int) int {
 	level := 0
-	for XPForLevel(level+1) <= xp {
+	for XPForLevel(level+1, curve, base) <= xp {
 		level++
 	}
 	return level
 }
 
-func (r *LevelingRepo) AddXPIfDue(ctx context.Context, guildID, userID, username string, addXP, cooldownSec int) (models.MemberLevelRow, bool, error) {
+func (r *LevelingRepo) AddXPIfDue(ctx context.Context, guildID, userID, username string, addXP, cooldownSec int, curve string, base int) (models.MemberLevelRow, bool, error) {
 	now := time.Now().UTC()
 	row, found, err := r.GetMember(ctx, guildID, userID)
 	if err != nil {
@@ -53,7 +61,7 @@ func (r *LevelingRepo) AddXPIfDue(ctx context.Context, guildID, userID, username
 	if row.XP < 0 {
 		row.XP = 0
 	}
-	row.Level = LevelForXP(row.XP)
+	row.Level = LevelForXP(row.XP, curve, base)
 	row.LastXPAt = now
 	row.Username = username
 

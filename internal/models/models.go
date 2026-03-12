@@ -55,6 +55,8 @@ type GuildSettings struct {
 	LevelingChannelID       string          `json:"leveling_channel_id"`
 	LevelingXPPerMessage    int             `json:"leveling_xp_per_message"`
 	LevelingCooldownSeconds int             `json:"leveling_cooldown_seconds"`
+	LevelingCurve           string          `json:"leveling_curve"`
+	LevelingXPBase          int             `json:"leveling_xp_base"`
 	GiveawaysChannelID      string          `json:"giveaways_channel_id"`
 	GiveawaysReactionEmoji  string          `json:"giveaways_reaction_emoji"`
 	PollsChannelID          string          `json:"polls_channel_id"`
@@ -369,6 +371,8 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		StarboardThreshold:      3,
 		LevelingXPPerMessage:    10,
 		LevelingCooldownSeconds: 60,
+		LevelingCurve:           "quadratic",
+		LevelingXPBase:          100,
 		GiveawaysReactionEmoji:  "🎉",
 		AFKSetPhrase:            "!afk",
 		AccountAgeMinDays:       7,

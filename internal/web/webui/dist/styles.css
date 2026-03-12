@@ -502,6 +502,30 @@ button[disabled] {
   grid-template-columns: 1fr;
 }
 
+.module-guide-card {
+  border-style: dashed;
+}
+
+.module-guide-list {
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.module-guide-hint {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
 .panel-actions { margin-top: 16px; }
 
 .status-line {

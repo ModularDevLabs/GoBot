@@ -337,6 +337,20 @@ Each schedule contains:
 - Type: integer
 - Default: `60`
 
+50a. `leveling_curve`
+- UI label: `Level curve` (Leveling module)
+- Type: enum
+- Default: `quadratic`
+- Options:
+- `quadratic`: level requirement grows by `level^2 * leveling_xp_base`
+- `linear`: level requirement grows by `level * leveling_xp_base`
+
+50b. `leveling_xp_base`
+- UI label: `XP base (level formula)` (Leveling module)
+- Type: integer
+- Default: `100`
+- Used by `leveling_curve` to compute cumulative XP required for each level.
+
 51. `giveaways_channel_id`
 - UI label: `Default channel ID` (Giveaways module)
 - Type: Discord channel ID (string)

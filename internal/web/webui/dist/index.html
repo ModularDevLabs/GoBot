@@ -935,6 +935,17 @@
                   XP cooldown (seconds)
                   <input id="settingsLevelingCooldown" type="number" min="1" />
                 </label>
+                <label>
+                  Level curve
+                  <select id="settingsLevelingCurve">
+                    <option value="quadratic">Quadratic (slower at high levels)</option>
+                    <option value="linear">Linear (consistent per level)</option>
+                  </select>
+                </label>
+                <label>
+                  XP base (level formula)
+                  <input id="settingsLevelingBase" type="number" min="1" />
+                </label>
               </div>
             </article>
           </div>
