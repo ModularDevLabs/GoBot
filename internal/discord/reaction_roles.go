@@ -15,7 +15,10 @@ func (s *Service) OnMessageReactionAdd(_ *discordgo.Session, evt *discordgo.Mess
 	if s.session.State != nil && s.session.State.User != nil && evt.UserID == s.session.State.User.ID {
 		return
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	s.applyReactionRole(evt.GuildID, evt.ChannelID, evt.MessageID, evt.UserID, evt.Emoji, true)
+	s.handleStarboardReaction(ctx, evt.GuildID, evt.ChannelID, evt.MessageID, evt.Emoji)
 }
 
 func (s *Service) OnMessageReactionRemove(_ *discordgo.Session, evt *discordgo.MessageReactionRemove) {
@@ -25,7 +28,10 @@ func (s *Service) OnMessageReactionRemove(_ *discordgo.Session, evt *discordgo.M
 	if s.session.State != nil && s.session.State.User != nil && evt.UserID == s.session.State.User.ID {
 		return
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 	s.applyReactionRole(evt.GuildID, evt.ChannelID, evt.MessageID, evt.UserID, evt.Emoji, false)
+	s.handleStarboardReaction(ctx, evt.GuildID, evt.ChannelID, evt.MessageID, evt.Emoji)
 }
 
 func (s *Service) applyReactionRole(guildID, channelID, messageID, userID string, emoji discordgo.Emoji, isAdd bool) {

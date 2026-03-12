@@ -77,6 +77,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `tickets=false`
 - `anti_raid=false`
 - `analytics=false`
+- `starboard=false`
 - `appeals=false`
 - `custom_commands=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
@@ -298,15 +299,29 @@ Each schedule contains:
 - Type: integer
 - Default: `7`
 
-45. `appeals_channel_id`
+45. `starboard_channel_id`
+- UI label: `Starboard channel ID` (Starboard module)
+- Type: Discord channel ID (string)
+
+46. `starboard_emoji`
+- UI label: `Emoji` (Starboard module)
+- Type: string
+- Default: `⭐`
+
+47. `starboard_threshold`
+- UI label: `Threshold` (Starboard module)
+- Type: integer
+- Default: `3`
+
+48. `appeals_channel_id`
 - UI label: `Appeals channel ID` (Appeals module)
 - Type: Discord channel ID (string)
 
-46. `appeals_log_channel_id`
+49. `appeals_log_channel_id`
 - UI label: `Log channel ID (optional)` (Appeals module)
 - Type: Discord channel ID (string)
 
-47. `appeals_open_phrase`
+50. `appeals_open_phrase`
 - UI label: `Open phrase` (Appeals module)
 - Type: string
 - Default: `!appeal`

@@ -139,6 +139,12 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.AnalyticsIntervalDays <= 0 {
 		cfg.AnalyticsIntervalDays = def.AnalyticsIntervalDays
 	}
+	if cfg.StarboardEmoji == "" {
+		cfg.StarboardEmoji = def.StarboardEmoji
+	}
+	if cfg.StarboardThreshold <= 0 {
+		cfg.StarboardThreshold = def.StarboardThreshold
+	}
 	if cfg.AppealsOpenPhrase == "" {
 		cfg.AppealsOpenPhrase = def.AppealsOpenPhrase
 	}

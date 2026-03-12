@@ -37,6 +37,7 @@
         <button data-view="tickets">Tickets</button>
         <button data-view="antiraid">Anti-Raid</button>
         <button data-view="analytics">Analytics</button>
+        <button data-view="starboard">Starboard</button>
         <button data-view="appeals">Appeals</button>
         <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
@@ -824,6 +825,46 @@
           <div class="panel-actions">
             <button id="analyticsSave" class="primary">Save analytics module</button>
             <span id="analyticsStatus" class="status-line"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-starboard" class="view">
+        <div class="panel">
+          <div class="panel-header">Starboard Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleStarboardCard">
+              <div class="module-head">
+                <div class="module-title">Starboard</div>
+                <span class="module-badge off" id="moduleStarboardBadge">Disabled</span>
+              </div>
+              <p class="module-desc">When a message gets enough stars, repost it into the starboard channel.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsStarboardEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Starboard channel ID
+                  <input id="settingsStarboardChannel" />
+                </label>
+                <label>
+                  Emoji
+                  <input id="settingsStarboardEmoji" placeholder="⭐" />
+                </label>
+                <label>
+                  Threshold
+                  <input id="settingsStarboardThreshold" type="number" min="1" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="starboardSave" class="primary">Save starboard module</button>
+            <span id="starboardStatus" class="status-line"></span>
           </div>
         </div>
       </section>

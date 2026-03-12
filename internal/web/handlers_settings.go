@@ -67,6 +67,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			AntiRaidAlertChannelID  string          `json:"anti_raid_alert_channel_id"`
 			AnalyticsChannelID      string          `json:"analytics_channel_id"`
 			AnalyticsIntervalDays   int             `json:"analytics_interval_days"`
+			StarboardChannelID      string          `json:"starboard_channel_id"`
+			StarboardEmoji          string          `json:"starboard_emoji"`
+			StarboardThreshold      int             `json:"starboard_threshold"`
 			AppealsChannelID        string          `json:"appeals_channel_id"`
 			AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 			AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -125,6 +128,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.AntiRaidAlertChannelID = cfg.AntiRaidAlertChannelID
 		current.AnalyticsChannelID = cfg.AnalyticsChannelID
 		current.AnalyticsIntervalDays = cfg.AnalyticsIntervalDays
+		current.StarboardChannelID = cfg.StarboardChannelID
+		current.StarboardEmoji = cfg.StarboardEmoji
+		current.StarboardThreshold = cfg.StarboardThreshold
 		current.AppealsChannelID = cfg.AppealsChannelID
 		current.AppealsLogChannelID = cfg.AppealsLogChannelID
 		current.AppealsOpenPhrase = cfg.AppealsOpenPhrase

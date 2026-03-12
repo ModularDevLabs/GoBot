@@ -45,6 +45,7 @@ func NewRepositories(db *sql.DB) *Repositories {
 		Tickets:        &TicketsRepo{db: db},
 		Appeals:        &AppealsRepo{db: db},
 		CustomCommands: &CustomCommandsRepo{db: db},
+		Starboard:      &StarboardRepo{db: db},
 	}
 }
 
@@ -59,4 +60,5 @@ type Repositories struct {
 	Tickets        *TicketsRepo
 	Appeals        *AppealsRepo
 	CustomCommands *CustomCommandsRepo
+	Starboard      *StarboardRepo
 }

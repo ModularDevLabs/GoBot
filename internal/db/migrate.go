@@ -122,6 +122,19 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_custom_commands_guild_trigger
 		ON custom_commands(guild_id, trigger);`,
+		`CREATE TABLE IF NOT EXISTS starboard_entries (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			source_channel_id TEXT NOT NULL,
+			source_message_id TEXT NOT NULL,
+			starboard_channel_id TEXT NOT NULL,
+			starboard_message_id TEXT NOT NULL,
+			star_count INTEGER NOT NULL,
+			last_updated_at TEXT NOT NULL,
+			posted_at TEXT
+		);`,
+		`CREATE UNIQUE INDEX IF NOT EXISTS idx_starboard_unique_source
+		ON starboard_entries(guild_id, source_channel_id, source_message_id);`,
 	}
 
 	for _, stmt := range stmts {

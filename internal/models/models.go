@@ -49,6 +49,9 @@ type GuildSettings struct {
 	AntiRaidAlertChannelID  string          `json:"anti_raid_alert_channel_id"`
 	AnalyticsChannelID      string          `json:"analytics_channel_id"`
 	AnalyticsIntervalDays   int             `json:"analytics_interval_days"`
+	StarboardChannelID      string          `json:"starboard_channel_id"`
+	StarboardEmoji          string          `json:"starboard_emoji"`
+	StarboardThreshold      int             `json:"starboard_threshold"`
 	AppealsChannelID        string          `json:"appeals_channel_id"`
 	AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 	AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -153,6 +156,18 @@ type CustomCommandRow struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type StarboardEntryRow struct {
+	ID               int64      `json:"id"`
+	GuildID          string     `json:"guild_id"`
+	SourceChannelID  string     `json:"source_channel_id"`
+	SourceMessageID  string     `json:"source_message_id"`
+	StarboardChannel string     `json:"starboard_channel_id"`
+	StarboardMessage string     `json:"starboard_message_id"`
+	StarCount        int        `json:"star_count"`
+	LastUpdatedAt    time.Time  `json:"last_updated_at"`
+	PostedAt         *time.Time `json:"posted_at,omitempty"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -171,6 +186,7 @@ const (
 	FeatureTickets         = "tickets"
 	FeatureAntiRaid        = "anti_raid"
 	FeatureAnalytics       = "analytics"
+	FeatureStarboard       = "starboard"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 )
@@ -203,6 +219,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureTickets:         false,
 			FeatureAntiRaid:        false,
 			FeatureAnalytics:       false,
+			FeatureStarboard:       false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 		},
@@ -238,6 +255,8 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		AntiRaidCooldownMinutes: 10,
 		AntiRaidAction:          "verification_only",
 		AnalyticsIntervalDays:   7,
+		StarboardEmoji:          "⭐",
+		StarboardThreshold:      3,
 		AppealsOpenPhrase:       "!appeal",
 	}
 }

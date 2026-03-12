@@ -22,6 +22,7 @@ const FEATURE_VERIFICATION = 'verification';
 const FEATURE_TICKETS = 'tickets';
 const FEATURE_ANTI_RAID = 'anti_raid';
 const FEATURE_ANALYTICS = 'analytics';
+const FEATURE_STARBOARD = 'starboard';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -46,6 +47,7 @@ function syncModuleBadges() {
   const ticketsEnabled = qs('#settingsTicketsEnabled').value === 'true';
   const antiRaidEnabled = qs('#settingsAntiRaidEnabled').value === 'true';
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
+  const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -60,6 +62,7 @@ function syncModuleBadges() {
   setModuleBadge(ticketsEnabled, qs('#moduleTicketsBadge'), qs('#moduleTicketsCard'));
   setModuleBadge(antiRaidEnabled, qs('#moduleAntiRaidBadge'), qs('#moduleAntiRaidCard'));
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
+  setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -284,6 +287,10 @@ async function loadSettings() {
   qs('#settingsAnalyticsEnabled').value = String(!!flags[FEATURE_ANALYTICS]);
   qs('#settingsAnalyticsChannel').value = cfg.analytics_channel_id || '';
   qs('#settingsAnalyticsIntervalDays').value = cfg.analytics_interval_days || 7;
+  qs('#settingsStarboardEnabled').value = String(!!flags[FEATURE_STARBOARD]);
+  qs('#settingsStarboardChannel').value = cfg.starboard_channel_id || '';
+  qs('#settingsStarboardEmoji').value = cfg.starboard_emoji || '⭐';
+  qs('#settingsStarboardThreshold').value = cfg.starboard_threshold || 3;
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -953,6 +960,38 @@ async function saveAppealsModule() {
   }
 }
 
+async function saveStarboardModule() {
+  const restore = setBusy(qs('#starboardSave'), 'Saving...');
+  const status = qs('#starboardStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_STARBOARD]: qs('#settingsStarboardEnabled').value === 'true',
+      },
+      starboard_channel_id: qs('#settingsStarboardChannel').value.trim(),
+      starboard_emoji: qs('#settingsStarboardEmoji').value.trim() || '⭐',
+      starboard_threshold: parseInt(qs('#settingsStarboardThreshold').value, 10) || 3,
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Starboard module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Starboard save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function loadAppeals() {
   const table = qs('#appealsTable');
   if (!table || !state.guildId) return;
@@ -1265,6 +1304,7 @@ function wireEvents() {
   qs('#antiRaidSave').onclick = saveAntiRaidModule;
   qs('#analyticsSave').onclick = saveAnalyticsModule;
   qs('#appealsSave').onclick = saveAppealsModule;
+  qs('#starboardSave').onclick = saveStarboardModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1290,6 +1330,7 @@ function wireEvents() {
   qs('#settingsTicketsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAntiRaidEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
