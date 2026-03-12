@@ -45,6 +45,7 @@ Stop: `Ctrl+C`
 - **Appeals**: Users submit appeals in one channel using a phrase (default `!appeal`); dashboard lists and resolves appeals.
 - **Custom Commands**: Responds to exact message triggers with configured text replies for the selected guild.
 - Full field-by-field settings reference: `docs/SETTINGS.md`.
+- Module behavior/configuration guide: `docs/MODULES.md`.
 
 ## Activity tracking lifecycle
 

@@ -47,6 +47,7 @@ Flags override env vars:
 If token/password are not provided, startup prompts for them and saves them to local file `.modbot.config.json` (permissions `0600`) for future runs.
 
 For a complete settings catalog (dashboard fields, enums, defaults, and advanced/API-only settings), see `docs/SETTINGS.md`.
+For module-by-module behavior and configuration walkthroughs, see `docs/MODULES.md`.
 
 ## Notes
 
