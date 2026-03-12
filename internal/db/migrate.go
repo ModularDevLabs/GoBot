@@ -135,6 +135,17 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE UNIQUE INDEX IF NOT EXISTS idx_starboard_unique_source
 		ON starboard_entries(guild_id, source_channel_id, source_message_id);`,
+		`CREATE TABLE IF NOT EXISTS member_levels (
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			username TEXT,
+			xp INTEGER NOT NULL,
+			level INTEGER NOT NULL,
+			last_xp_at TEXT NOT NULL,
+			PRIMARY KEY (guild_id, user_id)
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_member_levels_guild_xp
+		ON member_levels(guild_id, xp DESC);`,
 	}
 
 	for _, stmt := range stmts {

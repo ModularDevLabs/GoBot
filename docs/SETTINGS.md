@@ -78,6 +78,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `anti_raid=false`
 - `analytics=false`
 - `starboard=false`
+- `leveling=false`
 - `appeals=false`
 - `custom_commands=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
@@ -313,15 +314,29 @@ Each schedule contains:
 - Type: integer
 - Default: `3`
 
-48. `appeals_channel_id`
+48. `leveling_channel_id`
+- UI label: `Level-up channel ID (optional)` (Leveling module)
+- Type: Discord channel ID (string)
+
+49. `leveling_xp_per_message`
+- UI label: `XP per message` (Leveling module)
+- Type: integer
+- Default: `10`
+
+50. `leveling_cooldown_seconds`
+- UI label: `XP cooldown (seconds)` (Leveling module)
+- Type: integer
+- Default: `60`
+
+51. `appeals_channel_id`
 - UI label: `Appeals channel ID` (Appeals module)
 - Type: Discord channel ID (string)
 
-49. `appeals_log_channel_id`
+52. `appeals_log_channel_id`
 - UI label: `Log channel ID (optional)` (Appeals module)
 - Type: Discord channel ID (string)
 
-50. `appeals_open_phrase`
+53. `appeals_open_phrase`
 - UI label: `Open phrase` (Appeals module)
 - Type: string
 - Default: `!appeal`

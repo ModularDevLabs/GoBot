@@ -38,6 +38,7 @@
         <button data-view="antiraid">Anti-Raid</button>
         <button data-view="analytics">Analytics</button>
         <button data-view="starboard">Starboard</button>
+        <button data-view="leveling">Leveling</button>
         <button data-view="appeals">Appeals</button>
         <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
@@ -865,6 +866,62 @@
           <div class="panel-actions">
             <button id="starboardSave" class="primary">Save starboard module</button>
             <span id="starboardStatus" class="status-line"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-leveling" class="view">
+        <div class="panel">
+          <div class="panel-header">Leveling Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleLevelingCard">
+              <div class="module-head">
+                <div class="module-title">Leveling</div>
+                <span class="module-badge off" id="moduleLevelingBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Grant XP for chat activity and optionally announce level-ups in one channel.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsLevelingEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Level-up channel ID (optional)
+                  <input id="settingsLevelingChannel" />
+                </label>
+                <label>
+                  XP per message
+                  <input id="settingsLevelingXP" type="number" min="1" />
+                </label>
+                <label>
+                  XP cooldown (seconds)
+                  <input id="settingsLevelingCooldown" type="number" min="1" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="levelingSave" class="primary">Save leveling module</button>
+            <span id="levelingStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Leaderboard</div>
+          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <button id="levelingRefresh" class="ghost">Refresh</button>
+          </div>
+          <div class="table">
+            <div class="table-row table-header leveling-row">
+              <div>Rank</div>
+              <div>User</div>
+              <div>Level</div>
+              <div>XP</div>
+              <div>Last XP</div>
+            </div>
+            <div id="levelingTable"></div>
           </div>
         </div>
       </section>

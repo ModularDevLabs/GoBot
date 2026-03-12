@@ -145,6 +145,12 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.StarboardThreshold <= 0 {
 		cfg.StarboardThreshold = def.StarboardThreshold
 	}
+	if cfg.LevelingXPPerMessage <= 0 {
+		cfg.LevelingXPPerMessage = def.LevelingXPPerMessage
+	}
+	if cfg.LevelingCooldownSeconds <= 0 {
+		cfg.LevelingCooldownSeconds = def.LevelingCooldownSeconds
+	}
 	if cfg.AppealsOpenPhrase == "" {
 		cfg.AppealsOpenPhrase = def.AppealsOpenPhrase
 	}

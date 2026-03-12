@@ -23,6 +23,7 @@ const FEATURE_TICKETS = 'tickets';
 const FEATURE_ANTI_RAID = 'anti_raid';
 const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_STARBOARD = 'starboard';
+const FEATURE_LEVELING = 'leveling';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -48,6 +49,7 @@ function syncModuleBadges() {
   const antiRaidEnabled = qs('#settingsAntiRaidEnabled').value === 'true';
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
   const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
+  const levelingEnabled = qs('#settingsLevelingEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -63,6 +65,7 @@ function syncModuleBadges() {
   setModuleBadge(antiRaidEnabled, qs('#moduleAntiRaidBadge'), qs('#moduleAntiRaidCard'));
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
   setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
+  setModuleBadge(levelingEnabled, qs('#moduleLevelingBadge'), qs('#moduleLevelingCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -291,6 +294,10 @@ async function loadSettings() {
   qs('#settingsStarboardChannel').value = cfg.starboard_channel_id || '';
   qs('#settingsStarboardEmoji').value = cfg.starboard_emoji || '⭐';
   qs('#settingsStarboardThreshold').value = cfg.starboard_threshold || 3;
+  qs('#settingsLevelingEnabled').value = String(!!flags[FEATURE_LEVELING]);
+  qs('#settingsLevelingChannel').value = cfg.leveling_channel_id || '';
+  qs('#settingsLevelingXP').value = cfg.leveling_xp_per_message || 10;
+  qs('#settingsLevelingCooldown').value = cfg.leveling_cooldown_seconds || 60;
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -304,6 +311,7 @@ async function loadSettings() {
   await loadTickets();
   await loadAppeals();
   await loadCustomCommands();
+  await loadLeaderboard();
 }
 
 async function loadInvitePermissionStatus() {
@@ -992,6 +1000,57 @@ async function saveStarboardModule() {
   }
 }
 
+async function saveLevelingModule() {
+  const restore = setBusy(qs('#levelingSave'), 'Saving...');
+  const status = qs('#levelingStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_LEVELING]: qs('#settingsLevelingEnabled').value === 'true',
+      },
+      leveling_channel_id: qs('#settingsLevelingChannel').value.trim(),
+      leveling_xp_per_message: parseInt(qs('#settingsLevelingXP').value, 10) || 10,
+      leveling_cooldown_seconds: parseInt(qs('#settingsLevelingCooldown').value, 10) || 60,
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Leveling module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Leveling save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadLeaderboard() {
+  const table = qs('#levelingTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/leveling/leaderboard?guild_id=${state.guildId}&limit=50`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row, idx) => {
+    const div = document.createElement('div');
+    div.className = 'table-row leveling-row';
+    div.innerHTML = `
+      <div>${idx + 1}</div>
+      <div>${row.username || row.user_id}</div>
+      <div>${row.level}</div>
+      <div>${row.xp}</div>
+      <div>${formatDate(row.last_xp_at)}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
 async function loadAppeals() {
   const table = qs('#appealsTable');
   if (!table || !state.guildId) return;
@@ -1305,6 +1364,7 @@ function wireEvents() {
   qs('#analyticsSave').onclick = saveAnalyticsModule;
   qs('#appealsSave').onclick = saveAppealsModule;
   qs('#starboardSave').onclick = saveStarboardModule;
+  qs('#levelingSave').onclick = saveLevelingModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1318,6 +1378,7 @@ function wireEvents() {
   qs('#appealStatusFilter').addEventListener('change', () => loadAppeals().catch((err) => showToast(`Appeals load failed: ${err.message}`, 'error')));
   qs('#customCommandsRefresh').onclick = () => loadCustomCommands().catch((err) => showToast(`Commands load failed: ${err.message}`, 'error'));
   qs('#customCommandAdd').onclick = addCustomCommand;
+  qs('#levelingRefresh').onclick = () => loadLeaderboard().catch((err) => showToast(`Leaderboard load failed: ${err.message}`, 'error'));
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1331,6 +1392,7 @@ function wireEvents() {
   qs('#settingsAntiRaidEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsLevelingEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
@@ -1486,6 +1548,7 @@ async function refreshAll() {
   await loadTickets();
   await loadAppeals();
   await loadCustomCommands();
+  await loadLeaderboard();
 }
 
 async function bootstrap() {

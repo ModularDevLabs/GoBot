@@ -52,6 +52,9 @@ type GuildSettings struct {
 	StarboardChannelID      string          `json:"starboard_channel_id"`
 	StarboardEmoji          string          `json:"starboard_emoji"`
 	StarboardThreshold      int             `json:"starboard_threshold"`
+	LevelingChannelID       string          `json:"leveling_channel_id"`
+	LevelingXPPerMessage    int             `json:"leveling_xp_per_message"`
+	LevelingCooldownSeconds int             `json:"leveling_cooldown_seconds"`
 	AppealsChannelID        string          `json:"appeals_channel_id"`
 	AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 	AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -168,6 +171,15 @@ type StarboardEntryRow struct {
 	PostedAt         *time.Time `json:"posted_at,omitempty"`
 }
 
+type MemberLevelRow struct {
+	GuildID  string    `json:"guild_id"`
+	UserID   string    `json:"user_id"`
+	Username string    `json:"username"`
+	XP       int       `json:"xp"`
+	Level    int       `json:"level"`
+	LastXPAt time.Time `json:"last_xp_at"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -187,6 +199,7 @@ const (
 	FeatureAntiRaid        = "anti_raid"
 	FeatureAnalytics       = "analytics"
 	FeatureStarboard       = "starboard"
+	FeatureLeveling        = "leveling"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 )
@@ -220,6 +233,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureAntiRaid:        false,
 			FeatureAnalytics:       false,
 			FeatureStarboard:       false,
+			FeatureLeveling:        false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 		},
@@ -257,6 +271,8 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		AnalyticsIntervalDays:   7,
 		StarboardEmoji:          "⭐",
 		StarboardThreshold:      3,
+		LevelingXPPerMessage:    10,
+		LevelingCooldownSeconds: 60,
 		AppealsOpenPhrase:       "!appeal",
 	}
 }

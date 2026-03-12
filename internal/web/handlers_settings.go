@@ -70,6 +70,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			StarboardChannelID      string          `json:"starboard_channel_id"`
 			StarboardEmoji          string          `json:"starboard_emoji"`
 			StarboardThreshold      int             `json:"starboard_threshold"`
+			LevelingChannelID       string          `json:"leveling_channel_id"`
+			LevelingXPPerMessage    int             `json:"leveling_xp_per_message"`
+			LevelingCooldownSeconds int             `json:"leveling_cooldown_seconds"`
 			AppealsChannelID        string          `json:"appeals_channel_id"`
 			AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 			AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -131,6 +134,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.StarboardChannelID = cfg.StarboardChannelID
 		current.StarboardEmoji = cfg.StarboardEmoji
 		current.StarboardThreshold = cfg.StarboardThreshold
+		current.LevelingChannelID = cfg.LevelingChannelID
+		current.LevelingXPPerMessage = cfg.LevelingXPPerMessage
+		current.LevelingCooldownSeconds = cfg.LevelingCooldownSeconds
 		current.AppealsChannelID = cfg.AppealsChannelID
 		current.AppealsLogChannelID = cfg.AppealsLogChannelID
 		current.AppealsOpenPhrase = cfg.AppealsOpenPhrase
