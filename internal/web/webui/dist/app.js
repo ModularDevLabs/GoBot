@@ -31,6 +31,7 @@ const FEATURE_KEYWORD_ALERTS = 'keyword_alerts';
 const FEATURE_AFK = 'afk';
 const FEATURE_REMINDERS = 'reminders';
 const FEATURE_ACCOUNT_AGE_GUARD = 'account_age_guard';
+const FEATURE_MEMBER_NOTES = 'member_notes';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -64,6 +65,7 @@ function syncModuleBadges() {
   const afkEnabled = qs('#settingsAFKEnabled').value === 'true';
   const remindersEnabled = qs('#settingsRemindersEnabled').value === 'true';
   const accountAgeGuardEnabled = qs('#settingsAccountAgeGuardEnabled').value === 'true';
+  const memberNotesEnabled = qs('#settingsMemberNotesEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -87,6 +89,7 @@ function syncModuleBadges() {
   setModuleBadge(afkEnabled, qs('#moduleAFKBadge'), qs('#moduleAFKCard'));
   setModuleBadge(remindersEnabled, qs('#moduleRemindersBadge'), qs('#moduleRemindersCard'));
   setModuleBadge(accountAgeGuardEnabled, qs('#moduleAccountAgeGuardBadge'), qs('#moduleAccountAgeGuardCard'));
+  setModuleBadge(memberNotesEnabled, qs('#moduleMemberNotesBadge'), qs('#moduleMemberNotesCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -338,6 +341,8 @@ async function loadSettings() {
   qs('#settingsAccountAgeMinDays').value = cfg.account_age_min_days || 7;
   qs('#settingsAccountAgeAction').value = cfg.account_age_action || 'log_only';
   qs('#settingsAccountAgeLogChannel').value = cfg.account_age_log_channel_id || '';
+  qs('#settingsMemberNotesEnabled').value = String(!!flags[FEATURE_MEMBER_NOTES]);
+  qs('#settingsNotesLogChannel').value = cfg.notes_log_channel_id || '';
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -356,6 +361,7 @@ async function loadSettings() {
   await loadPolls();
   await loadSuggestions();
   await loadReminders();
+  await loadMemberNotes();
 }
 
 async function loadInvitePermissionStatus() {
@@ -1291,6 +1297,36 @@ async function saveAccountAgeGuardModule() {
   }
 }
 
+async function saveMemberNotesModule() {
+  const restore = setBusy(qs('#memberNotesSave'), 'Saving...');
+  const status = qs('#memberNotesStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_MEMBER_NOTES]: qs('#settingsMemberNotesEnabled').value === 'true',
+      },
+      notes_log_channel_id: qs('#settingsNotesLogChannel').value.trim(),
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Member notes module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Member notes save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function loadGiveaways() {
   const table = qs('#giveawaysTable');
   if (!table || !state.guildId) return;
@@ -1474,6 +1510,57 @@ async function addReminder() {
   } finally {
     restore();
   }
+}
+
+async function loadMemberNotes() {
+  const table = qs('#memberNotesTable');
+  if (!table || !state.guildId) return;
+  const userId = qs('#memberNoteUserFilter')?.value.trim() || '';
+  const query = userId ? `?guild_id=${state.guildId}&user_id=${encodeURIComponent(userId)}` : `?guild_id=${state.guildId}`;
+  const rows = (await apiFetch(`/api/modules/member-notes${query}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row member-note-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.user_id}</div>
+      <div>${row.body}</div>
+      <div>${row.resolved_at ? 'resolved' : 'open'}</div>
+      <div>${row.resolved_at ? '' : `<button class="ghost" data-note-resolve="${row.id}">Resolve</button>`}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function addMemberNote() {
+  const restore = setBusy(qs('#memberNoteAdd'), 'Adding...');
+  const status = qs('#memberNoteStatus');
+  status.textContent = 'Adding...';
+  try {
+    const payload = {
+      user_id: qs('#memberNoteUser').value.trim(),
+      body: qs('#memberNoteBody').value.trim(),
+    };
+    await apiFetch(`/api/modules/member-notes?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Added at ${new Date().toLocaleTimeString()}`;
+    showToast('Member note added.');
+    await loadMemberNotes();
+  } catch (err) {
+    status.textContent = 'Add failed.';
+    showToast(`Member note add failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function resolveMemberNote(id) {
+  if (!id) return;
+  await apiFetch(`/api/modules/member-notes/${id}/resolve?guild_id=${state.guildId}`, { method: 'POST' });
 }
 
 async function loadLeaderboard() {
@@ -1816,6 +1903,7 @@ function wireEvents() {
   qs('#afkSave').onclick = saveAFKModule;
   qs('#remindersSave').onclick = saveRemindersModule;
   qs('#accountAgeGuardSave').onclick = saveAccountAgeGuardModule;
+  qs('#memberNotesSave').onclick = saveMemberNotesModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1838,6 +1926,9 @@ function wireEvents() {
   qs('#suggestionStatusFilter').addEventListener('change', () => loadSuggestions().catch((err) => showToast(`Suggestions load failed: ${err.message}`, 'error')));
   qs('#remindersRefresh').onclick = () => loadReminders().catch((err) => showToast(`Reminders load failed: ${err.message}`, 'error'));
   qs('#reminderAdd').onclick = addReminder;
+  qs('#memberNotesRefresh').onclick = () => loadMemberNotes().catch((err) => showToast(`Member notes load failed: ${err.message}`, 'error'));
+  qs('#memberNoteAdd').onclick = addMemberNote;
+  qs('#memberNoteUserFilter').addEventListener('input', () => loadMemberNotes().catch((err) => showToast(`Member notes load failed: ${err.message}`, 'error')));
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1859,6 +1950,7 @@ function wireEvents() {
   qs('#settingsAFKEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsRemindersEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAccountAgeGuardEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsMemberNotesEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
@@ -1999,6 +2091,18 @@ function wireEvents() {
     }
   });
 
+  qs('#memberNotesTable').addEventListener('click', async (e) => {
+    const resolveBtn = e.target.closest('button[data-note-resolve]');
+    if (!resolveBtn) return;
+    try {
+      await resolveMemberNote(resolveBtn.getAttribute('data-note-resolve'));
+      showToast('Member note resolved.');
+      await loadMemberNotes();
+    } catch (err) {
+      showToast(`Resolve note failed: ${err.message}`, 'error');
+    }
+  });
+
   qs('#membersTable').addEventListener('change', (e) => {
     const checkbox = e.target.closest('.member-select');
     if (!checkbox) return;
@@ -2067,6 +2171,7 @@ async function refreshAll() {
   await loadPolls();
   await loadSuggestions();
   await loadReminders();
+  await loadMemberNotes();
 }
 
 async function bootstrap() {

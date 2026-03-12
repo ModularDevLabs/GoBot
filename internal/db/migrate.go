@@ -211,6 +211,17 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_reminders_due
 		ON reminders(status, run_at);`,
+		`CREATE TABLE IF NOT EXISTS member_notes (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			author_id TEXT NOT NULL,
+			body TEXT NOT NULL,
+			created_at TEXT NOT NULL,
+			resolved_at TEXT
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_member_notes_guild_user
+		ON member_notes(guild_id, user_id, created_at);`,
 	}
 
 	for _, stmt := range stmts {

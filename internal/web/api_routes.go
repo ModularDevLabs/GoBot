@@ -45,6 +45,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/modules/suggestions", s.handleSuggestions)
 	api.HandleFunc("/api/modules/suggestions/", s.handleSuggestionDetail)
 	api.HandleFunc("/api/modules/reminders", s.handleReminders)
+	api.HandleFunc("/api/modules/member-notes", s.handleMemberNotes)
+	api.HandleFunc("/api/modules/member-notes/", s.handleMemberNoteDetail)
 
 	mux.Handle("/api/", s.authMiddleware(api))
 

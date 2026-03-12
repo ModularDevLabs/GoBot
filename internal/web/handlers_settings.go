@@ -85,6 +85,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			AccountAgeMinDays       int             `json:"account_age_min_days"`
 			AccountAgeAction        string          `json:"account_age_action"`
 			AccountAgeLogChannelID  string          `json:"account_age_log_channel_id"`
+			NotesLogChannelID       string          `json:"notes_log_channel_id"`
 			AppealsChannelID        string          `json:"appeals_channel_id"`
 			AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 			AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -161,6 +162,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.AccountAgeMinDays = cfg.AccountAgeMinDays
 		current.AccountAgeAction = cfg.AccountAgeAction
 		current.AccountAgeLogChannelID = cfg.AccountAgeLogChannelID
+		current.NotesLogChannelID = cfg.NotesLogChannelID
 		current.AppealsChannelID = cfg.AppealsChannelID
 		current.AppealsLogChannelID = cfg.AppealsLogChannelID
 		current.AppealsOpenPhrase = cfg.AppealsOpenPhrase

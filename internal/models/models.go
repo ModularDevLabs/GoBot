@@ -67,6 +67,7 @@ type GuildSettings struct {
 	AccountAgeMinDays       int             `json:"account_age_min_days"`
 	AccountAgeAction        string          `json:"account_age_action"`
 	AccountAgeLogChannelID  string          `json:"account_age_log_channel_id"`
+	NotesLogChannelID       string          `json:"notes_log_channel_id"`
 	AppealsChannelID        string          `json:"appeals_channel_id"`
 	AppealsLogChannelID     string          `json:"appeals_log_channel_id"`
 	AppealsOpenPhrase       string          `json:"appeals_open_phrase"`
@@ -249,6 +250,16 @@ type ReminderRow struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type MemberNoteRow struct {
+	ID         int64      `json:"id"`
+	GuildID    string     `json:"guild_id"`
+	UserID     string     `json:"user_id"`
+	AuthorID   string     `json:"author_id"`
+	Body       string     `json:"body"`
+	CreatedAt  time.Time  `json:"created_at"`
+	ResolvedAt *time.Time `json:"resolved_at,omitempty"`
+}
+
 type GuildInfo struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -276,6 +287,7 @@ const (
 	FeatureAFK             = "afk"
 	FeatureReminders       = "reminders"
 	FeatureAccountAgeGuard = "account_age_guard"
+	FeatureMemberNotes     = "member_notes"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 )
@@ -317,6 +329,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureAFK:             false,
 			FeatureReminders:       false,
 			FeatureAccountAgeGuard: false,
+			FeatureMemberNotes:     false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 		},
