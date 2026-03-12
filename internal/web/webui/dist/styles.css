@@ -379,6 +379,10 @@ button[disabled] {
   grid-template-columns: 0.4fr 0.8fr 1.8fr 0.6fr 0.7fr;
 }
 
+.case-row {
+  grid-template-columns: 0.9fr 0.8fr 0.8fr 2fr;
+}
+
 .table-row-quarantined {
   border-color: rgba(240, 106, 106, 0.55);
   box-shadow: inset 0 0 0 1px rgba(240, 106, 106, 0.2);

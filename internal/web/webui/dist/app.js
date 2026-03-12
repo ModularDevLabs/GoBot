@@ -2119,6 +2119,31 @@ async function loadActions() {
   });
 }
 
+async function loadCases() {
+  if (!state.guildId) return;
+  const userID = (qs('#caseUserId')?.value || '').trim();
+  const limit = parseInt(qs('#caseLimit')?.value || '100', 10) || 100;
+  const table = qs('#casesTable');
+  if (!table) return;
+  table.innerHTML = '';
+  if (!userID) {
+    return;
+  }
+  const query = new URLSearchParams({ guild_id: state.guildId, user_id: userID, limit: String(limit) }).toString();
+  const rows = (await apiFetch(`/api/cases?${query}`)) || [];
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row case-row';
+    div.innerHTML = `
+      <div>${formatDate(row.time)}</div>
+      <div>${row.type || ''}</div>
+      <div>${row.actor || ''}</div>
+      <div>${row.summary || ''}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
 async function loadOverview() {
   if (!state.guildId) return;
   const members = (await apiFetch(`/api/members?guild_id=${state.guildId}&limit=200`)) || [];
@@ -2360,6 +2385,8 @@ function wireEvents() {
     setTimeout(reloadMembersForFilters, 0);
   });
   qs('#actionRefresh').onclick = loadActions;
+  qs('#caseRefresh').onclick = () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error'));
+  qs('#caseUserId').addEventListener('change', () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error')));
   qs('#eventsRefresh').onclick = () => loadEvents().catch((err) => showToast(`Events load failed: ${err.message}`, 'error'));
   qs('#backfillBtn').onclick = runBackfill;
   qs('#refreshOverview').onclick = loadOverview;
@@ -2552,6 +2579,7 @@ async function refreshAll() {
   await loadOverview();
   await loadMembers();
   await loadActions();
+  await loadCases();
   await loadEvents();
   await loadSettings();
   await loadModulePermissions();

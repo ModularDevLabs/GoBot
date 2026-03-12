@@ -34,6 +34,7 @@
             <button type="button" class="nav-view-btn active" data-view="overview">Overview</button>
             <button type="button" class="nav-view-btn" data-view="members">Members</button>
             <button type="button" class="nav-view-btn" data-view="actions">Actions</button>
+            <button type="button" class="nav-view-btn" data-view="cases">Cases</button>
             <button type="button" class="nav-view-btn" data-view="events">Events</button>
             <button type="button" class="nav-view-btn" data-view="settings">Settings</button>
           </div>
@@ -177,6 +178,30 @@
               <div>Updated</div>
             </div>
             <div id="actionsTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-cases" class="view">
+        <div class="panel">
+          <div class="panel-header">Cases Timeline</div>
+          <div class="filters">
+            <input id="caseUserId" placeholder="Target user ID" />
+            <select id="caseLimit">
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
+            </select>
+            <button id="caseRefresh" class="ghost">Load</button>
+          </div>
+          <div class="table">
+            <div class="table-row table-header case-row">
+              <div>Time</div>
+              <div>Type</div>
+              <div>Actor</div>
+              <div>Summary</div>
+            </div>
+            <div id="casesTable"></div>
           </div>
         </div>
       </section>
