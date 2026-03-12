@@ -40,6 +40,7 @@
         <button data-view="starboard">Starboard</button>
         <button data-view="leveling">Leveling</button>
         <button data-view="giveaways">Giveaways</button>
+        <button data-view="polls">Polls</button>
         <button data-view="appeals">Appeals</button>
         <button data-view="customcommands">Custom Commands</button>
         <button data-view="settings">Settings</button>
@@ -984,6 +985,67 @@
               <div>Action</div>
             </div>
             <div id="giveawaysTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-polls" class="view">
+        <div class="panel">
+          <div class="panel-header">Polls Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="modulePollsCard">
+              <div class="module-head">
+                <div class="module-title">Polls</div>
+                <span class="module-badge off" id="modulePollsBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Create multiple-choice polls and close them to publish final counts.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsPollsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Default channel ID
+                  <input id="settingsPollsChannel" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="pollsSave" class="primary">Save polls module</button>
+            <span id="pollsStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Run Poll</div>
+          <div class="filters">
+            <input id="pollChannel" placeholder="Channel ID (optional)" />
+            <input id="pollQuestion" placeholder="Question" />
+            <button id="pollStart" class="primary">Start</button>
+          </div>
+          <div class="filters">
+            <input id="pollOption1" placeholder="Option 1" />
+            <input id="pollOption2" placeholder="Option 2" />
+            <button id="pollsRefresh" class="ghost">Refresh</button>
+          </div>
+          <div class="filters">
+            <input id="pollOption3" placeholder="Option 3 (optional)" />
+            <input id="pollOption4" placeholder="Option 4 (optional)" />
+            <input id="pollOption5" placeholder="Option 5 (optional)" />
+          </div>
+          <div class="status-line" id="pollsRunStatus"></div>
+          <div class="table" style="margin-top: 12px;">
+            <div class="table-row table-header poll-row">
+              <div>ID</div>
+              <div>Question</div>
+              <div>Status</div>
+              <div>Created</div>
+              <div>Action</div>
+            </div>
+            <div id="pollsTable"></div>
           </div>
         </div>
       </section>

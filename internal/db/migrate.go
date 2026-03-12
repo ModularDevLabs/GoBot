@@ -165,6 +165,19 @@ func Migrate(db *sql.DB) error {
 			created_at TEXT NOT NULL,
 			PRIMARY KEY (giveaway_id, user_id)
 		);`,
+		`CREATE TABLE IF NOT EXISTS polls (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			channel_id TEXT NOT NULL,
+			message_id TEXT NOT NULL,
+			question TEXT NOT NULL,
+			options_json TEXT NOT NULL,
+			status TEXT NOT NULL,
+			created_at TEXT NOT NULL,
+			closed_at TEXT
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_polls_guild_status
+		ON polls(guild_id, status, created_at);`,
 	}
 
 	for _, stmt := range stmts {

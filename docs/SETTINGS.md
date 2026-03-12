@@ -80,6 +80,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `starboard=false`
 - `leveling=false`
 - `giveaways=false`
+- `polls=false`
 - `appeals=false`
 - `custom_commands=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
@@ -338,15 +339,19 @@ Each schedule contains:
 - Type: string
 - Default: `🎉`
 
-53. `appeals_channel_id`
+53. `polls_channel_id`
+- UI label: `Default channel ID` (Polls module)
+- Type: Discord channel ID (string)
+
+54. `appeals_channel_id`
 - UI label: `Appeals channel ID` (Appeals module)
 - Type: Discord channel ID (string)
 
-54. `appeals_log_channel_id`
+55. `appeals_log_channel_id`
 - UI label: `Log channel ID (optional)` (Appeals module)
 - Type: Discord channel ID (string)
 
-55. `appeals_open_phrase`
+56. `appeals_open_phrase`
 - UI label: `Open phrase` (Appeals module)
 - Type: string
 - Default: `!appeal`

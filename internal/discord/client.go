@@ -92,6 +92,14 @@ func (s *Service) SendChannelMessage(channelID, content string) (string, error) 
 	return msg.ID, nil
 }
 
+func (s *Service) AddMessageReaction(channelID, messageID, emoji string) error {
+	return s.session.MessageReactionAdd(channelID, messageID, emoji)
+}
+
+func (s *Service) GetChannelMessage(channelID, messageID string) (*discordgo.Message, error) {
+	return s.session.ChannelMessage(channelID, messageID)
+}
+
 func (s *Service) StartWorkers(ctx context.Context) {
 	go s.runActionWorker(ctx)
 	go s.runScheduledWorker(ctx)

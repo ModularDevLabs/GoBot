@@ -25,6 +25,7 @@ const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_STARBOARD = 'starboard';
 const FEATURE_LEVELING = 'leveling';
 const FEATURE_GIVEAWAYS = 'giveaways';
+const FEATURE_POLLS = 'polls';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 
@@ -52,6 +53,7 @@ function syncModuleBadges() {
   const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
   const levelingEnabled = qs('#settingsLevelingEnabled').value === 'true';
   const giveawaysEnabled = qs('#settingsGiveawaysEnabled').value === 'true';
+  const pollsEnabled = qs('#settingsPollsEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
@@ -69,6 +71,7 @@ function syncModuleBadges() {
   setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
   setModuleBadge(levelingEnabled, qs('#moduleLevelingBadge'), qs('#moduleLevelingCard'));
   setModuleBadge(giveawaysEnabled, qs('#moduleGiveawaysBadge'), qs('#moduleGiveawaysCard'));
+  setModuleBadge(pollsEnabled, qs('#modulePollsBadge'), qs('#modulePollsCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
 }
@@ -304,6 +307,8 @@ async function loadSettings() {
   qs('#settingsGiveawaysEnabled').value = String(!!flags[FEATURE_GIVEAWAYS]);
   qs('#settingsGiveawaysChannel').value = cfg.giveaways_channel_id || '';
   qs('#settingsGiveawaysEmoji').value = cfg.giveaways_reaction_emoji || '🎉';
+  qs('#settingsPollsEnabled').value = String(!!flags[FEATURE_POLLS]);
+  qs('#settingsPollsChannel').value = cfg.polls_channel_id || '';
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
   qs('#settingsAppealsChannel').value = cfg.appeals_channel_id || '';
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
@@ -319,6 +324,7 @@ async function loadSettings() {
   await loadCustomCommands();
   await loadLeaderboard();
   await loadGiveaways();
+  await loadPolls();
 }
 
 async function loadInvitePermissionStatus() {
@@ -1070,6 +1076,36 @@ async function saveGiveawaysModule() {
   }
 }
 
+async function savePollsModule() {
+  const restore = setBusy(qs('#pollsSave'), 'Saving...');
+  const status = qs('#pollsStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_POLLS]: qs('#settingsPollsEnabled').value === 'true',
+      },
+      polls_channel_id: qs('#settingsPollsChannel').value.trim(),
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Polls module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Polls save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function loadGiveaways() {
   const table = qs('#giveawaysTable');
   if (!table || !state.guildId) return;
@@ -1120,6 +1156,63 @@ async function startGiveaway() {
 async function drawGiveaway(id) {
   if (!id) return;
   await apiFetch(`/api/modules/giveaways/${id}/draw?guild_id=${state.guildId}`, { method: 'POST' });
+}
+
+async function loadPolls() {
+  const table = qs('#pollsTable');
+  if (!table || !state.guildId) return;
+  const rows = (await apiFetch(`/api/modules/polls?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row poll-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.question}</div>
+      <div>${row.status}</div>
+      <div>${formatDate(row.created_at)}</div>
+      <div>${row.status === 'open' ? `<button class="ghost" data-poll-close="${row.id}">Close</button>` : ''}</div>
+    `;
+    table.appendChild(div);
+  });
+}
+
+async function startPoll() {
+  const restore = setBusy(qs('#pollStart'), 'Starting...');
+  const status = qs('#pollsRunStatus');
+  status.textContent = 'Starting...';
+  try {
+    const options = [
+      qs('#pollOption1').value.trim(),
+      qs('#pollOption2').value.trim(),
+      qs('#pollOption3').value.trim(),
+      qs('#pollOption4').value.trim(),
+      qs('#pollOption5').value.trim(),
+    ].filter(Boolean);
+    const payload = {
+      channel_id: qs('#pollChannel').value.trim(),
+      question: qs('#pollQuestion').value.trim(),
+      options,
+    };
+    await apiFetch(`/api/modules/polls/start?guild_id=${state.guildId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    status.textContent = `Started at ${new Date().toLocaleTimeString()}`;
+    showToast('Poll started.');
+    await loadPolls();
+  } catch (err) {
+    status.textContent = 'Start failed.';
+    showToast(`Poll start failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function closePoll(id) {
+  if (!id) return;
+  await apiFetch(`/api/modules/polls/${id}/close?guild_id=${state.guildId}`, { method: 'POST' });
 }
 
 async function loadLeaderboard() {
@@ -1456,6 +1549,7 @@ function wireEvents() {
   qs('#starboardSave').onclick = saveStarboardModule;
   qs('#levelingSave').onclick = saveLevelingModule;
   qs('#giveawaysSave').onclick = saveGiveawaysModule;
+  qs('#pollsSave').onclick = savePollsModule;
   qs('#customCommandsSave').onclick = saveCustomCommandsModule;
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = addReactionRoleRule;
@@ -1472,6 +1566,8 @@ function wireEvents() {
   qs('#levelingRefresh').onclick = () => loadLeaderboard().catch((err) => showToast(`Leaderboard load failed: ${err.message}`, 'error'));
   qs('#giveawaysRefresh').onclick = () => loadGiveaways().catch((err) => showToast(`Giveaways load failed: ${err.message}`, 'error'));
   qs('#giveawayStart').onclick = startGiveaway;
+  qs('#pollsRefresh').onclick = () => loadPolls().catch((err) => showToast(`Polls load failed: ${err.message}`, 'error'));
+  qs('#pollStart').onclick = startPoll;
   qs('#settingsWelcomeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGoodbyeEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAuditEnabled').addEventListener('change', syncModuleBadges);
@@ -1487,6 +1583,7 @@ function wireEvents() {
   qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGiveawaysEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsPollsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
   qs('#memberRefresh').onclick = loadMembers;
@@ -1591,6 +1688,18 @@ function wireEvents() {
     }
   });
 
+  qs('#pollsTable').addEventListener('click', async (e) => {
+    const closeBtn = e.target.closest('button[data-poll-close]');
+    if (!closeBtn) return;
+    try {
+      await closePoll(closeBtn.getAttribute('data-poll-close'));
+      showToast('Poll closed.');
+      await loadPolls();
+    } catch (err) {
+      showToast(`Poll close failed: ${err.message}`, 'error');
+    }
+  });
+
   qs('#membersTable').addEventListener('change', (e) => {
     const checkbox = e.target.closest('.member-select');
     if (!checkbox) return;
@@ -1656,6 +1765,7 @@ async function refreshAll() {
   await loadCustomCommands();
   await loadLeaderboard();
   await loadGiveaways();
+  await loadPolls();
 }
 
 async function bootstrap() {
