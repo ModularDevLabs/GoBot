@@ -34,6 +34,8 @@ const FEATURE_ACCOUNT_AGE_GUARD = 'account_age_guard';
 const FEATURE_MEMBER_NOTES = 'member_notes';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
+const NAV_GROUPS_STORAGE_KEY = 'modbot_nav_groups';
+const ACTIVE_VIEW_STORAGE_KEY = 'modbot_active_view';
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
   if (!badgeEl || !cardEl) return;
@@ -121,6 +123,94 @@ function setBusy(button, busyLabel) {
     button.disabled = false;
     button.textContent = original;
   };
+}
+
+function loadNavGroupState() {
+  const raw = localStorage.getItem(NAV_GROUPS_STORAGE_KEY);
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (_) {
+    return {};
+  }
+}
+
+function saveNavGroupState(groups) {
+  localStorage.setItem(NAV_GROUPS_STORAGE_KEY, JSON.stringify(groups));
+}
+
+function setNavGroupExpanded(groupEl, expanded) {
+  if (!groupEl) return;
+  groupEl.classList.toggle('expanded', expanded);
+  const toggle = groupEl.querySelector('.nav-group-toggle');
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+  }
+}
+
+function ensureViewGroupExpanded(view) {
+  const btn = qs(`.nav [data-view="${view}"]`);
+  if (!btn) return;
+  const groupEl = btn.closest('.nav-group');
+  if (!groupEl) return;
+  const groupName = groupEl.getAttribute('data-group');
+  setNavGroupExpanded(groupEl, true);
+  const groups = loadNavGroupState();
+  groups[groupName] = true;
+  saveNavGroupState(groups);
+}
+
+function setActiveView(view, persist = true) {
+  const targetView = qs(`#view-${view}`);
+  if (!targetView) return;
+  qsa('.nav [data-view]').forEach((b) => b.classList.remove('active'));
+  const navBtn = qs(`.nav [data-view="${view}"]`);
+  if (navBtn) {
+    navBtn.classList.add('active');
+  }
+  qsa('.view').forEach((v) => v.classList.remove('active'));
+  targetView.classList.add('active');
+  ensureViewGroupExpanded(view);
+  if (persist) {
+    localStorage.setItem(ACTIVE_VIEW_STORAGE_KEY, view);
+  }
+  if (view === 'events') {
+    loadEvents().catch((err) => showToast(`Events load failed: ${err.message}`, 'error'));
+    startEventsPolling();
+  } else {
+    stopEventsPolling();
+  }
+}
+
+function initNavUI() {
+  const groups = loadNavGroupState();
+  qsa('.nav-group').forEach((groupEl) => {
+    const groupName = groupEl.getAttribute('data-group');
+    const stored = groups[groupName];
+    const expanded = typeof stored === 'boolean' ? stored : true;
+    setNavGroupExpanded(groupEl, expanded);
+  });
+
+  qsa('.nav .nav-group-toggle').forEach((btn) => {
+    btn.onclick = () => {
+      const groupName = btn.getAttribute('data-group-toggle');
+      const groupEl = qs(`.nav-group[data-group="${groupName}"]`);
+      if (!groupEl) return;
+      const expanded = !groupEl.classList.contains('expanded');
+      setNavGroupExpanded(groupEl, expanded);
+      const next = loadNavGroupState();
+      next[groupName] = expanded;
+      saveNavGroupState(next);
+    };
+  });
+
+  qsa('.nav [data-view]').forEach((btn) => {
+    btn.onclick = () => {
+      const view = btn.getAttribute('data-view');
+      setActiveView(view);
+    };
+  });
 }
 
 function showLogin() {
@@ -2135,22 +2225,7 @@ function wireEvents() {
   qs('#bulkKick').onclick = () => createBulkAction(state.selectedUsers, 'kick');
   qs('#bulkRemoveRoles').onclick = () => createBulkAction(state.selectedUsers, 'remove-roles');
 
-  qsa('.nav button').forEach((btn) => {
-    btn.onclick = () => {
-      qsa('.nav button').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      const view = btn.getAttribute('data-view');
-      qsa('.view').forEach((v) => v.classList.remove('active'));
-      qs(`#view-${view}`).classList.add('active');
-      if (view === 'events') {
-        loadEvents().catch((err) => showToast(`Events load failed: ${err.message}`, 'error'));
-        startEventsPolling();
-      } else {
-        stopEventsPolling();
-      }
-    };
-  });
-
+  initNavUI();
   startMemberFilterWatch();
 }
 
@@ -2177,6 +2252,12 @@ async function refreshAll() {
 async function bootstrap() {
   await loadGuilds();
   await refreshAll();
+  const preferredView = localStorage.getItem(ACTIVE_VIEW_STORAGE_KEY) || 'overview';
+  if (qs(`#view-${preferredView}`)) {
+    setActiveView(preferredView, false);
+  } else {
+    setActiveView('overview', false);
+  }
 }
 
 wireEvents();

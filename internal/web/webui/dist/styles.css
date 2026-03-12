@@ -35,6 +35,7 @@ body {
   flex-direction: column;
   gap: 24px;
   border-right: 1px solid var(--border);
+  max-height: 100vh;
 }
 
 .brand {
@@ -89,7 +90,9 @@ select, input {
 
 .nav {
   display: grid;
-  gap: 10px;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .nav button {
@@ -103,10 +106,52 @@ select, input {
   transition: all 0.2s ease;
 }
 
-.nav button.active, .nav button:hover {
+.nav .nav-view-btn.active, .nav .nav-view-btn:hover {
   background: var(--panel-soft);
   color: var(--ink);
   border-color: var(--border);
+}
+
+.nav-group {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.nav-group-toggle {
+  width: 100%;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  color: #c6d3e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-group-toggle::after {
+  content: '▾';
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.nav-group:not(.expanded) .nav-group-toggle::after {
+  content: '▸';
+}
+
+.nav-group-items {
+  display: grid;
+  gap: 6px;
+  padding: 0 8px 10px 8px;
+}
+
+.nav-group:not(.expanded) .nav-group-items {
+  display: none;
+}
+
+.nav-view-btn {
+  width: 100%;
 }
 
 .sidebar-footer {
@@ -522,8 +567,8 @@ button[disabled] {
 
 @media (max-width: 980px) {
   .app { grid-template-columns: 1fr; }
-  .sidebar { flex-direction: row; align-items: center; gap: 16px; overflow-x: auto; }
-  .nav { grid-auto-flow: column; grid-template-columns: repeat(30, auto); }
+  .sidebar { max-height: none; }
+  .nav { max-height: 320px; }
   .content { padding: 20px; }
   .stats { grid-template-columns: 1fr; }
   .filters { grid-template-columns: 1fr; }
