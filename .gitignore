@@ -1,9 +1,43 @@
+# Local planning/notes
 DiscordBot.md
+
+# Local runtime secrets/config
 .modbot.config.json
+.env
+.env.*
+*.local
+*.secret
+*.secrets
+
+# Credentials/certs/keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Local binaries/build outputs
 modbot
 dist/
+
+# Keep committed dashboard assets in-repo
 !internal/web/webui/dist/
 !internal/web/webui/dist/*
-modbot.sqlite
-modbot.sqlite-shm
-modbot.sqlite-wal
+
+# Local databases/state
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+
+# Local caches
+.gocache/
+.gomodcache/
+
+# Logs/temp/OS noise
+*.log
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
