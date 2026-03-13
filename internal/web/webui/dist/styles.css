@@ -17,6 +17,13 @@
   --modal-bg: rgba(7, 10, 14, 0.75);
   --event-bg: #172231;
   --logo-grad: linear-gradient(135deg, var(--accent), #f08c00);
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 18px;
+  --lh-tight: 1.25;
+  --lh-base: 1.45;
+  --lh-loose: 1.6;
 }
 
 :root[data-theme='light'] {
@@ -45,6 +52,8 @@ body {
   font-family: 'Space Grotesk', sans-serif;
   background: var(--body-bg);
   color: var(--ink);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 .app {
@@ -82,22 +91,25 @@ body {
 }
 
 .title {
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 600;
+  line-height: var(--lh-tight);
 }
 
 .subtitle {
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--muted);
+  line-height: var(--lh-base);
 }
 
 .muted {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
 }
 
 .guild-select label {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
@@ -111,6 +123,8 @@ select, input, textarea {
   padding: 10px 12px;
   border-radius: 10px;
   font-family: inherit;
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 textarea {
@@ -133,6 +147,8 @@ textarea {
   text-align: left;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 .nav .nav-view-btn.active, .nav .nav-view-btn:hover {
@@ -149,7 +165,7 @@ textarea {
 
 .nav-group-toggle {
   width: 100%;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-weight: 600;
@@ -161,7 +177,7 @@ textarea {
 
 .nav-group-toggle::after {
   content: '▾';
-  font-size: 11px;
+  font-size: var(--fs-xs);
   color: var(--muted);
 }
 
@@ -200,6 +216,8 @@ button.primary {
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 button.ghost {
@@ -209,6 +227,8 @@ button.ghost {
   padding: 10px 16px;
   border-radius: 10px;
   cursor: pointer;
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 button[disabled] {
@@ -235,7 +255,7 @@ button[disabled] {
 }
 
 .hero h1 { margin: 0 0 6px; }
-.hero p { margin: 0; color: var(--muted); }
+.hero p { margin: 0; color: var(--muted); font-size: var(--fs-sm); line-height: var(--lh-base); }
 
 .hero-actions { display: flex; gap: 12px; }
 
@@ -261,9 +281,10 @@ button[disabled] {
 
 .stat-label {
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.12em;
+  line-height: var(--lh-tight);
 }
 
 .stat-value {
@@ -281,9 +302,10 @@ button[disabled] {
 }
 
 .panel-header {
-  font-size: 18px;
+  font-size: var(--fs-lg);
   font-weight: 600;
   margin-bottom: 16px;
+  line-height: var(--lh-tight);
 }
 
 .overview-backfill {
@@ -327,8 +349,9 @@ button[disabled] {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
+  font-size: var(--fs-sm);
   color: var(--muted);
+  line-height: var(--lh-base);
 }
 
 .table {
@@ -344,7 +367,8 @@ button[disabled] {
   border-radius: 10px;
   background: var(--panel-soft);
   border: 1px solid var(--border);
-  font-size: 14px;
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
 }
 
 .rr-row {
@@ -431,7 +455,7 @@ button[disabled] {
 .table-header {
   background: transparent;
   border: none;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--muted);
@@ -440,8 +464,9 @@ button[disabled] {
 .status-pill {
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   display: inline-block;
+  line-height: var(--lh-tight);
 }
 
 .status-pill.active { background: rgba(77, 209, 193, 0.2); color: var(--accent-2); }
@@ -454,8 +479,9 @@ button[disabled] {
   border-radius: 999px;
   border: 1px solid rgba(240, 106, 106, 0.45);
   color: var(--danger);
-  font-size: 11px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.02em;
+  line-height: var(--lh-tight);
 }
 
 .quarantine-badge {
@@ -497,12 +523,13 @@ button[disabled] {
 }
 
 .module-title {
-  font-size: 15px;
+  font-size: var(--fs-md);
   font-weight: 600;
+  line-height: var(--lh-tight);
 }
 
 .module-badge {
-  font-size: 11px;
+  font-size: var(--fs-xs);
   padding: 4px 8px;
   border-radius: 999px;
   border: 1px solid var(--border);
@@ -523,7 +550,8 @@ button[disabled] {
 .module-desc {
   margin: 0 0 12px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
 }
 
 .module-note {
@@ -532,8 +560,9 @@ button[disabled] {
   border-radius: 10px;
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.03);
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--muted);
+  line-height: var(--lh-base);
 }
 
 .module-note.ok {
@@ -560,7 +589,8 @@ button[disabled] {
   display: grid;
   gap: 8px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
 }
 
 .module-guide-hint {
@@ -570,8 +600,8 @@ button[disabled] {
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
   color: var(--ink);
-  font-size: 12px;
-  line-height: 1.4;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
 }
 
 .panel-actions { margin-top: 16px; }
@@ -605,7 +635,8 @@ button[disabled] {
   color: var(--ink);
   border-radius: 10px;
   padding: 10px 12px;
-  font-size: 13px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
 }
 
 .inline-banner .status-line {
@@ -616,7 +647,8 @@ button[disabled] {
 .status-line {
   margin-left: 10px;
   color: var(--muted);
-  font-size: 13px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
 }
 
 .list {
@@ -641,8 +673,8 @@ button[disabled] {
   border-radius: 10px;
   padding: 12px;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
-  line-height: 1.45;
+  font-size: var(--fs-xs);
+  line-height: var(--lh-base);
   color: #d7e2f0;
 }
 
@@ -685,13 +717,13 @@ button[disabled] {
 }
 
 .theme-select label {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--muted);
 }
 
-.error { color: var(--danger); font-size: 13px; }
+.error { color: var(--danger); font-size: var(--fs-sm); line-height: var(--lh-base); }
 
 .toast-host {
   position: fixed;
@@ -711,7 +743,8 @@ button[disabled] {
   background: var(--panel);
   color: var(--ink);
   box-shadow: var(--shadow);
-  font-size: 13px;
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
 }
 
 .toast.success {
