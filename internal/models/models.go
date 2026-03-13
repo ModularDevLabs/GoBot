@@ -44,6 +44,9 @@ type GuildSettings struct {
 	ReviewQueueEnabled          bool                `json:"review_queue_enabled"`
 	ModSummaryChannelID         string              `json:"mod_summary_channel_id"`
 	ModSummaryIntervalHours     int                 `json:"mod_summary_interval_hours"`
+	AutoThreadEnabled           bool                `json:"auto_thread_enabled"`
+	AutoThreadChannelID         string              `json:"auto_thread_channel_id"`
+	AutoThreadKeywords          []string            `json:"auto_thread_keywords"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -434,6 +437,9 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		ReviewQueueEnabled:          false,
 		ModSummaryChannelID:         "",
 		ModSummaryIntervalHours:     24,
+		AutoThreadEnabled:           false,
+		AutoThreadChannelID:         "",
+		AutoThreadKeywords:          []string{"?", "help", "issue"},
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,

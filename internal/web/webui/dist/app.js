@@ -637,6 +637,9 @@ async function loadSettings() {
   qs('#settingsReviewQueueEnabled').value = String(!!cfg.review_queue_enabled);
   qs('#settingsModSummaryChannel').value = cfg.mod_summary_channel_id || '';
   qs('#settingsModSummaryHours').value = cfg.mod_summary_interval_hours || 24;
+  qs('#settingsAutoThreadEnabled').value = String(!!cfg.auto_thread_enabled);
+  qs('#settingsAutoThreadChannel').value = cfg.auto_thread_channel_id || '';
+  qs('#settingsAutoThreadKeywords').value = (cfg.auto_thread_keywords || []).join(',');
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -857,6 +860,9 @@ async function saveSettings() {
       review_queue_enabled: qs('#settingsReviewQueueEnabled').value === 'true',
       mod_summary_channel_id: (qs('#settingsModSummaryChannel').value || '').trim(),
       mod_summary_interval_hours: parseInt(qs('#settingsModSummaryHours').value || '24', 10) || 24,
+      auto_thread_enabled: qs('#settingsAutoThreadEnabled').value === 'true',
+      auto_thread_channel_id: (qs('#settingsAutoThreadChannel').value || '').trim(),
+      auto_thread_keywords: (qs('#settingsAutoThreadKeywords').value || '').split(',').map((v) => v.trim()).filter(Boolean),
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',

@@ -50,6 +50,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			ReviewQueueEnabled          bool                 `json:"review_queue_enabled"`
 			ModSummaryChannelID         string               `json:"mod_summary_channel_id"`
 			ModSummaryIntervalHours     int                  `json:"mod_summary_interval_hours"`
+			AutoThreadEnabled           bool                 `json:"auto_thread_enabled"`
+			AutoThreadChannelID         string               `json:"auto_thread_channel_id"`
+			AutoThreadKeywords          []string             `json:"auto_thread_keywords"`
 			FeatureFlags                map[string]bool      `json:"feature_flags"`
 			WelcomeChannelID            string               `json:"welcome_channel_id"`
 			WelcomeMessage              string               `json:"welcome_message"`
@@ -147,6 +150,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.ReviewQueueEnabled = cfg.ReviewQueueEnabled
 		current.ModSummaryChannelID = cfg.ModSummaryChannelID
 		current.ModSummaryIntervalHours = cfg.ModSummaryIntervalHours
+		current.AutoThreadEnabled = cfg.AutoThreadEnabled
+		current.AutoThreadChannelID = cfg.AutoThreadChannelID
+		current.AutoThreadKeywords = cfg.AutoThreadKeywords
 		current.FeatureFlags = cfg.FeatureFlags
 		current.WelcomeChannelID = cfg.WelcomeChannelID
 		current.WelcomeMessage = cfg.WelcomeMessage

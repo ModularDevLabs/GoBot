@@ -228,5 +228,8 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.ModSummaryIntervalHours <= 0 {
 		cfg.ModSummaryIntervalHours = def.ModSummaryIntervalHours
 	}
+	if cfg.AutoThreadKeywords == nil {
+		cfg.AutoThreadKeywords = append([]string{}, def.AutoThreadKeywords...)
+	}
 	return cfg
 }

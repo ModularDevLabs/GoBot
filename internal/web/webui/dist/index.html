@@ -429,6 +429,21 @@
               Mod summary interval (hours)
               <input id="settingsModSummaryHours" type="number" min="1" />
             </label>
+            <label>
+              Auto thread helper
+              <select id="settingsAutoThreadEnabled">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+              </select>
+            </label>
+            <label>
+              Auto thread channel ID
+              <input id="settingsAutoThreadChannel" />
+            </label>
+            <label>
+              Auto thread keywords (comma)
+              <input id="settingsAutoThreadKeywords" placeholder="?,help,issue" />
+            </label>
           </div>
           <div class="panel-actions">
             <select id="settingsProfilePreset">

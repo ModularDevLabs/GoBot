@@ -169,6 +169,12 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Supports on-demand generation endpoint:
 - `POST /api/mod-summary/generate?guild_id=...&hours=24`
 
+### Auto Thread Helper
+
+- Watches a configured channel for keyword-matching questions.
+- Auto-creates a public thread from matching messages.
+- Settings: `auto_thread_enabled`, `auto_thread_channel_id`, `auto_thread_keywords`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.
