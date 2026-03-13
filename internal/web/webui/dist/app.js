@@ -2293,6 +2293,48 @@ async function loadActions() {
   });
 }
 
+async function simulatePolicy() {
+  if (!state.guildId) return;
+  const actionType = (qs('#policyActionType')?.value || 'quarantine').trim();
+  const userIDs = (qs('#policyUserIds')?.value || '')
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+  if (!userIDs.length) {
+    showToast('Enter at least one user ID for simulation.', 'error');
+    return;
+  }
+  const table = qs('#policySimTable');
+  const details = qs('#policySimDetails');
+  if (table) table.innerHTML = '';
+  if (details) details.textContent = 'Running simulation...';
+  const res = await apiFetch(`/api/policy/simulate?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action_type: actionType, user_ids: userIDs }),
+  });
+  const rows = (res && res.results) || [];
+  if (table) {
+    table.innerHTML = '';
+    rows.forEach((row) => {
+      const preflight = row.preflight || {};
+      const div = document.createElement('div');
+      div.className = 'table-row';
+      div.innerHTML = `
+        <div>${row.user_id || ''}</div>
+        <div>${preflight.allowed ? 'yes' : 'no'}</div>
+        <div>${row.confirm_required ? 'yes' : 'no'}</div>
+        <div>${row.distinct_approver_needed ? 'yes' : 'no'}</div>
+        <div>${row.incident_mode_active ? 'on' : 'off'}</div>
+      `;
+      table.appendChild(div);
+    });
+  }
+  if (details) {
+    details.textContent = JSON.stringify(rows, null, 2);
+  }
+}
+
 async function loadCases() {
   if (!state.guildId) return;
   const userID = (qs('#caseUserId')?.value || '').trim();
@@ -2621,6 +2663,7 @@ function wireEvents() {
     setTimeout(reloadMembersForFilters, 0);
   });
   qs('#actionRefresh').onclick = loadActions;
+  qs('#policySimulate').onclick = () => simulatePolicy().catch((err) => showToast(`Policy simulation failed: ${err.message}`, 'error'));
   qs('#caseRefresh').onclick = () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error'));
   qs('#caseUserId').addEventListener('change', () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error')));
   qs('#eventsRefresh').onclick = () => loadEvents().catch((err) => showToast(`Events load failed: ${err.message}`, 'error'));

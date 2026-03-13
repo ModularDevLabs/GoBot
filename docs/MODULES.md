@@ -75,6 +75,15 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Optional auto-disable timestamp can end incident mode automatically.
 - Config keys: `incident_mode_enabled`, `incident_mode_reason`, `incident_mode_ends_at`.
 
+### Policy Simulator (dashboard tool)
+
+- Trigger: Actions view -> `Policy Simulator`.
+- Behavior:
+- Runs action preflight for each listed user.
+- Shows whether action is allowed and what additional controls apply.
+- Includes confirm/approver requirements derived from current safety and incident settings.
+- API: `POST /api/policy/simulate?guild_id=...`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

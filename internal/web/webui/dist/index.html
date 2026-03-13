@@ -192,6 +192,29 @@
             <div id="actionsTable"></div>
           </div>
         </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Policy Simulator</div>
+          <div class="filters">
+            <select id="policyActionType">
+              <option value="quarantine">Quarantine</option>
+              <option value="kick">Kick</option>
+              <option value="remove_roles">Remove Roles</option>
+            </select>
+            <input id="policyUserIds" placeholder="User IDs (comma separated)" />
+            <button id="policySimulate" class="ghost">Simulate</button>
+          </div>
+          <div class="table" style="margin-top: 12px;">
+            <div class="table-row table-header">
+              <div>User</div>
+              <div>Allowed</div>
+              <div>Confirm</div>
+              <div>Approver</div>
+              <div>Incident</div>
+            </div>
+            <div id="policySimTable"></div>
+          </div>
+          <pre id="policySimDetails" class="event-log" style="margin-top: 12px; min-height: 100px; max-height: 240px;"></pre>
+        </div>
       </section>
 
       <section id="view-cases" class="view">
