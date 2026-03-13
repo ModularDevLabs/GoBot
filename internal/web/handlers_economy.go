@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/ModularDevLabs/GoBot/internal/db"
+	"github.com/ModularDevLabs/GoBot/internal/models"
 )
 
 func (s *Server) handleEconomyBalance(w http.ResponseWriter, r *http.Request) {
@@ -18,6 +19,9 @@ func (s *Server) handleEconomyBalance(w http.ResponseWriter, r *http.Request) {
 	userID := strings.TrimSpace(r.URL.Query().Get("user_id"))
 	if guildID == "" || userID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureEconomy, "economy") {
 		return
 	}
 	bal, err := s.repos.Economy.GetBalance(r.Context(), guildID, userID)
@@ -38,6 +42,9 @@ func (s *Server) handleEconomyLeaderboard(w http.ResponseWriter, r *http.Request
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureEconomy, "economy") {
+		return
+	}
 	limit := parseInt(r.URL.Query().Get("limit"), 20)
 	rows, err := s.repos.Economy.Leaderboard(r.Context(), guildID, limit)
 	if err != nil {
@@ -51,6 +58,9 @@ func (s *Server) handleEconomyShop(w http.ResponseWriter, r *http.Request) {
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureEconomy, "economy") {
 		return
 	}
 	switch r.Method {
@@ -104,6 +114,9 @@ func (s *Server) handleEconomyPurchase(w http.ResponseWriter, r *http.Request) {
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureEconomy, "economy") {
 		return
 	}
 	var payload struct {

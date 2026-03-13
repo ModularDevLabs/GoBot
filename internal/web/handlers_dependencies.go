@@ -138,6 +138,14 @@ func (s *Server) handleDependencyCheck(w http.ResponseWriter, r *http.Request) {
 			add("streaks", "warn", "Streak rewards should be positive for both coins and XP.")
 		}
 	}
+	if cfg.FeatureEnabled(models.FeatureConfessions) {
+		if !cfg.ConfessionsEnabled {
+			add("confessions", "warn", "Feature flag enabled but confessions toggle is off.")
+		}
+		if cfg.ConfessionsChannelID == "" {
+			add("confessions", "warn", "Enabled without confessions channel ID.")
+		}
+	}
 	if cfg.FeatureEnabled(models.FeatureSeasonResets) {
 		if !cfg.SeasonResetsEnabled {
 			add("season_resets", "warn", "Feature flag enabled but season reset toggle is off.")

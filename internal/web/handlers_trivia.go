@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ModularDevLabs/GoBot/internal/models"
 )
 
 type triviaQuestion struct {
@@ -34,6 +36,9 @@ func (s *Server) handleTriviaQuestion(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureTrivia, "trivia") {
+		return
+	}
 	if len(triviaBank) == 0 {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -54,6 +59,9 @@ func (s *Server) handleTriviaAnswer(w http.ResponseWriter, r *http.Request) {
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureTrivia, "trivia") {
 		return
 	}
 	var payload struct {
@@ -96,6 +104,9 @@ func (s *Server) handleTriviaLeaderboard(w http.ResponseWriter, r *http.Request)
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureTrivia, "trivia") {
 		return
 	}
 	limit := parseInt(r.URL.Query().Get("limit"), 20)

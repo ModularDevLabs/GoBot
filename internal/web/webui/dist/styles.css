@@ -540,6 +540,22 @@ button[disabled] {
 
 .panel-actions { margin-top: 16px; }
 
+.hidden { display: none !important; }
+
+.inline-banner {
+  border: 1px solid var(--warning);
+  background: color-mix(in srgb, var(--warning) 14%, var(--panel) 86%);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+
+.inline-banner .status-line {
+  margin-left: 6px;
+  color: var(--ink);
+}
+
 .status-line {
   margin-left: 10px;
   color: var(--muted);

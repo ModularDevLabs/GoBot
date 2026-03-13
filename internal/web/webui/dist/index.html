@@ -104,9 +104,9 @@
     </aside>
 
     <main class="content">
-      <div id="incidentBanner" class="panel hidden" style="margin-bottom: 12px;">
-        <div class="panel-header">Incident Mode Active</div>
-        <div id="incidentBannerText" class="status-line"></div>
+      <div id="incidentBanner" class="inline-banner hidden" style="margin-bottom: 12px;">
+        <strong>Incident mode active.</strong>
+        <span id="incidentBannerText" class="status-line"></span>
       </div>
       <section id="view-overview" class="view active">
         <div class="hero">
@@ -1481,6 +1481,24 @@
       <section id="view-reputation" class="view">
         <div class="panel">
           <div class="panel-header">Reputation Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleReputationCard">
+              <div class="module-head">
+                <div class="module-title">Reputation</div>
+                <span class="module-badge off" id="moduleReputationBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Let members reward each other with positive/negative reputation points.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsReputationEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="filters">
             <input id="repFromUser" placeholder="From user ID" />
             <input id="repToUser" placeholder="To user ID" />
@@ -1492,6 +1510,7 @@
             <button id="repGiveMinus" class="ghost">-1 Rep</button>
           </div>
           <div class="panel-actions">
+            <button id="reputationSave" class="ghost">Save reputation module</button>
             <button id="repRefresh" class="ghost">Refresh leaderboard</button>
             <span id="repStatus" class="status-line"></span>
           </div>
@@ -1509,12 +1528,31 @@
       <section id="view-economy" class="view">
         <div class="panel">
           <div class="panel-header">Economy + Shop</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleEconomyCard">
+              <div class="module-head">
+                <div class="module-title">Economy</div>
+                <span class="module-badge off" id="moduleEconomyBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Track virtual currency balances and let members buy configured shop items.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsEconomyEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="filters">
             <input id="ecoUserId" placeholder="User ID for balance/purchase" />
             <input id="ecoItemId" placeholder="Item ID for purchase" />
             <button id="ecoPurchase" class="primary">Purchase</button>
           </div>
           <div class="panel-actions">
+            <button id="economySave" class="ghost">Save economy module</button>
             <button id="ecoRefresh" class="ghost">Refresh balances/shop</button>
             <span id="ecoStatus" class="status-line"></span>
           </div>
@@ -1551,10 +1589,32 @@
       <section id="view-achievements" class="view">
         <div class="panel">
           <div class="panel-header">Achievement Engine</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleAchievementsCard">
+              <div class="module-head">
+                <div class="module-title">Achievements</div>
+                <span class="module-badge off" id="moduleAchievementsBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Award milestone badges based on leveling, reputation, and economy progress.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsAchievementsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="filters">
             <input id="achUserId" placeholder="User ID" />
             <div></div>
             <button id="achLoad" class="ghost">Load achievements</button>
+          </div>
+          <div class="panel-actions">
+            <button id="achievementsSave" class="ghost">Save achievements module</button>
+            <span id="achStatus" class="status-line"></span>
           </div>
           <div class="table">
             <div class="table-row table-header">
@@ -1570,6 +1630,24 @@
       <section id="view-trivia" class="view">
         <div class="panel">
           <div class="panel-header">Trivia Mini-Games</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleTriviaCard">
+              <div class="module-head">
+                <div class="module-title">Trivia</div>
+                <span class="module-badge off" id="moduleTriviaBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Run lightweight trivia rounds and track server-wide scores.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsTriviaEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="form-grid">
             <label>
               Acting user ID
@@ -1585,6 +1663,7 @@
             </label>
           </div>
           <div class="panel-actions">
+            <button id="triviaSave" class="ghost">Save trivia module</button>
             <button id="triviaNewQuestion" class="ghost">New question</button>
             <button id="triviaSubmit" class="primary">Submit answer</button>
             <button id="triviaRefresh" class="ghost">Refresh leaderboard</button>
@@ -1775,6 +1854,24 @@
       <section id="view-calendar" class="view">
         <div class="panel">
           <div class="panel-header">Event Calendar + RSVP</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleCalendarCard">
+              <div class="module-head">
+                <div class="module-title">Calendar</div>
+                <span class="module-badge off" id="moduleCalendarBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Schedule events, collect RSVPs, and track upcoming community activities.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsCalendarEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="form-grid">
             <label>Title<input id="calTitle" /></label>
             <label>Start (ISO timestamp)<input id="calStart" placeholder="2026-03-15T20:00:00Z" /></label>
@@ -1782,6 +1879,7 @@
             <label>Details<input id="calDetails" /></label>
           </div>
           <div class="panel-actions">
+            <button id="calendarSave" class="ghost">Save calendar module</button>
             <button id="calCreate" class="primary">Create event</button>
             <button id="calRefresh" class="ghost">Refresh</button>
             <span id="calStatus" class="status-line"></span>
@@ -1798,7 +1896,26 @@
       <section id="view-confessions" class="view">
         <div class="panel">
           <div class="panel-header">Confession Review Queue</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleConfessionsCard">
+              <div class="module-head">
+                <div class="module-title">Confessions</div>
+                <span class="module-badge off" id="moduleConfessionsBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Review and publish anonymous confessions to the configured destination channel.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="moduleConfessionsEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
           <div class="panel-actions" style="margin-top:0; margin-bottom:10px;">
+            <button id="confessionsSave" class="ghost">Save confessions module</button>
             <button id="confRefresh" class="ghost">Refresh pending</button>
             <span id="confStatus" class="status-line"></span>
           </div>

@@ -3,6 +3,8 @@ package web
 import (
 	"net/http"
 	"strings"
+
+	"github.com/ModularDevLabs/GoBot/internal/models"
 )
 
 func (s *Server) handleAchievements(w http.ResponseWriter, r *http.Request) {
@@ -14,6 +16,9 @@ func (s *Server) handleAchievements(w http.ResponseWriter, r *http.Request) {
 	userID := strings.TrimSpace(r.URL.Query().Get("user_id"))
 	if guildID == "" || userID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureAchievements, "achievements") {
 		return
 	}
 

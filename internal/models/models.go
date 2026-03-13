@@ -434,6 +434,12 @@ const (
 	FeatureRaidPanic       = "raid_panic"
 	FeatureStreaks         = "streaks"
 	FeatureSeasonResets    = "season_resets"
+	FeatureReputation      = "reputation"
+	FeatureEconomy         = "economy"
+	FeatureAchievements    = "achievements"
+	FeatureTrivia          = "trivia"
+	FeatureCalendar        = "calendar"
+	FeatureConfessions     = "confessions"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -579,6 +585,12 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureRaidPanic:       false,
 			FeatureStreaks:         false,
 			FeatureSeasonResets:    false,
+			FeatureReputation:      false,
+			FeatureEconomy:         false,
+			FeatureAchievements:    false,
+			FeatureTrivia:          false,
+			FeatureCalendar:        false,
+			FeatureConfessions:     false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

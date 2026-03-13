@@ -70,6 +70,31 @@ var modulePermissionRequirements = map[string][]permissionRequirement{
 		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
 		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
 	},
+	models.FeatureReputation: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
+	models.FeatureEconomy: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
+	},
+	models.FeatureAchievements: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
+	models.FeatureTrivia: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
+	models.FeatureCalendar: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
+	models.FeatureConfessions: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
 	models.FeatureWarnings: {
 		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
 		{Name: "Kick Members", Bit: discordgo.PermissionKickMembers},

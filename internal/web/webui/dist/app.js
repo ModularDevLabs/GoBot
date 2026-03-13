@@ -43,6 +43,12 @@ const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
 const FEATURE_BIRTHDAYS = 'birthdays';
 const FEATURE_STREAKS = 'streaks';
 const FEATURE_SEASON_RESETS = 'season_resets';
+const FEATURE_REPUTATION = 'reputation';
+const FEATURE_ECONOMY = 'economy';
+const FEATURE_ACHIEVEMENTS = 'achievements';
+const FEATURE_TRIVIA = 'trivia';
+const FEATURE_CALENDAR = 'calendar';
+const FEATURE_CONFESSIONS = 'confessions';
 const FEATURE_BY_VIEW = {
   welcome: FEATURE_WELCOME,
   goodbye: FEATURE_GOODBYE,
@@ -73,6 +79,12 @@ const FEATURE_BY_VIEW = {
   birthdays: FEATURE_BIRTHDAYS,
   streaks: FEATURE_STREAKS,
   seasonresets: FEATURE_SEASON_RESETS,
+  reputation: FEATURE_REPUTATION,
+  economy: FEATURE_ECONOMY,
+  achievements: FEATURE_ACHIEVEMENTS,
+  trivia: FEATURE_TRIVIA,
+  calendar: FEATURE_CALENDAR,
+  confessions: FEATURE_CONFESSIONS,
 };
 const NAV_GROUPS_STORAGE_KEY = 'modbot_nav_groups';
 const ACTIVE_VIEW_STORAGE_KEY = 'modbot_active_view';
@@ -107,6 +119,12 @@ const MODULE_GUIDES = {
   birthdays: { title: 'How To Use', points: ['Enable the module and set a birthday channel ID.', 'Store birthdays as MM-DD and optional timezone per user.', 'Worker posts birthday mentions automatically each day.'] },
   streaks: { title: 'How To Use', points: ['Enable streak tracking and reward values.', 'Members advance once per UTC day when active.', 'Use leaderboard and user lookup to monitor engagement.'] },
   seasonresets: { title: 'How To Use', points: ['Enable season resets and choose monthly or quarterly cadence.', 'Select modules to reset (leveling, economy, trivia).', 'Use Run now for manual resets and verify results in history.'] },
+  reputation: { title: 'How To Use', points: ['Enable the module before giving reputation.', 'Use +1/-1 controls with from/to user IDs.', 'Refresh leaderboard to monitor top contributors.'] },
+  economy: { title: 'How To Use', points: ['Enable the module before purchases or shop edits.', 'Add shop items with costs and optional role rewards.', 'Use leaderboard and balance checks to tune pricing.'] },
+  achievements: { title: 'How To Use', points: ['Enable module, then load a user to compute badge awards.', 'Achievement logic uses leveling/reputation/economy milestones.', 'Use this view to verify progression rewards.'] },
+  trivia: { title: 'How To Use', points: ['Enable trivia, then generate a question.', 'Submit answers with acting user ID to award score.', 'Refresh leaderboard to track competition.'] },
+  calendar: { title: 'How To Use', points: ['Enable calendar before creating events.', 'Create events with ISO start time and creator user ID.', 'Use RSVP controls and view responses per event.'] },
+  confessions: { title: 'How To Use', points: ['Enable confessions and set channel/review settings.', 'Review pending items and approve/reject them.', 'Approved confessions are posted anonymously to configured channel.'] },
 };
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
@@ -147,6 +165,12 @@ function syncModuleBadges() {
   const birthdaysEnabled = qs('#settingsBirthdaysEnabled')?.value === 'true';
   const streaksEnabled = qs('#settingsStreaksEnabled')?.value === 'true';
   const seasonResetsEnabled = qs('#settingsSeasonResetsEnabled')?.value === 'true';
+  const reputationEnabled = qs('#settingsReputationEnabled')?.value === 'true';
+  const economyEnabled = qs('#settingsEconomyEnabled')?.value === 'true';
+  const achievementsEnabled = qs('#settingsAchievementsEnabled')?.value === 'true';
+  const triviaEnabled = qs('#settingsTriviaEnabled')?.value === 'true';
+  const calendarEnabled = qs('#settingsCalendarEnabled')?.value === 'true';
+  const confessionsEnabled = qs('#moduleConfessionsEnabled')?.value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
   setModuleBadge(auditEnabled, qs('#moduleAuditBadge'), qs('#moduleAuditCard'));
@@ -176,6 +200,12 @@ function syncModuleBadges() {
   setModuleBadge(birthdaysEnabled, qs('#moduleBirthdaysBadge'), qs('#moduleBirthdaysCard'));
   setModuleBadge(streaksEnabled, qs('#moduleStreaksBadge'), qs('#moduleStreaksCard'));
   setModuleBadge(seasonResetsEnabled, qs('#moduleSeasonResetsBadge'), qs('#moduleSeasonResetsCard'));
+  setModuleBadge(reputationEnabled, qs('#moduleReputationBadge'), qs('#moduleReputationCard'));
+  setModuleBadge(economyEnabled, qs('#moduleEconomyBadge'), qs('#moduleEconomyCard'));
+  setModuleBadge(achievementsEnabled, qs('#moduleAchievementsBadge'), qs('#moduleAchievementsCard'));
+  setModuleBadge(triviaEnabled, qs('#moduleTriviaBadge'), qs('#moduleTriviaCard'));
+  setModuleBadge(calendarEnabled, qs('#moduleCalendarBadge'), qs('#moduleCalendarCard'));
+  setModuleBadge(confessionsEnabled, qs('#moduleConfessionsBadge'), qs('#moduleConfessionsCard'));
 }
 
 const qs = (sel) => document.querySelector(sel);
@@ -281,7 +311,8 @@ function refreshIncidentBanner(cfg) {
   const text = qs('#incidentBannerText');
   if (!wrap || !text) return;
   const enabled = !!(cfg && cfg.incident_mode_enabled);
-  if (!enabled) {
+  const onOverview = !!qs('#view-overview.active');
+  if (!enabled || !onOverview) {
     wrap.classList.add('hidden');
     text.textContent = '';
     return;
@@ -290,8 +321,8 @@ function refreshIncidentBanner(cfg) {
   const endsAt = (cfg.incident_mode_ends_at || '').trim();
   const parts = [];
   if (reason) parts.push(`Reason: ${reason}`);
-  if (endsAt) parts.push(`Ends: ${formatDate(endsAt)}`);
-  text.textContent = parts.length ? parts.join(' | ') : 'High-safety restrictions are enabled for destructive actions.';
+  if (endsAt) parts.push(`Ends ${formatDate(endsAt)}`);
+  text.textContent = parts.length ? parts.join(' • ') : 'Extra confirmation rules are active for destructive actions.';
   wrap.classList.remove('hidden');
 }
 
@@ -393,6 +424,19 @@ function applyModulePermissionDisabling() {
     streaksSave: FEATURE_STREAKS,
     seasonResetsSave: FEATURE_SEASON_RESETS,
     seasonResetsRunNow: FEATURE_SEASON_RESETS,
+    reputationSave: FEATURE_REPUTATION,
+    repGivePlus: FEATURE_REPUTATION,
+    repGiveMinus: FEATURE_REPUTATION,
+    economySave: FEATURE_ECONOMY,
+    ecoAddItem: FEATURE_ECONOMY,
+    ecoPurchase: FEATURE_ECONOMY,
+    achievementsSave: FEATURE_ACHIEVEMENTS,
+    triviaSave: FEATURE_TRIVIA,
+    triviaNewQuestion: FEATURE_TRIVIA,
+    triviaSubmit: FEATURE_TRIVIA,
+    calendarSave: FEATURE_CALENDAR,
+    calCreate: FEATURE_CALENDAR,
+    confessionsSave: FEATURE_CONFESSIONS,
   };
   Object.entries(buttonFeatureMap).forEach(([id, feature]) => {
     const button = qs(`#${id}`);
@@ -471,6 +515,7 @@ function setActiveView(view, persist = true) {
   if (persist) {
     localStorage.setItem(ACTIVE_VIEW_STORAGE_KEY, view);
   }
+  refreshIncidentBanner(state.currentSettings || {});
   if (view === 'events') {
     loadEvents().catch((err) => showToast(`Events load failed: ${err.message}`, 'error'));
     startEventsPolling();
@@ -680,6 +725,7 @@ async function loadSettings() {
   qs('#settingsVoiceCoinsPerMinute').value = cfg.voice_reward_coins_per_minute || 1;
   qs('#settingsVoiceXPPerMinute').value = cfg.voice_reward_xp_per_minute || 2;
   qs('#settingsConfessionsEnabled').value = String(!!cfg.confessions_enabled);
+  qs('#moduleConfessionsEnabled').value = String(!!cfg.confessions_enabled);
   qs('#settingsConfessionsChannel').value = cfg.confessions_channel_id || '';
   qs('#settingsConfessionsReview').value = String(cfg.confessions_require_review !== false);
   qs('#settingsBirthdaysEnabled').value = String(!!cfg.birthdays_enabled);
@@ -796,9 +842,23 @@ async function loadSettings() {
   qs('#settingsBirthdaysEnabled').value = String(!!flags[FEATURE_BIRTHDAYS]);
   qs('#settingsStreaksEnabled').value = String(!!flags[FEATURE_STREAKS]);
   qs('#settingsSeasonResetsEnabled').value = String(!!flags[FEATURE_SEASON_RESETS]);
+  qs('#settingsReputationEnabled').value = String(!!flags[FEATURE_REPUTATION]);
+  qs('#settingsEconomyEnabled').value = String(!!flags[FEATURE_ECONOMY]);
+  qs('#settingsAchievementsEnabled').value = String(!!flags[FEATURE_ACHIEVEMENTS]);
+  qs('#settingsTriviaEnabled').value = String(!!flags[FEATURE_TRIVIA]);
+  qs('#settingsCalendarEnabled').value = String(!!flags[FEATURE_CALENDAR]);
+  qs('#settingsConfessionsEnabled').value = String(!!flags[FEATURE_CONFESSIONS]);
+  qs('#moduleConfessionsEnabled').value = String(!!flags[FEATURE_CONFESSIONS]);
   refreshIncidentBanner(cfg);
   syncModuleBadges();
   updateLevelingGuideExamples();
+  const loadIfEnabled = async (featureKey, loader) => {
+    const flags = cfg.feature_flags || {};
+    if (!flags[featureKey]) {
+      return;
+    }
+    await loader();
+  };
   await loadInvitePermissionStatus();
   await loadAuditTrail();
   await loadReactionRoleRules();
@@ -810,11 +870,11 @@ async function loadSettings() {
   await loadLeaderboard();
   await loadRoleProgressionRules();
   await loadGiveaways();
-  await loadReputationLeaderboard();
-  await loadEconomy();
-  await loadTrivia();
-  await loadCalendarEvents();
-  await loadConfessions();
+  await loadIfEnabled(FEATURE_REPUTATION, loadReputationLeaderboard);
+  await loadIfEnabled(FEATURE_ECONOMY, loadEconomy);
+  await loadIfEnabled(FEATURE_TRIVIA, loadTrivia);
+  await loadIfEnabled(FEATURE_CALENDAR, loadCalendarEvents);
+  await loadIfEnabled(FEATURE_CONFESSIONS, loadConfessions);
   await loadBirthdays();
   await loadStreaks();
   await loadSeasonResets();
@@ -955,6 +1015,15 @@ async function saveSettings() {
       season_reset_cadence: qs('#settingsSeasonResetCadence').value || 'monthly',
       season_reset_next_run_at: (qs('#settingsSeasonResetNextRunAt').value || '').trim(),
       season_reset_modules: (qs('#settingsSeasonResetModules').value || '').split(',').map((v) => v.trim().toLowerCase()).filter(Boolean),
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_REPUTATION]: qs('#settingsReputationEnabled').value === 'true',
+        [FEATURE_ECONOMY]: qs('#settingsEconomyEnabled').value === 'true',
+        [FEATURE_ACHIEVEMENTS]: qs('#settingsAchievementsEnabled').value === 'true',
+        [FEATURE_TRIVIA]: qs('#settingsTriviaEnabled').value === 'true',
+        [FEATURE_CALENDAR]: qs('#settingsCalendarEnabled').value === 'true',
+        [FEATURE_CONFESSIONS]: qs('#settingsConfessionsEnabled').value === 'true',
+      },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -3169,6 +3238,182 @@ async function runSeasonResetNow() {
   }
 }
 
+async function saveReputationModule() {
+  const restore = setBusy(qs('#reputationSave'), 'Saving...');
+  const status = qs('#repStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_REPUTATION]: qs('#settingsReputationEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Reputation module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Reputation save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveEconomyModule() {
+  const restore = setBusy(qs('#economySave'), 'Saving...');
+  const status = qs('#ecoStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_ECONOMY]: qs('#settingsEconomyEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Economy module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Economy save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveAchievementsModule() {
+  const restore = setBusy(qs('#achievementsSave'), 'Saving...');
+  const status = qs('#achStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_ACHIEVEMENTS]: qs('#settingsAchievementsEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Achievements module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Achievements save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveTriviaModule() {
+  const restore = setBusy(qs('#triviaSave'), 'Saving...');
+  const status = qs('#triviaStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_TRIVIA]: qs('#settingsTriviaEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Trivia module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Trivia save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveCalendarModule() {
+  const restore = setBusy(qs('#calendarSave'), 'Saving...');
+  const status = qs('#calStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_CALENDAR]: qs('#settingsCalendarEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Calendar module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Calendar save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveConfessionsModule() {
+  const restore = setBusy(qs('#confessionsSave'), 'Saving...');
+  const status = qs('#confStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const enabled = qs('#moduleConfessionsEnabled').value === 'true';
+    const payload = {
+      ...current,
+      confessions_enabled: enabled,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_CONFESSIONS]: enabled,
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Confessions module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Confessions save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function reviewQueueDecision(actionID, decision) {
   if (!actionID || !decision) return;
   let reason = '';
@@ -3619,6 +3864,12 @@ function wireEvents() {
   qs('#seasonResetsSave').onclick = () => { if (requireModulePermissions(FEATURE_SEASON_RESETS, 'Save season resets module')) saveSeasonResetsModule(); };
   qs('#seasonResetsRunNow').onclick = () => { if (requireModulePermissions(FEATURE_SEASON_RESETS, 'Run season reset')) runSeasonResetNow(); };
   qs('#seasonResetsRefresh').onclick = () => loadSeasonResets().catch((err) => showToast(`Season reset history load failed: ${err.message}`, 'error'));
+  qs('#reputationSave').onclick = () => { if (requireModulePermissions(FEATURE_REPUTATION, 'Save reputation module')) saveReputationModule(); };
+  qs('#economySave').onclick = () => { if (requireModulePermissions(FEATURE_ECONOMY, 'Save economy module')) saveEconomyModule(); };
+  qs('#achievementsSave').onclick = () => { if (requireModulePermissions(FEATURE_ACHIEVEMENTS, 'Save achievements module')) saveAchievementsModule(); };
+  qs('#triviaSave').onclick = () => { if (requireModulePermissions(FEATURE_TRIVIA, 'Save trivia module')) saveTriviaModule(); };
+  qs('#calendarSave').onclick = () => { if (requireModulePermissions(FEATURE_CALENDAR, 'Save calendar module')) saveCalendarModule(); };
+  qs('#confessionsSave').onclick = () => { if (requireModulePermissions(FEATURE_CONFESSIONS, 'Save confessions module')) saveConfessionsModule(); };
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = () => { if (requireModulePermissions(FEATURE_REACTION_ROLES, 'Add reaction role rule')) addReactionRoleRule(); };
   qs('#warnRefresh').onclick = () => loadWarnings().catch((err) => showToast(`Warnings load failed: ${err.message}`, 'error'));
@@ -3676,6 +3927,13 @@ function wireEvents() {
   qs('#settingsBirthdaysEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStreaksEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsSeasonResetsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsReputationEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsEconomyEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsAchievementsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsTriviaEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsCalendarEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsConfessionsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleConfessionsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingCurve').addEventListener('change', updateLevelingGuideExamples);
   qs('#settingsLevelingBase').addEventListener('input', updateLevelingGuideExamples);
   qs('#settingsLevelingXP').addEventListener('input', updateLevelingGuideExamples);
@@ -3700,21 +3958,21 @@ function wireEvents() {
   qs('#panicDeactivate').onclick = () => deactivateRaidPanic().catch((err) => showToast(`Deactivate panic failed: ${err.message}`, 'error'));
   qs('#panicStatusRefresh').onclick = () => loadRaidPanicStatus().catch((err) => showToast(`Panic status failed: ${err.message}`, 'error'));
   qs('#repRefresh').onclick = () => loadReputationLeaderboard().catch((err) => showToast(`Reputation load failed: ${err.message}`, 'error'));
-  qs('#repGivePlus').onclick = () => giveReputation(1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));
-  qs('#repGiveMinus').onclick = () => giveReputation(-1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));
+  qs('#repGivePlus').onclick = () => { if (requireModulePermissions(FEATURE_REPUTATION, 'Give reputation')) giveReputation(1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error')); };
+  qs('#repGiveMinus').onclick = () => { if (requireModulePermissions(FEATURE_REPUTATION, 'Give reputation')) giveReputation(-1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error')); };
   qs('#ecoRefresh').onclick = () => loadEconomy().catch((err) => showToast(`Economy load failed: ${err.message}`, 'error'));
-  qs('#ecoAddItem').onclick = () => addEconomyItem().catch((err) => showToast(`Add item failed: ${err.message}`, 'error'));
-  qs('#ecoPurchase').onclick = () => purchaseEconomyItem().catch((err) => showToast(`Purchase failed: ${err.message}`, 'error'));
+  qs('#ecoAddItem').onclick = () => { if (requireModulePermissions(FEATURE_ECONOMY, 'Add economy shop item')) addEconomyItem().catch((err) => showToast(`Add item failed: ${err.message}`, 'error')); };
+  qs('#ecoPurchase').onclick = () => { if (requireModulePermissions(FEATURE_ECONOMY, 'Purchase economy item')) purchaseEconomyItem().catch((err) => showToast(`Purchase failed: ${err.message}`, 'error')); };
   qs('#achLoad').onclick = () => loadAchievements().catch((err) => showToast(`Achievements load failed: ${err.message}`, 'error'));
-  qs('#triviaNewQuestion').onclick = () => fetchTriviaQuestion().catch((err) => showToast(`Trivia question failed: ${err.message}`, 'error'));
-  qs('#triviaSubmit').onclick = () => submitTriviaAnswer().catch((err) => showToast(`Trivia submit failed: ${err.message}`, 'error'));
+  qs('#triviaNewQuestion').onclick = () => { if (requireModulePermissions(FEATURE_TRIVIA, 'Start trivia round')) fetchTriviaQuestion().catch((err) => showToast(`Trivia question failed: ${err.message}`, 'error')); };
+  qs('#triviaSubmit').onclick = () => { if (requireModulePermissions(FEATURE_TRIVIA, 'Submit trivia answer')) submitTriviaAnswer().catch((err) => showToast(`Trivia submit failed: ${err.message}`, 'error')); };
   qs('#triviaRefresh').onclick = () => loadTrivia().catch((err) => showToast(`Trivia load failed: ${err.message}`, 'error'));
   qs('#birthdayAdd').onclick = () => addBirthday().catch((err) => showToast(`Birthday save failed: ${err.message}`, 'error'));
   qs('#birthdayRefresh').onclick = () => loadBirthdays().catch((err) => showToast(`Birthday list failed: ${err.message}`, 'error'));
   qs('#streaksRefresh').onclick = () => loadStreaks().catch((err) => showToast(`Streaks load failed: ${err.message}`, 'error'));
   qs('#streakUserLoad').onclick = () => loadStreakUser().catch((err) => showToast(`Streak user load failed: ${err.message}`, 'error'));
   qs('#calRefresh').onclick = () => loadCalendarEvents().catch((err) => showToast(`Calendar load failed: ${err.message}`, 'error'));
-  qs('#calCreate').onclick = () => createCalendarEvent().catch((err) => showToast(`Create event failed: ${err.message}`, 'error'));
+  qs('#calCreate').onclick = () => { if (requireModulePermissions(FEATURE_CALENDAR, 'Create calendar event')) createCalendarEvent().catch((err) => showToast(`Create event failed: ${err.message}`, 'error')); };
   qs('#confRefresh').onclick = () => loadConfessions().catch((err) => showToast(`Confessions load failed: ${err.message}`, 'error'));
 
   qs('#membersTable').addEventListener('click', (e) => {
@@ -3797,6 +4055,7 @@ function wireEvents() {
   qs('#calTable').addEventListener('click', async (e) => {
     const rsvpBtn = e.target.closest('button[data-cal-rsvp]');
     if (rsvpBtn) {
+      if (!requireModulePermissions(FEATURE_CALENDAR, 'Submit RSVP')) return;
       const eventID = rsvpBtn.getAttribute('data-cal-rsvp');
       const status = rsvpBtn.getAttribute('data-cal-status');
       const userID = (qs('#calCreatedBy').value || '').trim();
@@ -3814,9 +4073,10 @@ function wireEvents() {
     }
     const viewBtn = e.target.closest('button[data-cal-view-rsvps]');
     if (viewBtn) {
+      if (!requireModulePermissions(FEATURE_CALENDAR, 'View RSVPs')) return;
       const eventID = viewBtn.getAttribute('data-cal-view-rsvps');
       try {
-        const rows = (await apiFetch(`/api/modules/calendar/rsvps?event_id=${encodeURIComponent(eventID)}`)) || [];
+        const rows = (await apiFetch(`/api/modules/calendar/rsvps?guild_id=${encodeURIComponent(state.guildId)}&event_id=${encodeURIComponent(eventID)}`)) || [];
         showToast(`RSVPs: ${rows.map((row) => `${row.user_id}:${row.status}`).join(', ') || 'none'}`);
       } catch (err) {
         showToast(`Load RSVPs failed: ${err.message}`, 'error');
@@ -3828,6 +4088,7 @@ function wireEvents() {
     const approve = e.target.closest('button[data-conf-approve]');
     const reject = e.target.closest('button[data-conf-reject]');
     if (!approve && !reject) return;
+    if (!requireModulePermissions(FEATURE_CONFESSIONS, 'Review confession')) return;
     const id = approve ? approve.getAttribute('data-conf-approve') : reject.getAttribute('data-conf-reject');
     const decision = approve ? 'approve' : 'reject';
     try {

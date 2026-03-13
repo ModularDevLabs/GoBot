@@ -7,12 +7,16 @@ import (
 	"strings"
 
 	"github.com/ModularDevLabs/GoBot/internal/db"
+	"github.com/ModularDevLabs/GoBot/internal/models"
 )
 
 func (s *Server) handleCalendarEvents(w http.ResponseWriter, r *http.Request) {
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureCalendar, "calendar") {
 		return
 	}
 	switch r.Method {
@@ -63,6 +67,14 @@ func (s *Server) handleCalendarRSVP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
+	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
+	if guildID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureCalendar, "calendar") {
+		return
+	}
 	var payload struct {
 		EventID int64  `json:"event_id"`
 		UserID  string `json:"user_id"`
@@ -87,6 +99,14 @@ func (s *Server) handleCalendarRSVP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleCalendarRSVPs(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
+	if guildID == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	if !s.ensureFeatureEnabled(w, r, guildID, models.FeatureCalendar, "calendar") {
 		return
 	}
 	eventID, err := strconv.ParseInt(strings.TrimSpace(r.URL.Query().Get("event_id")), 10, 64)

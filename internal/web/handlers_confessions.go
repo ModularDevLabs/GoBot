@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/ModularDevLabs/GoBot/internal/models"
 )
 
 func (s *Server) handleConfessions(w http.ResponseWriter, r *http.Request) {
@@ -15,6 +17,16 @@ func (s *Server) handleConfessions(w http.ResponseWriter, r *http.Request) {
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	cfg, err := s.repos.Settings.Get(r.Context(), guildID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !cfg.FeatureEnabled(models.FeatureConfessions) || !cfg.ConfessionsEnabled {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte("confessions module is disabled"))
 		return
 	}
 	status := strings.TrimSpace(r.URL.Query().Get("status"))
@@ -37,6 +49,16 @@ func (s *Server) handleConfessionReview(w http.ResponseWriter, r *http.Request) 
 	guildID := strings.TrimSpace(r.URL.Query().Get("guild_id"))
 	if guildID == "" {
 		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	cfg, err := s.repos.Settings.Get(r.Context(), guildID)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	if !cfg.FeatureEnabled(models.FeatureConfessions) || !cfg.ConfessionsEnabled {
+		w.WriteHeader(http.StatusForbidden)
+		_, _ = w.Write([]byte("confessions module is disabled"))
 		return
 	}
 	var payload struct {

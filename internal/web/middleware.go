@@ -87,6 +87,18 @@ func rbacPolicyKeyForPath(path string) string {
 		return models.FeatureStreaks
 	case strings.HasPrefix(path, "/api/modules/season-resets"):
 		return models.FeatureSeasonResets
+	case strings.HasPrefix(path, "/api/modules/reputation"):
+		return models.FeatureReputation
+	case strings.HasPrefix(path, "/api/modules/economy"):
+		return models.FeatureEconomy
+	case strings.HasPrefix(path, "/api/modules/achievements"):
+		return models.FeatureAchievements
+	case strings.HasPrefix(path, "/api/modules/trivia"):
+		return models.FeatureTrivia
+	case strings.HasPrefix(path, "/api/modules/calendar"):
+		return models.FeatureCalendar
+	case strings.HasPrefix(path, "/api/modules/confessions"):
+		return models.FeatureConfessions
 	case strings.HasPrefix(path, "/api/modules/giveaways"):
 		return models.FeatureGiveaways
 	case strings.HasPrefix(path, "/api/modules/polls"):
