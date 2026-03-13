@@ -67,6 +67,8 @@ func rbacPolicyKeyForPath(path string) string {
 		return models.FeatureWarnings
 	case strings.HasPrefix(path, "/api/modules/reaction-roles"):
 		return models.FeatureReactionRoles
+	case strings.HasPrefix(path, "/api/modules/role-progression"):
+		return models.FeatureRoleProgression
 	case strings.HasPrefix(path, "/api/modules/scheduled"):
 		return models.FeatureScheduled
 	case strings.HasPrefix(path, "/api/modules/tickets"):

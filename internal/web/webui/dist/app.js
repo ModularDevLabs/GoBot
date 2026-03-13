@@ -27,6 +27,7 @@ const FEATURE_ANTI_RAID = 'anti_raid';
 const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_STARBOARD = 'starboard';
 const FEATURE_LEVELING = 'leveling';
+const FEATURE_ROLE_PROGRESSION = 'role_progression';
 const FEATURE_GIVEAWAYS = 'giveaways';
 const FEATURE_POLLS = 'polls';
 const FEATURE_SUGGESTIONS = 'suggestions';
@@ -53,6 +54,7 @@ const FEATURE_BY_VIEW = {
   analytics: FEATURE_ANALYTICS,
   starboard: FEATURE_STARBOARD,
   leveling: FEATURE_LEVELING,
+  roleprogression: FEATURE_ROLE_PROGRESSION,
   giveaways: FEATURE_GIVEAWAYS,
   polls: FEATURE_POLLS,
   suggestions: FEATURE_SUGGESTIONS,
@@ -83,6 +85,7 @@ const MODULE_GUIDES = {
   analytics: { title: 'How To Use', points: ['Enable module and set report channel ID.', 'Choose a weekly interval first for signal over noise.', 'Use reports to tune inactivity, warnings, and action policies.'] },
   starboard: { title: 'How To Use', points: ['Set starboard channel + emoji + threshold.', 'Avoid setting threshold too low to prevent noise.', 'Verify the configured emoji matches your community usage.'] },
   leveling: { title: 'How To Use', points: ['Set XP per message and cooldown to control XP velocity.', 'Choose curve + base to define XP needed per level.', 'Use leaderboard refresh to verify progression behavior.'] },
+  roleprogression: { title: 'How To Use', points: ['Enable the module first.', 'Create threshold rules by metric and target role.', 'Use Sync user to apply changes immediately to a member.'] },
   giveaways: { title: 'How To Use', points: ['Set default channel and entry emoji.', 'Start giveaways from the run panel below.', 'Draw winners after end time to announce results.'] },
   polls: { title: 'How To Use', points: ['Set default poll channel and enable module.', 'Create polls with 2-5 options.', 'Close polls from the table to publish final vote summary.'] },
   suggestions: { title: 'How To Use', points: ['Set suggestions channel (and optional log channel).', 'Users post suggestions; bot converts them into vote cards.', 'Approve/reject from the table and include moderation notes.'] },
@@ -119,6 +122,7 @@ function syncModuleBadges() {
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
   const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
   const levelingEnabled = qs('#settingsLevelingEnabled').value === 'true';
+  const roleProgressionEnabled = qs('#settingsRoleProgressionEnabled')?.value === 'true';
   const giveawaysEnabled = qs('#settingsGiveawaysEnabled').value === 'true';
   const pollsEnabled = qs('#settingsPollsEnabled').value === 'true';
   const suggestionsEnabled = qs('#settingsSuggestionsEnabled').value === 'true';
@@ -144,6 +148,7 @@ function syncModuleBadges() {
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
   setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
   setModuleBadge(levelingEnabled, qs('#moduleLevelingBadge'), qs('#moduleLevelingCard'));
+  setModuleBadge(roleProgressionEnabled, qs('#moduleRoleProgressionBadge'), qs('#moduleRoleProgressionCard'));
   setModuleBadge(giveawaysEnabled, qs('#moduleGiveawaysBadge'), qs('#moduleGiveawaysCard'));
   setModuleBadge(pollsEnabled, qs('#modulePollsBadge'), qs('#modulePollsCard'));
   setModuleBadge(suggestionsEnabled, qs('#moduleSuggestionsBadge'), qs('#moduleSuggestionsCard'));
@@ -347,6 +352,9 @@ function applyModulePermissionDisabling() {
     analyticsSave: FEATURE_ANALYTICS,
     starboardSave: FEATURE_STARBOARD,
     levelingSave: FEATURE_LEVELING,
+    roleProgressionSave: FEATURE_ROLE_PROGRESSION,
+    rpAddRule: FEATURE_ROLE_PROGRESSION,
+    rpSyncUser: FEATURE_ROLE_PROGRESSION,
     giveawaysSave: FEATURE_GIVEAWAYS,
     giveawayStart: FEATURE_GIVEAWAYS,
     pollsSave: FEATURE_POLLS,
@@ -654,6 +662,7 @@ async function loadSettings() {
   qs('#settingsConfessionsReview').value = String(cfg.confessions_require_review !== false);
   qs('#settingsBirthdaysEnabled').value = String(!!cfg.birthdays_enabled);
   qs('#settingsBirthdaysChannel').value = cfg.birthdays_channel_id || '';
+  qs('#settingsRoleProgressionEnabled').value = String(!!cfg.auto_role_progression_enabled);
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -722,6 +731,7 @@ async function loadSettings() {
   qs('#settingsLevelingCooldown').value = cfg.leveling_cooldown_seconds || 60;
   qs('#settingsLevelingCurve').value = cfg.leveling_curve || 'quadratic';
   qs('#settingsLevelingBase').value = cfg.leveling_xp_base || 100;
+  qs('#settingsRoleProgressionEnabled').value = String(!!flags[FEATURE_ROLE_PROGRESSION]);
   qs('#settingsGiveawaysEnabled').value = String(!!flags[FEATURE_GIVEAWAYS]);
   qs('#settingsGiveawaysChannel').value = cfg.giveaways_channel_id || '';
   qs('#settingsGiveawaysEmoji').value = cfg.giveaways_reaction_emoji || '🎉';
@@ -761,6 +771,7 @@ async function loadSettings() {
   await loadAppeals();
   await loadCustomCommands();
   await loadLeaderboard();
+  await loadRoleProgressionRules();
   await loadGiveaways();
   await loadReputationLeaderboard();
   await loadEconomy();
@@ -890,6 +901,7 @@ async function saveSettings() {
       confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
       birthdays_enabled: qs('#settingsBirthdaysEnabled').value === 'true',
       birthdays_channel_id: (qs('#settingsBirthdaysChannel').value || '').trim(),
+      auto_role_progression_enabled: qs('#settingsRoleProgressionEnabled').value === 'true',
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -1761,6 +1773,96 @@ async function saveLevelingModule() {
   } finally {
     restore();
   }
+}
+
+async function saveRoleProgressionModule() {
+  const restore = setBusy(qs('#roleProgressionSave'), 'Saving...');
+  const status = qs('#roleProgressionStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_ROLE_PROGRESSION]: qs('#settingsRoleProgressionEnabled').value === 'true',
+      },
+      auto_role_progression_enabled: qs('#settingsRoleProgressionEnabled').value === 'true',
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Role progression module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Role progression save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadRoleProgressionRules() {
+  if (!state.guildId) return;
+  const table = qs('#rpRulesTable');
+  const status = qs('#rpRulesStatus');
+  if (!table || !status) return;
+  const rows = (await apiFetch(`/api/modules/role-progression/rules?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.metric}</div>
+      <div>${row.threshold}</div>
+      <div>${row.role_id}</div>
+      <div>${row.enabled ? 'yes' : 'no'}</div>
+      <div><button class="ghost" data-rp-del="${row.id}">Delete</button></div>
+    `;
+    table.appendChild(div);
+  });
+  status.textContent = `Loaded ${rows.length} rules`;
+}
+
+async function addRoleProgressionRule() {
+  if (!state.guildId) return;
+  const metric = (qs('#rpMetric')?.value || '').trim();
+  const threshold = parseInt(qs('#rpThreshold')?.value || '0', 10);
+  const roleID = (qs('#rpRoleId')?.value || '').trim();
+  if (!metric || !roleID || !Number.isFinite(threshold) || threshold < 0) {
+    showToast('Metric, threshold, and role ID are required.', 'error');
+    return;
+  }
+  await apiFetch(`/api/modules/role-progression/rules?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ metric, threshold, role_id: roleID, enabled: true }),
+  });
+  await loadRoleProgressionRules();
+}
+
+async function deleteRoleProgressionRule(id) {
+  if (!state.guildId || !id) return;
+  await apiFetch(`/api/modules/role-progression/rules/${id}?guild_id=${state.guildId}`, { method: 'DELETE' });
+}
+
+async function syncRoleProgressionUser() {
+  if (!state.guildId) return;
+  const userID = (qs('#rpSyncUserId')?.value || '').trim();
+  if (!userID) {
+    showToast('Enter a user ID first.', 'error');
+    return;
+  }
+  const res = await apiFetch(`/api/modules/role-progression/sync?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userID }),
+  });
+  showToast(`Synced roles: +${res.added || 0}, -${res.removed || 0}`);
 }
 
 async function saveGiveawaysModule() {
@@ -3192,6 +3294,7 @@ function wireEvents() {
   qs('#appealsSave').onclick = () => { if (requireModulePermissions(FEATURE_APPEALS, 'Save appeals module')) saveAppealsModule(); };
   qs('#starboardSave').onclick = () => { if (requireModulePermissions(FEATURE_STARBOARD, 'Save starboard module')) saveStarboardModule(); };
   qs('#levelingSave').onclick = () => { if (requireModulePermissions(FEATURE_LEVELING, 'Save leveling module')) saveLevelingModule(); };
+  qs('#roleProgressionSave').onclick = () => { if (requireModulePermissions(FEATURE_ROLE_PROGRESSION, 'Save role progression module')) saveRoleProgressionModule(); };
   qs('#giveawaysSave').onclick = () => { if (requireModulePermissions(FEATURE_GIVEAWAYS, 'Save giveaways module')) saveGiveawaysModule(); };
   qs('#pollsSave').onclick = () => { if (requireModulePermissions(FEATURE_POLLS, 'Save polls module')) savePollsModule(); };
   qs('#suggestionsSave').onclick = () => { if (requireModulePermissions(FEATURE_SUGGESTIONS, 'Save suggestions module')) saveSuggestionsModule(); };
@@ -3215,6 +3318,9 @@ function wireEvents() {
   qs('#customCommandsRefresh').onclick = () => loadCustomCommands().catch((err) => showToast(`Commands load failed: ${err.message}`, 'error'));
   qs('#customCommandAdd').onclick = () => { if (requireModulePermissions(FEATURE_CUSTOM_COMMANDS, 'Add custom command')) addCustomCommand(); };
   qs('#levelingRefresh').onclick = () => loadLeaderboard().catch((err) => showToast(`Leaderboard load failed: ${err.message}`, 'error'));
+  qs('#rpRefresh').onclick = () => loadRoleProgressionRules().catch((err) => showToast(`Role progression load failed: ${err.message}`, 'error'));
+  qs('#rpAddRule').onclick = () => addRoleProgressionRule().catch((err) => showToast(`Role progression add failed: ${err.message}`, 'error'));
+  qs('#rpSyncUser').onclick = () => syncRoleProgressionUser().catch((err) => showToast(`Role progression sync failed: ${err.message}`, 'error'));
   qs('#giveawaysRefresh').onclick = () => loadGiveaways().catch((err) => showToast(`Giveaways load failed: ${err.message}`, 'error'));
   qs('#giveawayStart').onclick = () => { if (requireModulePermissions(FEATURE_GIVEAWAYS, 'Start giveaway')) startGiveaway(); };
   qs('#pollsRefresh').onclick = () => loadPolls().catch((err) => showToast(`Polls load failed: ${err.message}`, 'error'));
@@ -3240,6 +3346,7 @@ function wireEvents() {
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsRoleProgressionEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsGiveawaysEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsPollsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsSuggestionsEnabled').addEventListener('change', syncModuleBadges);
@@ -3318,6 +3425,18 @@ function wireEvents() {
       await loadScheduledMessages();
     } catch (err) {
       showToast(`Delete schedule failed: ${err.message}`, 'error');
+    }
+  });
+
+  qs('#rpRulesTable').addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-rp-del]');
+    if (!btn) return;
+    try {
+      await deleteRoleProgressionRule(btn.getAttribute('data-rp-del'));
+      showToast('Role progression rule deleted.');
+      await loadRoleProgressionRules();
+    } catch (err) {
+      showToast(`Delete role progression rule failed: ${err.message}`, 'error');
     }
   });
 

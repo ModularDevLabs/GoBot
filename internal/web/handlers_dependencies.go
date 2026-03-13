@@ -111,6 +111,9 @@ func (s *Server) handleDependencyCheck(w http.ResponseWriter, r *http.Request) {
 	if cfg.FeatureEnabled(models.FeatureBirthdays) && cfg.BirthdaysChannelID == "" {
 		add("birthdays", "warn", "Enabled without a birthday announcement channel.")
 	}
+	if cfg.FeatureEnabled(models.FeatureRoleProgression) && !cfg.AutoRoleProgressionEnabled {
+		add("role_progression", "warn", "Feature flag enabled but auto role progression toggle is off.")
+	}
 	if cfg.FeatureEnabled(models.FeatureAccountAgeGuard) {
 		if cfg.AccountAgeMinDays <= 0 {
 			add("account_age_guard", "error", "Enabled with invalid minimum account age.")

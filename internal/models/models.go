@@ -55,6 +55,7 @@ type GuildSettings struct {
 	ConfessionsRequireReview    bool                `json:"confessions_require_review"`
 	BirthdaysEnabled            bool                `json:"birthdays_enabled"`
 	BirthdaysChannelID          string              `json:"birthdays_channel_id"`
+	AutoRoleProgressionEnabled  bool                `json:"auto_role_progression_enabled"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -304,6 +305,16 @@ type BirthdayRow struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+type RoleProgressionRuleRow struct {
+	ID        int64     `json:"id"`
+	GuildID   string    `json:"guild_id"`
+	Metric    string    `json:"metric"`
+	Threshold int       `json:"threshold"`
+	RoleID    string    `json:"role_id"`
+	Enabled   bool      `json:"enabled"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type MemberNoteRow struct {
 	ID         int64      `json:"id"`
 	GuildID    string     `json:"guild_id"`
@@ -367,6 +378,7 @@ const (
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
 	FeatureBirthdays       = "birthdays"
+	FeatureRoleProgression = "role_progression"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -466,6 +478,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		ConfessionsRequireReview:    true,
 		BirthdaysEnabled:            false,
 		BirthdaysChannelID:          "",
+		AutoRoleProgressionEnabled:  false,
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,
@@ -492,6 +505,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
 			FeatureBirthdays:       false,
+			FeatureRoleProgression: false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

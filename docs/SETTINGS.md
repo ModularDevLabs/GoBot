@@ -184,6 +184,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `appeals=false`
 - `custom_commands=false`
 - `birthdays=false`
+- `role_progression=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
 
 10. `welcome_channel_id`
@@ -541,6 +542,12 @@ Each schedule contains:
 - UI label: `Birthday channel ID` (Birthdays module)
 - Type: Discord channel ID (string)
 - Used when `feature_flags.birthdays=true`.
+
+69. `auto_role_progression_enabled`
+- UI label: `Enabled` (Role Progression module)
+- Type: boolean
+- Default: `false`
+- Mirrors `feature_flags.role_progression`.
 
 ## Giveaways Records
 

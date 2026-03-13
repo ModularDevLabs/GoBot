@@ -22,21 +22,23 @@ type Service struct {
 	repos   *db.Repositories
 	logger  Logger
 
-	guildsCache  []models.GuildInfo
-	backfillMu   sync.Mutex
-	backfillJobs map[string]BackfillJob
-	actionWakeCh chan struct{}
-	invitesMu    sync.Mutex
-	invitesCache map[string]map[string]int
-	automodMu    sync.Mutex
-	automodSeen  map[string][]time.Time
-	raidMu       sync.Mutex
-	raidJoins    map[string][]time.Time
-	raidUntil    map[string]time.Time
-	economyMu    sync.Mutex
-	economyLast  map[string]time.Time
-	voiceMu      sync.Mutex
-	voiceJoined  map[string]time.Time
+	guildsCache     []models.GuildInfo
+	backfillMu      sync.Mutex
+	backfillJobs    map[string]BackfillJob
+	actionWakeCh    chan struct{}
+	invitesMu       sync.Mutex
+	invitesCache    map[string]map[string]int
+	automodMu       sync.Mutex
+	automodSeen     map[string][]time.Time
+	raidMu          sync.Mutex
+	raidJoins       map[string][]time.Time
+	raidUntil       map[string]time.Time
+	economyMu       sync.Mutex
+	economyLast     map[string]time.Time
+	voiceMu         sync.Mutex
+	voiceJoined     map[string]time.Time
+	progressionMu   sync.Mutex
+	progressionLast map[string]time.Time
 }
 
 func NewService(token string, repos *db.Repositories, logger Logger) (*Service, error) {
@@ -48,16 +50,17 @@ func NewService(token string, repos *db.Repositories, logger Logger) (*Service, 
 	s.Identify.Intents = discordgo.IntentsGuilds | discordgo.IntentsGuildMembers | discordgo.IntentsGuildMessages | discordgo.IntentsGuildMessageReactions | discordgo.IntentsGuildVoiceStates | discordgo.IntentsMessageContent
 
 	svc := &Service{
-		session:      s,
-		repos:        repos,
-		logger:       logger,
-		actionWakeCh: make(chan struct{}, 1),
-		invitesCache: make(map[string]map[string]int),
-		automodSeen:  make(map[string][]time.Time),
-		raidJoins:    make(map[string][]time.Time),
-		raidUntil:    make(map[string]time.Time),
-		economyLast:  make(map[string]time.Time),
-		voiceJoined:  make(map[string]time.Time),
+		session:         s,
+		repos:           repos,
+		logger:          logger,
+		actionWakeCh:    make(chan struct{}, 1),
+		invitesCache:    make(map[string]map[string]int),
+		automodSeen:     make(map[string][]time.Time),
+		raidJoins:       make(map[string][]time.Time),
+		raidUntil:       make(map[string]time.Time),
+		economyLast:     make(map[string]time.Time),
+		voiceJoined:     make(map[string]time.Time),
+		progressionLast: make(map[string]time.Time),
 	}
 
 	s.AddHandler(svc.onReady)

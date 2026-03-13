@@ -67,6 +67,9 @@ func (s *Service) OnMessageCreate(_ *discordgo.Session, m *discordgo.MessageCrea
 	if !handledCustomCommand && settings.FeatureAllowedInChannel(models.FeatureAutoMod, m.ChannelID) {
 		s.handleAutoMod(ctx, m, settings)
 	}
+	if settings.AutoRoleProgressionEnabled && settings.FeatureEnabled(models.FeatureRoleProgression) {
+		_, _ = s.syncRoleProgressionForUser(ctx, m.GuildID, m.Author.ID, false)
+	}
 	cutoff := time.Now().AddDate(0, 0, -settings.InactiveDays)
 	_, _ = s.repos.Activity.UpsertActivityIfStale(ctx, m.GuildID, m.Author.ID, m.ChannelID, m.Timestamp, username, globalName, displayName, cutoff)
 }

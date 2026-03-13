@@ -71,6 +71,7 @@
             <button type="button" class="nav-view-btn" data-view="goodbye">Goodbye</button>
             <button type="button" class="nav-view-btn" data-view="starboard">Starboard</button>
             <button type="button" class="nav-view-btn" data-view="leveling">Leveling</button>
+            <button type="button" class="nav-view-btn" data-view="roleprogression">Role Progression</button>
             <button type="button" class="nav-view-btn" data-view="reputation">Reputation</button>
             <button type="button" class="nav-view-btn" data-view="economy">Economy</button>
             <button type="button" class="nav-view-btn" data-view="achievements">Achievements</button>
@@ -1366,6 +1367,68 @@
               <div>Last XP</div>
             </div>
             <div id="levelingTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-roleprogression" class="view">
+        <div class="panel">
+          <div class="panel-header">Auto Role Progression</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleRoleProgressionCard">
+              <div class="module-head">
+                <div class="module-title">Role Progression</div>
+                <span class="module-badge off" id="moduleRoleProgressionBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Automatically add/remove roles based on level, reputation, or economy thresholds.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsRoleProgressionEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="roleProgressionSave" class="primary">Save role progression module</button>
+            <span id="roleProgressionStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Rules</div>
+          <div class="form-grid">
+            <label>
+              Metric
+              <select id="rpMetric">
+                <option value="level">Level</option>
+                <option value="reputation">Reputation</option>
+                <option value="economy">Economy</option>
+              </select>
+            </label>
+            <label>
+              Threshold
+              <input id="rpThreshold" type="number" min="0" />
+            </label>
+            <label>
+              Role ID
+              <input id="rpRoleId" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="rpAddRule" class="ghost">Add rule</button>
+            <button id="rpRefresh" class="ghost">Refresh rules</button>
+            <input id="rpSyncUserId" placeholder="User ID to sync roles" />
+            <button id="rpSyncUser" class="ghost">Sync user now</button>
+            <span id="rpRulesStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header">
+              <div>ID</div><div>Metric</div><div>Threshold</div><div>Role</div><div>Enabled</div><div>Action</div>
+            </div>
+            <div id="rpRulesTable"></div>
           </div>
         </div>
       </section>

@@ -61,6 +61,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			ConfessionsRequireReview    bool                 `json:"confessions_require_review"`
 			BirthdaysEnabled            bool                 `json:"birthdays_enabled"`
 			BirthdaysChannelID          string               `json:"birthdays_channel_id"`
+			AutoRoleProgressionEnabled  bool                 `json:"auto_role_progression_enabled"`
 			FeatureFlags                map[string]bool      `json:"feature_flags"`
 			WelcomeChannelID            string               `json:"welcome_channel_id"`
 			WelcomeMessage              string               `json:"welcome_message"`
@@ -169,6 +170,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.ConfessionsRequireReview = cfg.ConfessionsRequireReview
 		current.BirthdaysEnabled = cfg.BirthdaysEnabled
 		current.BirthdaysChannelID = cfg.BirthdaysChannelID
+		current.AutoRoleProgressionEnabled = cfg.AutoRoleProgressionEnabled
 		current.FeatureFlags = cfg.FeatureFlags
 		current.WelcomeChannelID = cfg.WelcomeChannelID
 		current.WelcomeMessage = cfg.WelcomeMessage

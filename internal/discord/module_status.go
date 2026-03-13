@@ -55,6 +55,9 @@ var modulePermissionRequirements = map[string][]permissionRequirement{
 	models.FeatureReactionRoles: {
 		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
 	},
+	models.FeatureRoleProgression: {
+		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
+	},
 	models.FeatureWarnings: {
 		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
 		{Name: "Kick Members", Bit: discordgo.PermissionKickMembers},

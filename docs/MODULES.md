@@ -196,6 +196,23 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Data model:
 - `birthdays(guild_id, user_id, birthday_mmdd, timezone, created_at, updated_at)`
 
+### Auto Role Progression
+
+- Purpose:
+- Auto-assign or remove roles based on member progression metrics.
+- Metrics supported:
+- `level`
+- `reputation`
+- `economy`
+- Behavior:
+- Rules are evaluated per user and role.
+- If metric value meets/exceeds threshold, role is added.
+- If value drops below threshold, role is removed.
+- APIs:
+- `GET/POST /api/modules/role-progression/rules?guild_id=...`
+- `DELETE /api/modules/role-progression/rules/{id}?guild_id=...`
+- `POST /api/modules/role-progression/sync?guild_id=...` with `user_id`
+
 ### Mod Summaries
 
 - Generates periodic moderation digest messages (warnings/actions/tickets).

@@ -340,6 +340,17 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_birthdays_mmdd
 		ON birthdays(guild_id, birthday_mmdd);`,
+		`CREATE TABLE IF NOT EXISTS role_progression_rules (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			metric TEXT NOT NULL,
+			threshold INTEGER NOT NULL,
+			role_id TEXT NOT NULL,
+			enabled INTEGER NOT NULL DEFAULT 1,
+			created_at TEXT NOT NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_role_progression_rules_guild
+		ON role_progression_rules(guild_id, metric, threshold);`,
 		`CREATE TABLE IF NOT EXISTS trivia_scores (
 			guild_id TEXT NOT NULL,
 			user_id TEXT NOT NULL,

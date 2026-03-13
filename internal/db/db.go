@@ -35,66 +35,68 @@ func Open(path string) (*sql.DB, error) {
 
 func NewRepositories(db *sql.DB) *Repositories {
 	return &Repositories{
-		Activity:       &ActivityRepo{db: db},
-		Actions:        &ActionsRepo{db: db},
-		Settings:       &SettingsRepo{db: db},
-		Backfill:       &BackfillRepo{db: db},
-		ReactionRoles:  &ReactionRolesRepo{db: db},
-		Warnings:       &WarningsRepo{db: db},
-		Scheduled:      &ScheduledMessagesRepo{db: db},
-		Tickets:        &TicketsRepo{db: db},
-		Appeals:        &AppealsRepo{db: db},
-		CustomCommands: &CustomCommandsRepo{db: db},
-		Starboard:      &StarboardRepo{db: db},
-		Leveling:       &LevelingRepo{db: db},
-		Giveaways:      &GiveawaysRepo{db: db},
-		Polls:          &PollsRepo{db: db},
-		Suggestions:    &SuggestionsRepo{db: db},
-		AFK:            &AFKRepo{db: db},
-		Reminders:      &RemindersRepo{db: db},
-		MemberNotes:    &MemberNotesRepo{db: db},
-		Retention:      &RetentionRepo{db: db},
-		Webhooks:       &WebhooksRepo{db: db},
-		AuditTrail:     &AuditTrailRepo{db: db},
-		Reputation:     &ReputationRepo{db: db},
-		Economy:        &EconomyRepo{db: db},
-		Achievements:   &AchievementsRepo{db: db},
-		Calendar:       &CalendarRepo{db: db},
-		RoleRentals:    &RoleRentalsRepo{db: db},
-		Confessions:    &ConfessionsRepo{db: db},
-		Trivia:         &TriviaRepo{db: db},
-		Birthdays:      &BirthdaysRepo{db: db},
+		Activity:        &ActivityRepo{db: db},
+		Actions:         &ActionsRepo{db: db},
+		Settings:        &SettingsRepo{db: db},
+		Backfill:        &BackfillRepo{db: db},
+		ReactionRoles:   &ReactionRolesRepo{db: db},
+		Warnings:        &WarningsRepo{db: db},
+		Scheduled:       &ScheduledMessagesRepo{db: db},
+		Tickets:         &TicketsRepo{db: db},
+		Appeals:         &AppealsRepo{db: db},
+		CustomCommands:  &CustomCommandsRepo{db: db},
+		Starboard:       &StarboardRepo{db: db},
+		Leveling:        &LevelingRepo{db: db},
+		Giveaways:       &GiveawaysRepo{db: db},
+		Polls:           &PollsRepo{db: db},
+		Suggestions:     &SuggestionsRepo{db: db},
+		AFK:             &AFKRepo{db: db},
+		Reminders:       &RemindersRepo{db: db},
+		MemberNotes:     &MemberNotesRepo{db: db},
+		Retention:       &RetentionRepo{db: db},
+		Webhooks:        &WebhooksRepo{db: db},
+		AuditTrail:      &AuditTrailRepo{db: db},
+		Reputation:      &ReputationRepo{db: db},
+		Economy:         &EconomyRepo{db: db},
+		Achievements:    &AchievementsRepo{db: db},
+		Calendar:        &CalendarRepo{db: db},
+		RoleRentals:     &RoleRentalsRepo{db: db},
+		Confessions:     &ConfessionsRepo{db: db},
+		Trivia:          &TriviaRepo{db: db},
+		Birthdays:       &BirthdaysRepo{db: db},
+		RoleProgression: &RoleProgressionRepo{db: db},
 	}
 }
 
 type Repositories struct {
-	Activity       *ActivityRepo
-	Actions        *ActionsRepo
-	Settings       *SettingsRepo
-	Backfill       *BackfillRepo
-	ReactionRoles  *ReactionRolesRepo
-	Warnings       *WarningsRepo
-	Scheduled      *ScheduledMessagesRepo
-	Tickets        *TicketsRepo
-	Appeals        *AppealsRepo
-	CustomCommands *CustomCommandsRepo
-	Starboard      *StarboardRepo
-	Leveling       *LevelingRepo
-	Giveaways      *GiveawaysRepo
-	Polls          *PollsRepo
-	Suggestions    *SuggestionsRepo
-	AFK            *AFKRepo
-	Reminders      *RemindersRepo
-	MemberNotes    *MemberNotesRepo
-	Retention      *RetentionRepo
-	Webhooks       *WebhooksRepo
-	AuditTrail     *AuditTrailRepo
-	Reputation     *ReputationRepo
-	Economy        *EconomyRepo
-	Achievements   *AchievementsRepo
-	Calendar       *CalendarRepo
-	RoleRentals    *RoleRentalsRepo
-	Confessions    *ConfessionsRepo
-	Trivia         *TriviaRepo
-	Birthdays      *BirthdaysRepo
+	Activity        *ActivityRepo
+	Actions         *ActionsRepo
+	Settings        *SettingsRepo
+	Backfill        *BackfillRepo
+	ReactionRoles   *ReactionRolesRepo
+	Warnings        *WarningsRepo
+	Scheduled       *ScheduledMessagesRepo
+	Tickets         *TicketsRepo
+	Appeals         *AppealsRepo
+	CustomCommands  *CustomCommandsRepo
+	Starboard       *StarboardRepo
+	Leveling        *LevelingRepo
+	Giveaways       *GiveawaysRepo
+	Polls           *PollsRepo
+	Suggestions     *SuggestionsRepo
+	AFK             *AFKRepo
+	Reminders       *RemindersRepo
+	MemberNotes     *MemberNotesRepo
+	Retention       *RetentionRepo
+	Webhooks        *WebhooksRepo
+	AuditTrail      *AuditTrailRepo
+	Reputation      *ReputationRepo
+	Economy         *EconomyRepo
+	Achievements    *AchievementsRepo
+	Calendar        *CalendarRepo
+	RoleRentals     *RoleRentalsRepo
+	Confessions     *ConfessionsRepo
+	Trivia          *TriviaRepo
+	Birthdays       *BirthdaysRepo
+	RoleProgression *RoleProgressionRepo
 }
