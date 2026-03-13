@@ -899,6 +899,18 @@
               <input id="rrRoleId" />
             </label>
             <label>
+              Group key (optional)
+              <input id="rrGroupKey" placeholder="color_roles" />
+            </label>
+            <label>
+              Max select (0=unlimited)
+              <input id="rrMaxSelect" type="number" min="0" value="0" />
+            </label>
+            <label>
+              Min select (0=none)
+              <input id="rrMinSelect" type="number" min="0" value="0" />
+            </label>
+            <label>
               Remove role on unreact
               <select id="rrRemoveOnUnreact">
                 <option value="true">Yes</option>
@@ -917,6 +929,9 @@
               <div>Message</div>
               <div>Emoji</div>
               <div>Role</div>
+              <div>Group</div>
+              <div>Max</div>
+              <div>Min</div>
               <div>Remove</div>
               <div>Action</div>
             </div>

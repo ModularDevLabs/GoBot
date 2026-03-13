@@ -343,6 +343,10 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Matches `(channel_id, message_id, emoji)` rules.
 - Add reaction => add role.
 - Remove reaction => remove role only when `remove_on_unreact=true`.
+- V2 group constraints:
+- Optional `group_key` groups rules on the same message.
+- `max_select` enforces max simultaneously held roles in group (oldest in-group role removed first).
+- `min_select` enforces minimum retained roles on unreact (removal blocked when already at minimum).
 - Config keys: feature flag only; rules managed via reaction-role rule records.
 
 ### Warnings (`warnings`)

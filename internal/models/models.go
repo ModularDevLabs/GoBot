@@ -159,6 +159,9 @@ type ReactionRoleRule struct {
 	MessageID       string    `json:"message_id"`
 	Emoji           string    `json:"emoji"`
 	RoleID          string    `json:"role_id"`
+	GroupKey        string    `json:"group_key"`
+	MaxSelect       int       `json:"max_select"`
+	MinSelect       int       `json:"min_select"`
 	RemoveOnUnreact bool      `json:"remove_on_unreact"`
 	CreatedAt       time.Time `json:"created_at"`
 }

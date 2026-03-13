@@ -2,6 +2,7 @@ package discord
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/ModularDevLabs/GoBot/internal/models"
@@ -59,7 +60,39 @@ func (s *Service) applyReactionRole(guildID, channelID, messageID, userID string
 		if rule.Emoji != target {
 			continue
 		}
+		member, err := s.session.GuildMember(guildID, userID)
+		if err != nil || member == nil {
+			continue
+		}
+		roleSet := map[string]struct{}{}
+		for _, rid := range member.Roles {
+			roleSet[rid] = struct{}{}
+		}
 		if isAdd {
+			if _, has := roleSet[rule.RoleID]; has {
+				continue
+			}
+			if strings.TrimSpace(rule.GroupKey) != "" && rule.MaxSelect > 0 {
+				groupRules := make([]models.ReactionRoleRule, 0)
+				for _, candidate := range rules {
+					if candidate.ChannelID == channelID && candidate.MessageID == messageID && candidate.GroupKey == rule.GroupKey {
+						groupRules = append(groupRules, candidate)
+					}
+				}
+				selected := make([]string, 0)
+				for _, g := range groupRules {
+					if _, has := roleSet[g.RoleID]; has {
+						selected = append(selected, g.RoleID)
+					}
+				}
+				for len(selected) >= rule.MaxSelect {
+					victim := selected[0]
+					selected = selected[1:]
+					if err := s.session.GuildMemberRoleRemove(guildID, userID, victim); err == nil {
+						delete(roleSet, victim)
+					}
+				}
+			}
 			if err := s.session.GuildMemberRoleAdd(guildID, userID, rule.RoleID); err != nil {
 				s.logger.Error("reaction role add failed guild=%s user=%s role=%s err=%v", guildID, userID, rule.RoleID, err)
 			}
@@ -67,6 +100,19 @@ func (s *Service) applyReactionRole(guildID, channelID, messageID, userID string
 		}
 		if !rule.RemoveOnUnreact {
 			continue
+		}
+		if strings.TrimSpace(rule.GroupKey) != "" && rule.MinSelect > 0 {
+			current := 0
+			for _, candidate := range rules {
+				if candidate.ChannelID == channelID && candidate.MessageID == messageID && candidate.GroupKey == rule.GroupKey {
+					if _, has := roleSet[candidate.RoleID]; has {
+						current++
+					}
+				}
+			}
+			if current <= rule.MinSelect {
+				continue
+			}
 		}
 		if err := s.session.GuildMemberRoleRemove(guildID, userID, rule.RoleID); err != nil {
 			s.logger.Error("reaction role remove failed guild=%s user=%s role=%s err=%v", guildID, userID, rule.RoleID, err)

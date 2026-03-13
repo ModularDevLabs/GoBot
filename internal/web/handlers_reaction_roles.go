@@ -30,6 +30,9 @@ func (s *Server) handleReactionRoleRules(w http.ResponseWriter, r *http.Request)
 			MessageID       string `json:"message_id"`
 			Emoji           string `json:"emoji"`
 			RoleID          string `json:"role_id"`
+			GroupKey        string `json:"group_key"`
+			MaxSelect       int    `json:"max_select"`
+			MinSelect       int    `json:"min_select"`
 			RemoveOnUnreact bool   `json:"remove_on_unreact"`
 		}
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
@@ -46,6 +49,9 @@ func (s *Server) handleReactionRoleRules(w http.ResponseWriter, r *http.Request)
 			MessageID:       strings.TrimSpace(payload.MessageID),
 			Emoji:           normalizeEmoji(payload.Emoji),
 			RoleID:          strings.TrimSpace(payload.RoleID),
+			GroupKey:        strings.TrimSpace(payload.GroupKey),
+			MaxSelect:       payload.MaxSelect,
+			MinSelect:       payload.MinSelect,
 			RemoveOnUnreact: payload.RemoveOnUnreact,
 		})
 		if err != nil {

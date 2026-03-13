@@ -54,6 +54,12 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_reaction_rules_guild
 		ON reaction_role_rules(guild_id, message_id);`,
+		`CREATE TABLE IF NOT EXISTS reaction_role_rule_constraints (
+			rule_id INTEGER PRIMARY KEY,
+			group_key TEXT NOT NULL DEFAULT '',
+			max_select INTEGER NOT NULL DEFAULT 0,
+			min_select INTEGER NOT NULL DEFAULT 0
+		);`,
 		`CREATE TABLE IF NOT EXISTS warnings (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			guild_id TEXT NOT NULL,

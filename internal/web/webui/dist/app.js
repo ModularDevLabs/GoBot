@@ -1313,6 +1313,9 @@ async function loadReactionRoleRules() {
       <div>${rule.message_id}</div>
       <div>${rule.emoji}</div>
       <div>${rule.role_id}</div>
+      <div>${rule.group_key || ''}</div>
+      <div>${rule.max_select || 0}</div>
+      <div>${rule.min_select || 0}</div>
       <div>${rule.remove_on_unreact ? 'yes' : 'no'}</div>
       <div><button class="ghost" data-rr-delete="${rule.id}">Delete</button></div>
     `;
@@ -1330,6 +1333,9 @@ async function addReactionRoleRule() {
       message_id: qs('#rrMessageId').value.trim(),
       emoji: qs('#rrEmoji').value.trim(),
       role_id: qs('#rrRoleId').value.trim(),
+      group_key: qs('#rrGroupKey').value.trim(),
+      max_select: parseInt(qs('#rrMaxSelect').value || '0', 10) || 0,
+      min_select: parseInt(qs('#rrMinSelect').value || '0', 10) || 0,
       remove_on_unreact: qs('#rrRemoveOnUnreact').value === 'true',
     };
     await apiFetch(`/api/modules/reaction-roles/rules?guild_id=${state.guildId}`, {
