@@ -755,6 +755,7 @@ async function loadSettings() {
   await loadGiveaways();
   await loadReputationLeaderboard();
   await loadEconomy();
+  await loadTrivia();
   await loadCalendarEvents();
   await loadConfessions();
   await loadPolls();
@@ -2583,6 +2584,52 @@ async function loadAchievements() {
   });
 }
 
+async function loadTrivia() {
+  if (!state.guildId) return;
+  const table = qs('#triviaTable');
+  const status = qs('#triviaStatus');
+  if (!table || !status) return;
+  const rows = (await apiFetch(`/api/modules/trivia/leaderboard?guild_id=${state.guildId}&limit=20`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row, idx) => {
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `<div>${idx + 1}</div><div>${row.user_id}</div><div>${row.score}</div>`;
+    table.appendChild(div);
+  });
+  status.textContent = `Leaderboard loaded (${rows.length})`;
+}
+
+async function fetchTriviaQuestion() {
+  if (!state.guildId) return;
+  const res = await apiFetch(`/api/modules/trivia/question?guild_id=${state.guildId}`);
+  qs('#triviaPrompt').textContent = res.question || 'No question returned.';
+  qs('#triviaQuestionId').value = Number.isFinite(res.id) ? String(res.id) : '';
+}
+
+async function submitTriviaAnswer() {
+  if (!state.guildId) return;
+  const userID = (qs('#triviaUserId')?.value || '').trim();
+  const questionID = parseInt(qs('#triviaQuestionId')?.value || '-1', 10);
+  const answer = (qs('#triviaAnswer')?.value || '').trim();
+  if (!userID || questionID < 0 || !answer) {
+    showToast('User ID, question, and answer are required.', 'error');
+    return;
+  }
+  const res = await apiFetch(`/api/modules/trivia/answer?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userID, question_id: questionID, answer }),
+  });
+  if (res.correct) {
+    showToast('Correct answer. +1 trivia point.');
+  } else {
+    showToast(`Incorrect. Expected: ${res.expected_answer}`, 'error');
+  }
+  qs('#triviaAnswer').value = '';
+  await loadTrivia();
+}
+
 async function loadCalendarEvents() {
   if (!state.guildId) return;
   const table = qs('#calTable');
@@ -3109,6 +3156,9 @@ function wireEvents() {
   qs('#ecoAddItem').onclick = () => addEconomyItem().catch((err) => showToast(`Add item failed: ${err.message}`, 'error'));
   qs('#ecoPurchase').onclick = () => purchaseEconomyItem().catch((err) => showToast(`Purchase failed: ${err.message}`, 'error'));
   qs('#achLoad').onclick = () => loadAchievements().catch((err) => showToast(`Achievements load failed: ${err.message}`, 'error'));
+  qs('#triviaNewQuestion').onclick = () => fetchTriviaQuestion().catch((err) => showToast(`Trivia question failed: ${err.message}`, 'error'));
+  qs('#triviaSubmit').onclick = () => submitTriviaAnswer().catch((err) => showToast(`Trivia submit failed: ${err.message}`, 'error'));
+  qs('#triviaRefresh').onclick = () => loadTrivia().catch((err) => showToast(`Trivia load failed: ${err.message}`, 'error'));
   qs('#calRefresh').onclick = () => loadCalendarEvents().catch((err) => showToast(`Calendar load failed: ${err.message}`, 'error'));
   qs('#calCreate').onclick = () => createCalendarEvent().catch((err) => showToast(`Create event failed: ${err.message}`, 'error'));
   qs('#confRefresh').onclick = () => loadConfessions().catch((err) => showToast(`Confessions load failed: ${err.message}`, 'error'));

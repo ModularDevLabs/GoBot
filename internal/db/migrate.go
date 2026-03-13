@@ -329,6 +329,15 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_confessions_guild_status
 		ON confessions(guild_id, status, created_at DESC);`,
+		`CREATE TABLE IF NOT EXISTS trivia_scores (
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			score INTEGER NOT NULL DEFAULT 0,
+			updated_at TEXT NOT NULL,
+			PRIMARY KEY (guild_id, user_id)
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_trivia_scores_guild
+		ON trivia_scores(guild_id, score DESC);`,
 	}
 
 	for _, stmt := range stmts {

@@ -74,6 +74,7 @@
             <button type="button" class="nav-view-btn" data-view="reputation">Reputation</button>
             <button type="button" class="nav-view-btn" data-view="economy">Economy</button>
             <button type="button" class="nav-view-btn" data-view="achievements">Achievements</button>
+            <button type="button" class="nav-view-btn" data-view="trivia">Trivia</button>
             <button type="button" class="nav-view-btn" data-view="calendar">Calendar</button>
             <button type="button" class="nav-view-btn" data-view="giveaways">Giveaways</button>
             <button type="button" class="nav-view-btn" data-view="polls">Polls</button>
@@ -1439,6 +1440,44 @@
               <div>Awarded</div>
             </div>
             <div id="achTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-trivia" class="view">
+        <div class="panel">
+          <div class="panel-header">Trivia Mini-Games</div>
+          <div class="form-grid">
+            <label>
+              Acting user ID
+              <input id="triviaUserId" placeholder="User ID earning points" />
+            </label>
+            <label>
+              Question ID
+              <input id="triviaQuestionId" readonly />
+            </label>
+            <label>
+              Answer
+              <input id="triviaAnswer" placeholder="Type answer and submit" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="triviaNewQuestion" class="ghost">New question</button>
+            <button id="triviaSubmit" class="primary">Submit answer</button>
+            <button id="triviaRefresh" class="ghost">Refresh leaderboard</button>
+            <span id="triviaStatus" class="status-line"></span>
+          </div>
+          <div class="panel" style="margin-top: 12px;">
+            <div class="panel-header">Question</div>
+            <p id="triviaPrompt" class="module-desc">Click "New question" to start a round.</p>
+          </div>
+          <div class="table" style="margin-top:12px;">
+            <div class="table-row table-header">
+              <div>Rank</div>
+              <div>User</div>
+              <div>Score</div>
+            </div>
+            <div id="triviaTable"></div>
           </div>
         </div>
       </section>

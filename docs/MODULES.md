@@ -163,6 +163,24 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Awards badges from milestone checks (level, reputation, economy balance).
 - API: `GET /api/modules/achievements?guild_id=...&user_id=...`.
 
+### Trivia Mini-Games
+
+- Purpose:
+- Lightweight engagement module for quick Q&A rounds with persistent scores.
+- Workflow:
+- Admin or moderator fetches a random question from the dashboard.
+- User answer is submitted with acting user ID and question ID.
+- Correct answers add `+1` to that member's guild trivia score.
+- Answer matching:
+- Case-insensitive normalization.
+- Ignores common punctuation and extra spaces.
+- APIs:
+- `GET /api/modules/trivia/question?guild_id=...`
+- `POST /api/modules/trivia/answer?guild_id=...` with `user_id`, `question_id`, `answer`
+- `GET /api/modules/trivia/leaderboard?guild_id=...`
+- Data model:
+- `trivia_scores(guild_id, user_id, score, updated_at)` with one row per guild/user.
+
 ### Mod Summaries
 
 - Generates periodic moderation digest messages (warnings/actions/tickets).
