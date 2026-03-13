@@ -576,6 +576,27 @@ button[disabled] {
 
 .panel-actions { margin-top: 16px; }
 
+.panel-actions-compact {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.panel-actions-no-top {
+  margin-top: 0;
+}
+
+.mt-16 {
+  margin-top: 16px;
+}
+
+.mt-12 {
+  margin-top: 12px;
+}
+
+.mb-12 {
+  margin-bottom: 12px;
+}
+
 .hidden { display: none !important; }
 
 .inline-banner {
@@ -623,6 +644,22 @@ button[disabled] {
   font-size: 12px;
   line-height: 1.45;
   color: #d7e2f0;
+}
+
+.event-log-xs {
+  min-height: 60px;
+}
+
+.event-log-sm {
+  min-height: 100px;
+}
+
+.event-log-md {
+  min-height: 120px;
+}
+
+.event-log-max-240 {
+  max-height: 240px;
 }
 
 .modal {

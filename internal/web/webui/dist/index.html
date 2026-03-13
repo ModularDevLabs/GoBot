@@ -104,7 +104,7 @@
     </aside>
 
     <main class="content">
-      <div id="incidentBanner" class="inline-banner hidden" style="margin-bottom: 12px;">
+      <div id="incidentBanner" class="inline-banner hidden mb-12">
         <strong>Incident mode active.</strong>
         <span id="incidentBannerText" class="status-line"></span>
       </div>
@@ -133,10 +133,10 @@
             <div class="stat-value" id="statQueued">—</div>
           </div>
         </div>
-        <div class="overview-duo" style="margin-top: 16px;">
+        <div class="overview-duo mt-16">
           <div class="panel overview-duo-card">
             <div class="panel-header">Server Pulse</div>
-            <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <div class="panel-actions panel-actions-compact">
               <button id="pulseRefresh" class="ghost">Refresh pulse</button>
               <span id="pulseStatus" class="status-line"></span>
             </div>
@@ -150,7 +150,7 @@
           </div>
           <div class="panel overview-duo-card">
             <div class="panel-header">Health Dashboard</div>
-            <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <div class="panel-actions panel-actions-compact">
               <button id="healthRefresh" class="ghost">Refresh health</button>
               <span id="healthStatus" class="status-line"></span>
             </div>
@@ -168,15 +168,15 @@
           <div id="overviewStatus" class="status-line"></div>
           <div id="backfillList" class="list"></div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Mod Summary</div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="modSummaryGenerate" class="ghost">Generate now</button>
             <span id="modSummaryStatus" class="status-line"></span>
           </div>
-          <pre id="modSummaryPreview" class="event-log" style="min-height: 100px;"></pre>
+          <pre id="modSummaryPreview" class="event-log event-log-sm"></pre>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Raid Panic Button</div>
           <div class="form-grid">
             <label>
@@ -268,7 +268,7 @@
             <div id="actionsTable"></div>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Policy Simulator</div>
           <div class="filters">
             <select id="policyActionType">
@@ -279,7 +279,7 @@
             <input id="policyUserIds" placeholder="User IDs (comma separated)" />
             <button id="policySimulate" class="ghost">Simulate</button>
           </div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header">
               <div>User</div>
               <div>Allowed</div>
@@ -289,11 +289,11 @@
             </div>
             <div id="policySimTable"></div>
           </div>
-          <pre id="policySimDetails" class="event-log" style="margin-top: 12px; min-height: 100px; max-height: 240px;"></pre>
+          <pre id="policySimDetails" class="event-log mt-12 event-log-sm event-log-max-240"></pre>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Review Queue</div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="reviewQueueRefresh" class="ghost">Refresh queue</button>
             <span id="reviewQueueStatus" class="status-line"></span>
           </div>
@@ -534,7 +534,7 @@
             <span id="settingsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Exports</div>
           <div class="filters">
             <select id="exportType">
@@ -557,13 +557,13 @@
           </div>
           <div id="exportStatus" class="status-line"></div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Backup / Restore</div>
-          <div class="panel-actions" style="margin-top: 0;">
+          <div class="panel-actions panel-actions-no-top">
             <button id="backupDownload" class="ghost">Download backup snapshot</button>
             <span id="backupStatus" class="status-line"></span>
           </div>
-          <div class="form-grid" style="margin-top: 12px;">
+          <div class="form-grid mt-12">
             <label>
               Restore snapshot JSON
               <textarea id="backupRestoreJson" rows="10" placeholder="Paste backup JSON here"></textarea>
@@ -573,9 +573,9 @@
             <button id="backupRestore" class="primary">Restore snapshot</button>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Dependency Checker</div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="dependencyCheckRun" class="ghost">Run check</button>
             <span id="dependencyCheckStatus" class="status-line"></span>
           </div>
@@ -588,7 +588,7 @@
             <div id="dependencyCheckTable"></div>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Webhook Integrations</div>
           <div class="form-grid">
             <label>
@@ -612,7 +612,7 @@
             <button id="webhookRefresh" class="ghost">Refresh</button>
             <span id="webhookStatus" class="status-line"></span>
           </div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header">
               <div>ID</div>
               <div>URL</div>
@@ -732,9 +732,9 @@
             <span id="auditStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Immutable Audit Trail</div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="auditTrailRefresh" class="ghost">Refresh trail</button>
             <span id="auditTrailStatus" class="status-line"></span>
           </div>
@@ -876,7 +876,7 @@
             <span id="reactionRolesStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Rules</div>
           <div class="form-grid">
             <label>
@@ -920,7 +920,7 @@
             <button id="rrRefresh" class="ghost">Refresh rules</button>
             <span id="rrStatus" class="status-line"></span>
           </div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header rr-row">
               <div>Channel</div>
               <div>Message</div>
@@ -975,7 +975,7 @@
             <span id="warningsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Issue Warning</div>
           <div class="form-grid">
             <label>
@@ -992,7 +992,7 @@
             <button id="warnRefresh" class="ghost">Refresh history</button>
             <span id="warnStatus" class="status-line"></span>
           </div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header warn-row">
               <div>User</div>
               <div>Actor</div>
@@ -1030,7 +1030,7 @@
             <span id="scheduledStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Schedules</div>
           <div class="form-grid">
             <label>
@@ -1058,7 +1058,7 @@
             <button id="schedRefresh" class="ghost">Refresh schedules</button>
             <span id="schedMsgStatus" class="status-line"></span>
           </div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header sched-row">
               <div>Channel</div>
               <div>Interval</div>
@@ -1170,7 +1170,7 @@
             <span id="ticketsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Tickets</div>
           <div class="filters">
             <select id="ticketStatusFilter">
@@ -1192,7 +1192,7 @@
             </div>
             <div id="ticketsTable"></div>
           </div>
-          <pre id="ticketTranscript" class="event-log" style="margin-top:12px; min-height:120px; max-height:240px;"></pre>
+          <pre id="ticketTranscript" class="event-log mt-12 event-log-md event-log-max-240"></pre>
         </div>
       </section>
 
@@ -1281,7 +1281,7 @@
             <span id="analyticsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Trends</div>
           <div class="filters">
             <select id="analyticsTrendDays">
@@ -1393,9 +1393,9 @@
             <span id="levelingStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Leaderboard</div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="levelingRefresh" class="ghost">Refresh</button>
           </div>
           <div class="table">
@@ -1437,7 +1437,7 @@
             <span id="roleProgressionStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Rules</div>
           <div class="form-grid">
             <label>
@@ -1559,7 +1559,7 @@
             </div>
             <div id="ecoLeaderboardTable"></div>
           </div>
-          <div class="table" style="margin-top:12px;">
+          <div class="table mt-12">
             <div class="table-row table-header">
               <div>ID</div>
               <div>Name</div>
@@ -1569,7 +1569,7 @@
             </div>
             <div id="ecoShopTable"></div>
           </div>
-          <div class="form-grid" style="margin-top:12px;">
+          <div class="form-grid mt-12">
             <label>Item name<input id="ecoNewItemName" /></label>
             <label>Cost<input id="ecoNewItemCost" type="number" min="1" /></label>
             <label>Role ID (optional)<input id="ecoNewItemRole" /></label>
@@ -1664,11 +1664,11 @@
             <button id="triviaRefresh" class="ghost">Refresh leaderboard</button>
             <span id="triviaStatus" class="status-line"></span>
           </div>
-          <div class="panel" style="margin-top: 12px;">
+          <div class="panel mt-12">
             <div class="panel-header">Question</div>
             <p id="triviaPrompt" class="module-desc">Click "New question" to start a round.</p>
           </div>
-          <div class="table" style="margin-top:12px;">
+          <div class="table mt-12">
             <div class="table-row table-header">
               <div>Rank</div>
               <div>User</div>
@@ -1709,7 +1709,7 @@
             <span id="birthdaysStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Birthday Directory</div>
           <div class="form-grid">
             <label>
@@ -1773,7 +1773,7 @@
             <span id="streaksStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Streak Leaderboard</div>
           <div class="panel-actions">
             <button id="streaksRefresh" class="ghost">Refresh</button>
@@ -1787,7 +1787,7 @@
             </div>
             <div id="streaksTable"></div>
           </div>
-          <pre id="streakUserDetail" class="event-log" style="margin-top: 12px; min-height: 60px;"></pre>
+          <pre id="streakUserDetail" class="event-log mt-12 event-log-xs"></pre>
         </div>
       </section>
 
@@ -1835,7 +1835,7 @@
             <span id="seasonResetsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Run History</div>
           <div class="table">
             <div class="table-row table-header">
@@ -1909,7 +1909,7 @@
               </div>
             </article>
           </div>
-          <div class="panel-actions" style="margin-top:0; margin-bottom:10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="confessionsSave" class="ghost">Save confessions module</button>
             <button id="confRefresh" class="ghost">Refresh pending</button>
             <span id="confStatus" class="status-line"></span>
@@ -1957,7 +1957,7 @@
             <span id="giveawaysStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Run Giveaway</div>
           <div class="filters">
             <input id="giveawayChannel" placeholder="Channel ID (optional)" />
@@ -1970,7 +1970,7 @@
             <button id="giveawaysRefresh" class="ghost">Refresh</button>
           </div>
           <div class="status-line" id="giveawaysRunStatus"></div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header giveaway-row">
               <div>ID</div>
               <div>Prize</div>
@@ -2014,7 +2014,7 @@
             <span id="pollsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Run Poll</div>
           <div class="filters">
             <input id="pollChannel" placeholder="Channel ID (optional)" />
@@ -2032,7 +2032,7 @@
             <input id="pollOption5" placeholder="Option 5 (optional)" />
           </div>
           <div class="status-line" id="pollsRunStatus"></div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header poll-row">
               <div>ID</div>
               <div>Question</div>
@@ -2079,7 +2079,7 @@
             <span id="suggestionsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Suggestions Queue</div>
           <div class="filters">
             <select id="suggestionStatusFilter">
@@ -2202,7 +2202,7 @@
             <span id="remindersStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Queued Reminders</div>
           <div class="filters">
             <input id="reminderChannel" placeholder="Channel ID (optional)" />
@@ -2215,7 +2215,7 @@
             <button id="remindersRefresh" class="ghost">Refresh</button>
           </div>
           <div class="status-line" id="remindersRunStatus"></div>
-          <div class="table" style="margin-top: 12px;">
+          <div class="table mt-12">
             <div class="table-row table-header reminder-row">
               <div>ID</div>
               <div>Content</div>
@@ -2312,9 +2312,9 @@
             <span id="joinScreeningStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Pending Queue</div>
-          <div class="panel-actions" style="margin-top:0; margin-bottom:10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="joinScreeningRefresh" class="ghost">Refresh pending</button>
             <input id="joinScreeningReviewer" placeholder="Reviewer user ID" />
             <span id="joinScreeningQueueStatus" class="status-line"></span>
@@ -2358,7 +2358,7 @@
             <span id="memberNotesStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Notes</div>
           <div class="filters">
             <input id="memberNoteUser" placeholder="Target user ID" />
@@ -2421,7 +2421,7 @@
             <span id="appealsStatus" class="status-line"></span>
           </div>
         </div>
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Appeals</div>
           <div class="filters">
             <select id="appealStatusFilter">
@@ -2473,14 +2473,14 @@
           </div>
         </div>
 
-        <div class="panel" style="margin-top: 16px;">
+        <div class="panel mt-16">
           <div class="panel-header">Commands</div>
           <div class="filters">
             <input id="customCommandTrigger" placeholder="Trigger (example: !rules)" />
             <input id="customCommandResponse" placeholder="Response message" />
             <button id="customCommandAdd" class="primary">Add Command</button>
           </div>
-          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+          <div class="panel-actions panel-actions-compact">
             <button id="customCommandsRefresh" class="ghost">Refresh</button>
             <span id="customCommandEditStatus" class="status-line"></span>
           </div>
