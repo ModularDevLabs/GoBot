@@ -61,6 +61,7 @@
             <button type="button" class="nav-view-btn" data-view="accountageguard">Account Age Guard</button>
             <button type="button" class="nav-view-btn" data-view="membernotes">Member Notes</button>
             <button type="button" class="nav-view-btn" data-view="appeals">Appeals</button>
+            <button type="button" class="nav-view-btn" data-view="confessions">Confessions</button>
           </div>
         </div>
         <div class="nav-group expanded" data-group="community">
@@ -459,6 +460,24 @@
             <label>
               Voice XP per minute
               <input id="settingsVoiceXPPerMinute" type="number" min="1" />
+            </label>
+            <label>
+              Confessions module
+              <select id="settingsConfessionsEnabled">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+              </select>
+            </label>
+            <label>
+              Confessions channel ID
+              <input id="settingsConfessionsChannel" />
+            </label>
+            <label>
+              Confessions require review
+              <select id="settingsConfessionsReview">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+              </select>
             </label>
           </div>
           <div class="panel-actions">
@@ -1443,6 +1462,22 @@
               <div>ID</div><div>Title</div><div>Start</div><div>RSVP</div><div>Action</div>
             </div>
             <div id="calTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-confessions" class="view">
+        <div class="panel">
+          <div class="panel-header">Confession Review Queue</div>
+          <div class="panel-actions" style="margin-top:0; margin-bottom:10px;">
+            <button id="confRefresh" class="ghost">Refresh pending</button>
+            <span id="confStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header">
+              <div>ID</div><div>User</div><div>Content</div><div>Action</div>
+            </div>
+            <div id="confTable"></div>
           </div>
         </div>
       </section>

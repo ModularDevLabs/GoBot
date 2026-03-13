@@ -71,6 +71,8 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/modules/calendar/events", s.handleCalendarEvents)
 	api.HandleFunc("/api/modules/calendar/rsvp", s.handleCalendarRSVP)
 	api.HandleFunc("/api/modules/calendar/rsvps", s.handleCalendarRSVPs)
+	api.HandleFunc("/api/modules/confessions", s.handleConfessions)
+	api.HandleFunc("/api/modules/confessions/review", s.handleConfessionReview)
 	api.HandleFunc("/api/integrations/webhooks", s.handleWebhooks)
 	api.HandleFunc("/api/integrations/webhooks/", s.handleWebhookDetail)
 

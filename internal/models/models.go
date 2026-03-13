@@ -50,6 +50,9 @@ type GuildSettings struct {
 	VoiceRewardsEnabled         bool                `json:"voice_rewards_enabled"`
 	VoiceRewardCoinsPerMinute   int                 `json:"voice_reward_coins_per_minute"`
 	VoiceRewardXPPerMinute      int                 `json:"voice_reward_xp_per_minute"`
+	ConfessionsEnabled          bool                `json:"confessions_enabled"`
+	ConfessionsChannelID        string              `json:"confessions_channel_id"`
+	ConfessionsRequireReview    bool                `json:"confessions_require_review"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -446,6 +449,9 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		VoiceRewardsEnabled:         false,
 		VoiceRewardCoinsPerMinute:   1,
 		VoiceRewardXPPerMinute:      2,
+		ConfessionsEnabled:          false,
+		ConfessionsChannelID:        "",
+		ConfessionsRequireReview:    true,
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,

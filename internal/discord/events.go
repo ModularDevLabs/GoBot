@@ -41,6 +41,7 @@ func (s *Service) OnMessageCreate(_ *discordgo.Session, m *discordgo.MessageCrea
 	if settings.FeatureAllowedInChannel(models.FeatureAppeals, m.ChannelID) {
 		s.handleAppealMessage(ctx, m, settings)
 	}
+	s.handleConfessionMessage(ctx, m, settings)
 	if settings.FeatureAllowedInChannel(models.FeatureSuggestions, m.ChannelID) {
 		s.handleSuggestionMessage(ctx, m, settings)
 	}

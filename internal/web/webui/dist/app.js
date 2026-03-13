@@ -643,6 +643,9 @@ async function loadSettings() {
   qs('#settingsVoiceRewardsEnabled').value = String(!!cfg.voice_rewards_enabled);
   qs('#settingsVoiceCoinsPerMinute').value = cfg.voice_reward_coins_per_minute || 1;
   qs('#settingsVoiceXPPerMinute').value = cfg.voice_reward_xp_per_minute || 2;
+  qs('#settingsConfessionsEnabled').value = String(!!cfg.confessions_enabled);
+  qs('#settingsConfessionsChannel').value = cfg.confessions_channel_id || '';
+  qs('#settingsConfessionsReview').value = String(cfg.confessions_require_review !== false);
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -753,6 +756,7 @@ async function loadSettings() {
   await loadReputationLeaderboard();
   await loadEconomy();
   await loadCalendarEvents();
+  await loadConfessions();
   await loadPolls();
   await loadSuggestions();
   await loadReminders();
@@ -870,6 +874,9 @@ async function saveSettings() {
       voice_rewards_enabled: qs('#settingsVoiceRewardsEnabled').value === 'true',
       voice_reward_coins_per_minute: parseInt(qs('#settingsVoiceCoinsPerMinute').value || '1', 10) || 1,
       voice_reward_xp_per_minute: parseInt(qs('#settingsVoiceXPPerMinute').value || '2', 10) || 2,
+      confessions_enabled: qs('#settingsConfessionsEnabled').value === 'true',
+      confessions_channel_id: (qs('#settingsConfessionsChannel').value || '').trim(),
+      confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2626,6 +2633,38 @@ async function setCalendarRSVP(eventID, userID, status) {
   });
 }
 
+async function loadConfessions() {
+  if (!state.guildId) return;
+  const table = qs('#confTable');
+  const status = qs('#confStatus');
+  if (!table || !status) return;
+  const rows = (await apiFetch(`/api/modules/confessions?guild_id=${state.guildId}&status=pending`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `
+      <div>${row.id}</div>
+      <div>${row.user_id}</div>
+      <div>${row.content || ''}</div>
+      <div>
+        <button class="ghost" data-conf-approve="${row.id}">Approve</button>
+        <button class="ghost" data-conf-reject="${row.id}">Reject</button>
+      </div>
+    `;
+    table.appendChild(div);
+  });
+  status.textContent = `${rows.length} pending`;
+}
+
+async function reviewConfession(id, decision) {
+  await apiFetch(`/api/modules/confessions/review?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: Number(id), decision }),
+  });
+}
+
 async function reviewQueueDecision(actionID, decision) {
   if (!actionID || !decision) return;
   let reason = '';
@@ -3072,6 +3111,7 @@ function wireEvents() {
   qs('#achLoad').onclick = () => loadAchievements().catch((err) => showToast(`Achievements load failed: ${err.message}`, 'error'));
   qs('#calRefresh').onclick = () => loadCalendarEvents().catch((err) => showToast(`Calendar load failed: ${err.message}`, 'error'));
   qs('#calCreate').onclick = () => createCalendarEvent().catch((err) => showToast(`Create event failed: ${err.message}`, 'error'));
+  qs('#confRefresh').onclick = () => loadConfessions().catch((err) => showToast(`Confessions load failed: ${err.message}`, 'error'));
 
   qs('#membersTable').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-action]');
@@ -3150,6 +3190,21 @@ function wireEvents() {
       } catch (err) {
         showToast(`Load RSVPs failed: ${err.message}`, 'error');
       }
+    }
+  });
+
+  qs('#confTable').addEventListener('click', async (e) => {
+    const approve = e.target.closest('button[data-conf-approve]');
+    const reject = e.target.closest('button[data-conf-reject]');
+    if (!approve && !reject) return;
+    const id = approve ? approve.getAttribute('data-conf-approve') : reject.getAttribute('data-conf-reject');
+    const decision = approve ? 'approve' : 'reject';
+    try {
+      await reviewConfession(id, decision);
+      showToast(`Confession ${decision}d.`);
+      await loadConfessions();
+    } catch (err) {
+      showToast(`Confession review failed: ${err.message}`, 'error');
     }
   });
 

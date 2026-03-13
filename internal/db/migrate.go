@@ -317,6 +317,18 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_role_rentals_due
 		ON role_rentals(status, expires_at);`,
+		`CREATE TABLE IF NOT EXISTS confessions (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			content TEXT NOT NULL,
+			status TEXT NOT NULL,
+			posted_message_id TEXT,
+			created_at TEXT NOT NULL,
+			reviewed_at TEXT
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_confessions_guild_status
+		ON confessions(guild_id, status, created_at DESC);`,
 	}
 
 	for _, stmt := range stmts {

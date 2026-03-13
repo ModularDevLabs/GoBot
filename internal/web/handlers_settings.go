@@ -56,6 +56,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			VoiceRewardsEnabled         bool                 `json:"voice_rewards_enabled"`
 			VoiceRewardCoinsPerMinute   int                  `json:"voice_reward_coins_per_minute"`
 			VoiceRewardXPPerMinute      int                  `json:"voice_reward_xp_per_minute"`
+			ConfessionsEnabled          bool                 `json:"confessions_enabled"`
+			ConfessionsChannelID        string               `json:"confessions_channel_id"`
+			ConfessionsRequireReview    bool                 `json:"confessions_require_review"`
 			FeatureFlags                map[string]bool      `json:"feature_flags"`
 			WelcomeChannelID            string               `json:"welcome_channel_id"`
 			WelcomeMessage              string               `json:"welcome_message"`
@@ -159,6 +162,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.VoiceRewardsEnabled = cfg.VoiceRewardsEnabled
 		current.VoiceRewardCoinsPerMinute = cfg.VoiceRewardCoinsPerMinute
 		current.VoiceRewardXPPerMinute = cfg.VoiceRewardXPPerMinute
+		current.ConfessionsEnabled = cfg.ConfessionsEnabled
+		current.ConfessionsChannelID = cfg.ConfessionsChannelID
+		current.ConfessionsRequireReview = cfg.ConfessionsRequireReview
 		current.FeatureFlags = cfg.FeatureFlags
 		current.WelcomeChannelID = cfg.WelcomeChannelID
 		current.WelcomeMessage = cfg.WelcomeMessage

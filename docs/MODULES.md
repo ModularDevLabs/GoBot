@@ -194,6 +194,14 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - `POST /api/modules/calendar/rsvp?guild_id=...`
 - `GET /api/modules/calendar/rsvps?event_id=...`
 
+### Confession Module
+
+- Captures anonymous confessions from configured channel.
+- Supports optional moderator review before posting.
+- APIs:
+- `GET /api/modules/confessions?guild_id=...&status=pending`
+- `POST /api/modules/confessions/review?guild_id=...`
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.
