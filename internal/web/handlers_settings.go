@@ -66,6 +66,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			JoinScreeningLogChannelID   string               `json:"join_screening_log_channel_id"`
 			JoinScreeningAccountAgeDays int                  `json:"join_screening_account_age_days"`
 			JoinScreeningRequireAvatar  bool                 `json:"join_screening_require_avatar"`
+			RaidPanicEnabled            bool                 `json:"raid_panic_enabled"`
+			RaidPanicDefaultMinutes     int                  `json:"raid_panic_default_minutes"`
+			RaidPanicSlowmodeSeconds    int                  `json:"raid_panic_slowmode_seconds"`
 			FeatureFlags                map[string]bool      `json:"feature_flags"`
 			WelcomeChannelID            string               `json:"welcome_channel_id"`
 			WelcomeMessage              string               `json:"welcome_message"`
@@ -179,6 +182,9 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.JoinScreeningLogChannelID = cfg.JoinScreeningLogChannelID
 		current.JoinScreeningAccountAgeDays = cfg.JoinScreeningAccountAgeDays
 		current.JoinScreeningRequireAvatar = cfg.JoinScreeningRequireAvatar
+		current.RaidPanicEnabled = cfg.RaidPanicEnabled
+		current.RaidPanicDefaultMinutes = cfg.RaidPanicDefaultMinutes
+		current.RaidPanicSlowmodeSeconds = cfg.RaidPanicSlowmodeSeconds
 		current.FeatureFlags = cfg.FeatureFlags
 		current.WelcomeChannelID = cfg.WelcomeChannelID
 		current.WelcomeMessage = cfg.WelcomeMessage

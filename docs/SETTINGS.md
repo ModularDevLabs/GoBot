@@ -186,6 +186,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `birthdays=false`
 - `role_progression=false`
 - `join_screening=false`
+- `raid_panic=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
 
 10. `welcome_channel_id`
@@ -571,6 +572,16 @@ Each schedule contains:
 - Type: boolean
 - Default: `false`
 
+74. `raid_panic_default_minutes`
+- UI label: `Duration minutes` (Raid Panic controls)
+- Type: integer (`>=1`)
+- Default: `30`
+
+75. `raid_panic_slowmode_seconds`
+- UI label: `Slowmode seconds` (Raid Panic controls)
+- Type: integer (`>=1`)
+- Default: `10`
+
 ## Giveaways Records
 
 Configured in the `Giveaways` module UI and stored in `giveaways` / `giveaway_entries`.
@@ -668,6 +679,22 @@ Each queue record contains:
 6. `reviewed_by`
 7. `created_at`
 8. `reviewed_at`
+
+## Raid Panic Records
+
+Managed by the raid panic APIs and stored in:
+- `raid_panic_lockdowns`
+- `raid_panic_channel_states`
+
+Lockdown records contain:
+
+1. `status` (`active`, `ended`)
+2. `slowmode_seconds`
+3. `started_by`
+4. `started_at`
+5. `ends_at`
+6. `ended_at`
+7. `end_reason`
 
 ## Advanced Per-Guild Setting (API/DB)
 

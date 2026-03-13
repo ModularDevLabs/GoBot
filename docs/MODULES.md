@@ -229,6 +229,19 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - `GET /api/modules/join-screening?guild_id=...&status=pending`
 - `POST /api/modules/join-screening/review?guild_id=...`
 
+### Raid Panic Button
+
+- Purpose:
+- Emergency temporary lockdown for active raid conditions.
+- Behavior:
+- Activates guild-wide text/news channel slowmode with configured seconds.
+- Persists prior per-channel slowmode values.
+- Auto-rolls back when duration expires or on manual deactivate.
+- APIs:
+- `POST /api/raid/panic/activate?guild_id=...`
+- `POST /api/raid/panic/deactivate?guild_id=...`
+- `GET /api/raid/panic/status?guild_id=...`
+
 ### Mod Summaries
 
 - Generates periodic moderation digest messages (warnings/actions/tickets).

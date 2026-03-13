@@ -61,6 +61,8 @@ func rbacPolicyKeyForPath(path string) string {
 	switch {
 	case strings.HasPrefix(path, "/api/actions"):
 		return "actions"
+	case strings.HasPrefix(path, "/api/raid/panic"):
+		return models.FeatureRaidPanic
 	case strings.HasPrefix(path, "/api/settings"):
 		return "settings"
 	case strings.HasPrefix(path, "/api/modules/warnings"):

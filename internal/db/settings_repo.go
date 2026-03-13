@@ -240,5 +240,11 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.JoinScreeningAccountAgeDays <= 0 {
 		cfg.JoinScreeningAccountAgeDays = def.JoinScreeningAccountAgeDays
 	}
+	if cfg.RaidPanicDefaultMinutes <= 0 {
+		cfg.RaidPanicDefaultMinutes = def.RaidPanicDefaultMinutes
+	}
+	if cfg.RaidPanicSlowmodeSeconds <= 0 {
+		cfg.RaidPanicSlowmodeSeconds = def.RaidPanicSlowmodeSeconds
+	}
 	return cfg
 }

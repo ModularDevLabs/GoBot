@@ -60,6 +60,9 @@ type GuildSettings struct {
 	JoinScreeningLogChannelID   string              `json:"join_screening_log_channel_id"`
 	JoinScreeningAccountAgeDays int                 `json:"join_screening_account_age_days"`
 	JoinScreeningRequireAvatar  bool                `json:"join_screening_require_avatar"`
+	RaidPanicEnabled            bool                `json:"raid_panic_enabled"`
+	RaidPanicDefaultMinutes     int                 `json:"raid_panic_default_minutes"`
+	RaidPanicSlowmodeSeconds    int                 `json:"raid_panic_slowmode_seconds"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -397,6 +400,7 @@ const (
 	FeatureBirthdays       = "birthdays"
 	FeatureRoleProgression = "role_progression"
 	FeatureJoinScreening   = "join_screening"
+	FeatureRaidPanic       = "raid_panic"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -501,6 +505,9 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		JoinScreeningLogChannelID:   "",
 		JoinScreeningAccountAgeDays: 7,
 		JoinScreeningRequireAvatar:  false,
+		RaidPanicEnabled:            false,
+		RaidPanicDefaultMinutes:     30,
+		RaidPanicSlowmodeSeconds:    10,
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,
@@ -529,6 +536,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureBirthdays:       false,
 			FeatureRoleProgression: false,
 			FeatureJoinScreening:   false,
+			FeatureRaidPanic:       false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

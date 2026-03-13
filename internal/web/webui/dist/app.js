@@ -36,6 +36,7 @@ const FEATURE_AFK = 'afk';
 const FEATURE_REMINDERS = 'reminders';
 const FEATURE_ACCOUNT_AGE_GUARD = 'account_age_guard';
 const FEATURE_JOIN_SCREENING = 'join_screening';
+const FEATURE_RAID_PANIC = 'raid_panic';
 const FEATURE_MEMBER_NOTES = 'member_notes';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
@@ -371,6 +372,8 @@ function applyModulePermissionDisabling() {
     reminderAdd: FEATURE_REMINDERS,
     accountAgeGuardSave: FEATURE_ACCOUNT_AGE_GUARD,
     joinScreeningSave: FEATURE_JOIN_SCREENING,
+    panicActivate: FEATURE_RAID_PANIC,
+    panicDeactivate: FEATURE_RAID_PANIC,
     memberNotesSave: FEATURE_MEMBER_NOTES,
     memberNoteAdd: FEATURE_MEMBER_NOTES,
     appealsSave: FEATURE_APPEALS,
@@ -761,6 +764,8 @@ async function loadSettings() {
   qs('#settingsJoinScreeningLogChannel').value = cfg.join_screening_log_channel_id || '';
   qs('#settingsJoinScreeningAgeDays').value = cfg.join_screening_account_age_days || 7;
   qs('#settingsJoinScreeningRequireAvatar').value = String(!!cfg.join_screening_require_avatar);
+  qs('#panicDurationMinutes').value = cfg.raid_panic_default_minutes || 30;
+  qs('#panicSlowmodeSeconds').value = cfg.raid_panic_slowmode_seconds || 10;
   qs('#settingsMemberNotesEnabled').value = String(!!flags[FEATURE_MEMBER_NOTES]);
   qs('#settingsNotesLogChannel').value = cfg.notes_log_channel_id || '';
   qs('#settingsAppealsEnabled').value = String(!!flags[FEATURE_APPEALS]);
@@ -917,6 +922,8 @@ async function saveSettings() {
       join_screening_log_channel_id: (qs('#settingsJoinScreeningLogChannel').value || '').trim(),
       join_screening_account_age_days: parseInt(qs('#settingsJoinScreeningAgeDays').value || '7', 10) || 7,
       join_screening_require_avatar: qs('#settingsJoinScreeningRequireAvatar').value === 'true',
+      raid_panic_default_minutes: parseInt(qs('#panicDurationMinutes').value || '30', 10) || 30,
+      raid_panic_slowmode_seconds: parseInt(qs('#panicSlowmodeSeconds').value || '10', 10) || 10,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -3088,6 +3095,7 @@ async function loadOverview() {
   syncOverviewPolling(backfills);
   await loadServerPulse();
   await loadHealthDashboard();
+  await loadRaidPanicStatus();
 }
 
 async function loadServerPulse() {
@@ -3158,6 +3166,47 @@ async function generateModSummary() {
   const res = await apiFetch(`/api/mod-summary/generate?guild_id=${state.guildId}&hours=24`, { method: 'POST' });
   preview.textContent = (res && res.summary) || '';
   status.textContent = `Generated at ${new Date().toLocaleTimeString()}`;
+}
+
+async function loadRaidPanicStatus() {
+  if (!state.guildId) return;
+  const line = qs('#panicStatusLine');
+  if (!line) return;
+  const res = await apiFetch(`/api/raid/panic/status?guild_id=${state.guildId}`);
+  if (!res.active) {
+    line.textContent = 'Raid panic is inactive.';
+    return;
+  }
+  const lock = res.lockdown || {};
+  line.textContent = `Active: slowmode=${lock.slowmode_seconds || 0}s, ends=${formatDate(lock.ends_at)}`;
+}
+
+async function activateRaidPanic() {
+  if (!state.guildId) return;
+  const payload = {
+    actor_user_id: (qs('#panicActorUser').value || '').trim(),
+    duration_minutes: parseInt(qs('#panicDurationMinutes').value || '30', 10) || 30,
+    slowmode_seconds: parseInt(qs('#panicSlowmodeSeconds').value || '10', 10) || 10,
+  };
+  const res = await apiFetch(`/api/raid/panic/activate?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  showToast(`Raid panic activated (channels updated: ${res.channels_updated || 0}).`);
+  await loadRaidPanicStatus();
+}
+
+async function deactivateRaidPanic() {
+  if (!state.guildId) return;
+  const reason = (qs('#panicDeactivateReason').value || '').trim();
+  const res = await apiFetch(`/api/raid/panic/deactivate?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason }),
+  });
+  showToast(`Raid panic deactivated (channels restored: ${res.channels_updated || 0}).`);
+  await loadRaidPanicStatus();
 }
 
 async function loadEvents() {
@@ -3464,6 +3513,9 @@ function wireEvents() {
   qs('#pulseRefresh').onclick = () => loadServerPulse().catch((err) => showToast(`Pulse load failed: ${err.message}`, 'error'));
   qs('#healthRefresh').onclick = () => loadHealthDashboard().catch((err) => showToast(`Health load failed: ${err.message}`, 'error'));
   qs('#modSummaryGenerate').onclick = () => generateModSummary().catch((err) => showToast(`Mod summary failed: ${err.message}`, 'error'));
+  qs('#panicActivate').onclick = () => activateRaidPanic().catch((err) => showToast(`Activate panic failed: ${err.message}`, 'error'));
+  qs('#panicDeactivate').onclick = () => deactivateRaidPanic().catch((err) => showToast(`Deactivate panic failed: ${err.message}`, 'error'));
+  qs('#panicStatusRefresh').onclick = () => loadRaidPanicStatus().catch((err) => showToast(`Panic status failed: ${err.message}`, 'error'));
   qs('#repRefresh').onclick = () => loadReputationLeaderboard().catch((err) => showToast(`Reputation load failed: ${err.message}`, 'error'));
   qs('#repGivePlus').onclick = () => giveReputation(1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));
   qs('#repGiveMinus').onclick = () => giveReputation(-1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));

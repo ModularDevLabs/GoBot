@@ -172,6 +172,33 @@
           </div>
           <pre id="modSummaryPreview" class="event-log" style="min-height: 100px;"></pre>
         </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Raid Panic Button</div>
+          <div class="form-grid">
+            <label>
+              Actor user ID
+              <input id="panicActorUser" placeholder="Moderator user ID" />
+            </label>
+            <label>
+              Duration minutes
+              <input id="panicDurationMinutes" type="number" min="1" value="30" />
+            </label>
+            <label>
+              Slowmode seconds
+              <input id="panicSlowmodeSeconds" type="number" min="1" value="10" />
+            </label>
+            <label>
+              Deactivate reason
+              <input id="panicDeactivateReason" placeholder="Manual restore" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="panicActivate" class="primary">Activate panic</button>
+            <button id="panicDeactivate" class="ghost">Deactivate panic</button>
+            <button id="panicStatusRefresh" class="ghost">Refresh status</button>
+            <span id="panicStatusLine" class="status-line"></span>
+          </div>
+        </div>
       </section>
 
       <section id="view-members" class="view">

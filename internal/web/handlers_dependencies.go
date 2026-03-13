@@ -122,6 +122,14 @@ func (s *Server) handleDependencyCheck(w http.ResponseWriter, r *http.Request) {
 			add("join_screening", "error", "Join screening account age days must be greater than zero.")
 		}
 	}
+	if cfg.FeatureEnabled(models.FeatureRaidPanic) {
+		if cfg.RaidPanicDefaultMinutes <= 0 {
+			add("raid_panic", "error", "Default panic duration must be greater than zero.")
+		}
+		if cfg.RaidPanicSlowmodeSeconds <= 0 {
+			add("raid_panic", "error", "Slowmode seconds must be greater than zero.")
+		}
+	}
 	if cfg.FeatureEnabled(models.FeatureAccountAgeGuard) {
 		if cfg.AccountAgeMinDays <= 0 {
 			add("account_age_guard", "error", "Enabled with invalid minimum account age.")

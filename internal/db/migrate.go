@@ -365,6 +365,26 @@ func Migrate(db *sql.DB) error {
 		);`,
 		`CREATE INDEX IF NOT EXISTS idx_join_screening_guild_status
 		ON join_screening_queue(guild_id, status, created_at DESC);`,
+		`CREATE TABLE IF NOT EXISTS raid_panic_lockdowns (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			status TEXT NOT NULL,
+			slowmode_seconds INTEGER NOT NULL,
+			started_by TEXT NOT NULL,
+			started_at TEXT NOT NULL,
+			ends_at TEXT NOT NULL,
+			ended_at TEXT,
+			end_reason TEXT
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_raid_panic_guild_status
+		ON raid_panic_lockdowns(guild_id, status, ends_at);`,
+		`CREATE TABLE IF NOT EXISTS raid_panic_channel_states (
+			lockdown_id INTEGER NOT NULL,
+			guild_id TEXT NOT NULL,
+			channel_id TEXT NOT NULL,
+			previous_slowmode_seconds INTEGER NOT NULL,
+			PRIMARY KEY(lockdown_id, channel_id)
+		);`,
 		`CREATE TABLE IF NOT EXISTS trivia_scores (
 			guild_id TEXT NOT NULL,
 			user_id TEXT NOT NULL,

@@ -39,6 +39,7 @@ type Service struct {
 	voiceJoined     map[string]time.Time
 	progressionMu   sync.Mutex
 	progressionLast map[string]time.Time
+	raidPanicMu     sync.Mutex
 }
 
 func NewService(token string, repos *db.Repositories, logger Logger) (*Service, error) {
@@ -120,6 +121,7 @@ func (s *Service) StartWorkers(ctx context.Context) {
 	go s.runModSummaryWorker(ctx)
 	go s.runRoleRentalsWorker(ctx)
 	go s.runBirthdayWorker(ctx)
+	go s.runRaidPanicWorker(ctx)
 }
 
 func (s *Service) ListGuilds(ctx context.Context) ([]models.GuildInfo, error) {
