@@ -250,6 +250,25 @@ function updateLevelingGuideExamples() {
   host.textContent = `Current curve: ${curveLabel}, base: ${base}. Milestones -> ${rows.join(' | ')}`;
 }
 
+function refreshIncidentBanner(cfg) {
+  const wrap = qs('#incidentBanner');
+  const text = qs('#incidentBannerText');
+  if (!wrap || !text) return;
+  const enabled = !!(cfg && cfg.incident_mode_enabled);
+  if (!enabled) {
+    wrap.classList.add('hidden');
+    text.textContent = '';
+    return;
+  }
+  const reason = (cfg.incident_mode_reason || '').trim();
+  const endsAt = (cfg.incident_mode_ends_at || '').trim();
+  const parts = [];
+  if (reason) parts.push(`Reason: ${reason}`);
+  if (endsAt) parts.push(`Ends: ${formatDate(endsAt)}`);
+  text.textContent = parts.length ? parts.join(' | ') : 'High-safety restrictions are enabled for destructive actions.';
+  wrap.classList.remove('hidden');
+}
+
 function modulePermissionState(featureKey) {
   if (!featureKey) return null;
   return (state.modulePermissions && state.modulePermissions[featureKey]) || null;
@@ -608,6 +627,18 @@ async function loadSettings() {
   qs('#settingsRolePolicies').value = JSON.stringify(cfg.dashboard_role_policies || {}, null, 2);
   qs('#settingsRetentionDays').value = Number.isFinite(cfg.retention_days) ? cfg.retention_days : 0;
   qs('#settingsRetentionArchive').value = String(cfg.retention_archive_before_purge !== false);
+  qs('#settingsIncidentModeEnabled').value = String(!!cfg.incident_mode_enabled);
+  qs('#settingsIncidentModeReason').value = cfg.incident_mode_reason || '';
+  const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
+  let incidentDuration = 0;
+  if (incidentEndsRaw) {
+    const end = new Date(incidentEndsRaw).getTime();
+    const now = Date.now();
+    if (Number.isFinite(end) && end > now) {
+      incidentDuration = Math.ceil((end - now) / 60000);
+    }
+  }
+  qs('#settingsIncidentModeDuration').value = incidentDuration;
   qs('#settingsWelcomeEnabled').value = String(!!flags[FEATURE_WELCOME]);
   qs('#settingsWelcomeChannel').value = cfg.welcome_channel_id || '';
   qs('#settingsWelcomeMessage').value = cfg.welcome_message || '';
@@ -692,6 +723,7 @@ async function loadSettings() {
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
   qs('#settingsAppealsPhrase').value = cfg.appeals_open_phrase || '!appeal';
   qs('#settingsCustomCommandsEnabled').value = String(!!flags[FEATURE_CUSTOM_COMMANDS]);
+  refreshIncidentBanner(cfg);
   syncModuleBadges();
   updateLevelingGuideExamples();
   await loadInvitePermissionStatus();
@@ -744,6 +776,15 @@ async function saveSettings() {
       rolePolicies = parsed;
     }
     const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const incidentModeEnabled = qs('#settingsIncidentModeEnabled').value === 'true';
+    const incidentDurationMin = parseInt(qs('#settingsIncidentModeDuration').value, 10) || 0;
+    let incidentEndsAt = (current.incident_mode_ends_at || '').trim();
+    if (incidentModeEnabled && incidentDurationMin > 0) {
+      incidentEndsAt = new Date(Date.now() + incidentDurationMin * 60000).toISOString();
+    }
+    if (!incidentModeEnabled) {
+      incidentEndsAt = '';
+    }
     const payload = {
       ...current,
       inactive_days: parseInt(qs('#settingsInactive').value, 10),
@@ -760,6 +801,9 @@ async function saveSettings() {
       dashboard_role_policies: rolePolicies,
       retention_days: parseInt(qs('#settingsRetentionDays').value, 10) || 0,
       retention_archive_before_purge: qs('#settingsRetentionArchive').value === 'true',
+      incident_mode_enabled: incidentModeEnabled,
+      incident_mode_reason: qs('#settingsIncidentModeReason').value.trim(),
+      incident_mode_ends_at: incidentEndsAt,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',

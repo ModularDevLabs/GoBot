@@ -64,6 +64,17 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Purges old records from `warnings`, `ticket_messages`, `appeals`, `suggestions`, `member_notes`, `reminders`, and `actions`.
 - Config keys: `retention_days`, `retention_archive_before_purge`.
 
+### Incident Mode Switch (settings-driven)
+
+- Trigger: enabled from Settings view.
+- Behavior:
+- Shows an incident banner in dashboard.
+- Adds stricter safety checks for destructive actions:
+- Confirm token required.
+- Distinct approver required for `kick` and `remove_roles`.
+- Optional auto-disable timestamp can end incident mode automatically.
+- Config keys: `incident_mode_enabled`, `incident_mode_reason`, `incident_mode_ends_at`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

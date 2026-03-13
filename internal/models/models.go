@@ -29,6 +29,9 @@ type GuildSettings struct {
 	DashboardRolePolicies       map[string][]string `json:"dashboard_role_policies"`
 	RetentionDays               int                 `json:"retention_days"`
 	RetentionArchiveBeforePurge bool                `json:"retention_archive_before_purge"`
+	IncidentModeEnabled         bool                `json:"incident_mode_enabled"`
+	IncidentModeReason          string              `json:"incident_mode_reason"`
+	IncidentModeEndsAt          string              `json:"incident_mode_ends_at"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -332,6 +335,9 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		DashboardRolePolicies:       map[string][]string{},
 		RetentionDays:               0,
 		RetentionArchiveBeforePurge: true,
+		IncidentModeEnabled:         false,
+		IncidentModeReason:          "",
+		IncidentModeEndsAt:          "",
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,

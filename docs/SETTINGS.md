@@ -101,6 +101,24 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - Default: `true`
 - Writes a `retention_archive` action row with table counts and cutoff timestamp before deleting old rows.
 
+8g. `incident_mode_enabled`
+- UI label: `Incident mode`
+- Type: boolean
+- Default: `false`
+- Enables high-safety restrictions for destructive dashboard actions.
+
+8h. `incident_mode_reason`
+- UI label: `Incident reason`
+- Type: string
+- Default: empty
+- Optional operator note shown in dashboard banner while incident mode is active.
+
+8i. `incident_mode_ends_at`
+- UI label: derived from `Incident auto-disable (minutes)`
+- Type: RFC3339 timestamp string
+- Default: empty
+- When set, incident mode auto-deactivates after this timestamp.
+
 9. `feature_flags`
 - Type: object/map of booleans
 - Default:

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ModularDevLabs/GoBot/internal/models"
 )
@@ -159,10 +160,23 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 
 	actionType := strings.ReplaceAll(path, "-", "_")
 	isDestructive := actionType == "kick" || actionType == "quarantine" || actionType == "remove_roles"
+	incidentActive := settings.IncidentModeEnabled
+	if incidentActive && settings.IncidentModeEndsAt != "" {
+		if t, err := time.Parse(time.RFC3339, settings.IncidentModeEndsAt); err == nil && time.Now().UTC().After(t) {
+			incidentActive = false
+		}
+	}
 	if isDestructive && settings.ActionRequireConfirm {
 		if strings.TrimSpace(strings.ToUpper(payload.ConfirmToken)) != "CONFIRM" {
 			w.WriteHeader(http.StatusConflict)
 			_, _ = w.Write([]byte("missing confirm token"))
+			return
+		}
+	}
+	if incidentActive && isDestructive {
+		if strings.TrimSpace(strings.ToUpper(payload.ConfirmToken)) != "CONFIRM" {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte("incident mode requires confirm token"))
 			return
 		}
 	}
@@ -171,6 +185,14 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 		if approver == "" || strings.EqualFold(approver, actor) {
 			w.WriteHeader(http.StatusConflict)
 			_, _ = w.Write([]byte("two-person approval requires distinct approver user"))
+			return
+		}
+	}
+	if incidentActive && isDestructive && actionType != "quarantine" {
+		approver := strings.TrimSpace(payload.ApproverUser)
+		if approver == "" || strings.EqualFold(approver, actor) {
+			w.WriteHeader(http.StatusConflict)
+			_, _ = w.Write([]byte("incident mode requires distinct approver user for this action"))
 			return
 		}
 	}

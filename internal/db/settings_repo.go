@@ -211,5 +211,10 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if !cfg.RetentionArchiveBeforePurge && cfg.RetentionDays == 0 {
 		cfg.RetentionArchiveBeforePurge = def.RetentionArchiveBeforePurge
 	}
+	if cfg.IncidentModeEnabled && cfg.IncidentModeEndsAt != "" {
+		if t, err := time.Parse(time.RFC3339, cfg.IncidentModeEndsAt); err == nil && time.Now().UTC().After(t) {
+			cfg.IncidentModeEnabled = false
+		}
+	}
 	return cfg
 }

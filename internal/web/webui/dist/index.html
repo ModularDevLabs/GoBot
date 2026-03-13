@@ -93,6 +93,10 @@
     </aside>
 
     <main class="content">
+      <div id="incidentBanner" class="panel hidden" style="margin-bottom: 12px;">
+        <div class="panel-header">Incident Mode Active</div>
+        <div id="incidentBannerText" class="status-line"></div>
+      </div>
       <section id="view-overview" class="view active">
         <div class="hero">
           <div>
@@ -303,6 +307,21 @@
                 <option value="true">Enabled</option>
                 <option value="false">Disabled</option>
               </select>
+            </label>
+            <label>
+              Incident mode
+              <select id="settingsIncidentModeEnabled">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+              </select>
+            </label>
+            <label>
+              Incident reason
+              <input id="settingsIncidentModeReason" placeholder="Optional: raid, spam wave, etc." />
+            </label>
+            <label>
+              Incident auto-disable (minutes, 0=manual)
+              <input id="settingsIncidentModeDuration" type="number" min="0" />
             </label>
           </div>
           <div class="panel-actions">

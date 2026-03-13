@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sort"
+	"time"
 )
 
 type ActionPreflightIssue struct {
@@ -42,6 +43,12 @@ func (s *Service) PreflightAction(ctx context.Context, guildID, targetUserID, ac
 	settings, err := s.repos.Settings.Get(ctx, guildID)
 	if err != nil {
 		return result, err
+	}
+	incidentActive := settings.IncidentModeEnabled
+	if incidentActive && settings.IncidentModeEndsAt != "" {
+		if t, err := time.Parse(time.RFC3339, settings.IncidentModeEndsAt); err == nil && time.Now().UTC().After(t) {
+			incidentActive = false
+		}
 	}
 
 	guild, err := s.session.Guild(guildID)
@@ -108,12 +115,20 @@ func (s *Service) PreflightAction(ctx context.Context, guildID, targetUserID, ac
 	switch actionType {
 	case "kick":
 		addIssue("warning", "kick_irreversible", "Kick is destructive. Confirm reason and target before queueing.")
+		if incidentActive {
+			addIssue("warning", "incident_mode_extra_review", "Incident mode is active: use two-person approval for destructive actions.")
+		}
 	case "quarantine":
 		if settings.QuarantineRoleID == "" {
 			addIssue("warning", "quarantine_role_auto", "Quarantine role not set explicitly; bot will attempt auto-provisioning.")
 		}
+		if incidentActive {
+			addIssue("warning", "incident_mode_extra_review", "Incident mode is active: quarantine actions should include clear reasoning.")
+		}
 	case "remove_roles":
-		// no-op
+		if incidentActive {
+			addIssue("warning", "incident_mode_extra_review", "Incident mode is active: use two-person approval for destructive actions.")
+		}
 	default:
 		addIssue("warning", "unknown_action", "Unknown action type provided to preflight.")
 	}
