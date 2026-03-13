@@ -165,11 +165,11 @@ function syncModuleBadges() {
   const birthdaysEnabled = qs('#settingsBirthdaysEnabled')?.value === 'true';
   const streaksEnabled = qs('#settingsStreaksEnabled')?.value === 'true';
   const seasonResetsEnabled = qs('#settingsSeasonResetsEnabled')?.value === 'true';
-  const reputationEnabled = qs('#settingsReputationEnabled')?.value === 'true';
-  const economyEnabled = qs('#settingsEconomyEnabled')?.value === 'true';
-  const achievementsEnabled = qs('#settingsAchievementsEnabled')?.value === 'true';
-  const triviaEnabled = qs('#settingsTriviaEnabled')?.value === 'true';
-  const calendarEnabled = qs('#settingsCalendarEnabled')?.value === 'true';
+  const reputationEnabled = qs('#moduleReputationEnabled')?.value === 'true';
+  const economyEnabled = qs('#moduleEconomyEnabled')?.value === 'true';
+  const achievementsEnabled = qs('#moduleAchievementsEnabled')?.value === 'true';
+  const triviaEnabled = qs('#moduleTriviaEnabled')?.value === 'true';
+  const calendarEnabled = qs('#moduleCalendarEnabled')?.value === 'true';
   const confessionsEnabled = qs('#moduleConfessionsEnabled')?.value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
@@ -724,7 +724,6 @@ async function loadSettings() {
   qs('#settingsVoiceRewardsEnabled').value = String(!!cfg.voice_rewards_enabled);
   qs('#settingsVoiceCoinsPerMinute').value = cfg.voice_reward_coins_per_minute || 1;
   qs('#settingsVoiceXPPerMinute').value = cfg.voice_reward_xp_per_minute || 2;
-  qs('#settingsConfessionsEnabled').value = String(!!cfg.confessions_enabled);
   qs('#moduleConfessionsEnabled').value = String(!!cfg.confessions_enabled);
   qs('#settingsConfessionsChannel').value = cfg.confessions_channel_id || '';
   qs('#settingsConfessionsReview').value = String(cfg.confessions_require_review !== false);
@@ -842,12 +841,11 @@ async function loadSettings() {
   qs('#settingsBirthdaysEnabled').value = String(!!flags[FEATURE_BIRTHDAYS]);
   qs('#settingsStreaksEnabled').value = String(!!flags[FEATURE_STREAKS]);
   qs('#settingsSeasonResetsEnabled').value = String(!!flags[FEATURE_SEASON_RESETS]);
-  qs('#settingsReputationEnabled').value = String(!!flags[FEATURE_REPUTATION]);
-  qs('#settingsEconomyEnabled').value = String(!!flags[FEATURE_ECONOMY]);
-  qs('#settingsAchievementsEnabled').value = String(!!flags[FEATURE_ACHIEVEMENTS]);
-  qs('#settingsTriviaEnabled').value = String(!!flags[FEATURE_TRIVIA]);
-  qs('#settingsCalendarEnabled').value = String(!!flags[FEATURE_CALENDAR]);
-  qs('#settingsConfessionsEnabled').value = String(!!flags[FEATURE_CONFESSIONS]);
+  qs('#moduleReputationEnabled').value = String(!!flags[FEATURE_REPUTATION]);
+  qs('#moduleEconomyEnabled').value = String(!!flags[FEATURE_ECONOMY]);
+  qs('#moduleAchievementsEnabled').value = String(!!flags[FEATURE_ACHIEVEMENTS]);
+  qs('#moduleTriviaEnabled').value = String(!!flags[FEATURE_TRIVIA]);
+  qs('#moduleCalendarEnabled').value = String(!!flags[FEATURE_CALENDAR]);
   qs('#moduleConfessionsEnabled').value = String(!!flags[FEATURE_CONFESSIONS]);
   refreshIncidentBanner(cfg);
   syncModuleBadges();
@@ -996,7 +994,7 @@ async function saveSettings() {
       voice_rewards_enabled: qs('#settingsVoiceRewardsEnabled').value === 'true',
       voice_reward_coins_per_minute: parseInt(qs('#settingsVoiceCoinsPerMinute').value || '1', 10) || 1,
       voice_reward_xp_per_minute: parseInt(qs('#settingsVoiceXPPerMinute').value || '2', 10) || 2,
-      confessions_enabled: qs('#settingsConfessionsEnabled').value === 'true',
+      confessions_enabled: !!current.confessions_enabled,
       confessions_channel_id: (qs('#settingsConfessionsChannel').value || '').trim(),
       confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
       birthdays_enabled: qs('#settingsBirthdaysEnabled').value === 'true',
@@ -1015,15 +1013,6 @@ async function saveSettings() {
       season_reset_cadence: qs('#settingsSeasonResetCadence').value || 'monthly',
       season_reset_next_run_at: (qs('#settingsSeasonResetNextRunAt').value || '').trim(),
       season_reset_modules: (qs('#settingsSeasonResetModules').value || '').split(',').map((v) => v.trim().toLowerCase()).filter(Boolean),
-      feature_flags: {
-        ...(current.feature_flags || {}),
-        [FEATURE_REPUTATION]: qs('#settingsReputationEnabled').value === 'true',
-        [FEATURE_ECONOMY]: qs('#settingsEconomyEnabled').value === 'true',
-        [FEATURE_ACHIEVEMENTS]: qs('#settingsAchievementsEnabled').value === 'true',
-        [FEATURE_TRIVIA]: qs('#settingsTriviaEnabled').value === 'true',
-        [FEATURE_CALENDAR]: qs('#settingsCalendarEnabled').value === 'true',
-        [FEATURE_CONFESSIONS]: qs('#settingsConfessionsEnabled').value === 'true',
-      },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -3248,7 +3237,7 @@ async function saveReputationModule() {
       ...current,
       feature_flags: {
         ...(current.feature_flags || {}),
-        [FEATURE_REPUTATION]: qs('#settingsReputationEnabled').value === 'true',
+        [FEATURE_REPUTATION]: qs('#moduleReputationEnabled').value === 'true',
       },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
@@ -3277,7 +3266,7 @@ async function saveEconomyModule() {
       ...current,
       feature_flags: {
         ...(current.feature_flags || {}),
-        [FEATURE_ECONOMY]: qs('#settingsEconomyEnabled').value === 'true',
+        [FEATURE_ECONOMY]: qs('#moduleEconomyEnabled').value === 'true',
       },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
@@ -3306,7 +3295,7 @@ async function saveAchievementsModule() {
       ...current,
       feature_flags: {
         ...(current.feature_flags || {}),
-        [FEATURE_ACHIEVEMENTS]: qs('#settingsAchievementsEnabled').value === 'true',
+        [FEATURE_ACHIEVEMENTS]: qs('#moduleAchievementsEnabled').value === 'true',
       },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
@@ -3335,7 +3324,7 @@ async function saveTriviaModule() {
       ...current,
       feature_flags: {
         ...(current.feature_flags || {}),
-        [FEATURE_TRIVIA]: qs('#settingsTriviaEnabled').value === 'true',
+        [FEATURE_TRIVIA]: qs('#moduleTriviaEnabled').value === 'true',
       },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
@@ -3364,7 +3353,7 @@ async function saveCalendarModule() {
       ...current,
       feature_flags: {
         ...(current.feature_flags || {}),
-        [FEATURE_CALENDAR]: qs('#settingsCalendarEnabled').value === 'true',
+        [FEATURE_CALENDAR]: qs('#moduleCalendarEnabled').value === 'true',
       },
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
@@ -3927,12 +3916,11 @@ function wireEvents() {
   qs('#settingsBirthdaysEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStreaksEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsSeasonResetsEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsReputationEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsEconomyEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsAchievementsEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsTriviaEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsCalendarEnabled').addEventListener('change', syncModuleBadges);
-  qs('#settingsConfessionsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleReputationEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleEconomyEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleAchievementsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleTriviaEnabled').addEventListener('change', syncModuleBadges);
+  qs('#moduleCalendarEnabled').addEventListener('change', syncModuleBadges);
   qs('#moduleConfessionsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingCurve').addEventListener('change', updateLevelingGuideExamples);
   qs('#settingsLevelingBase').addEventListener('input', updateLevelingGuideExamples);
