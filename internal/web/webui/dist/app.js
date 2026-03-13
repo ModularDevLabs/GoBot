@@ -635,6 +635,8 @@ async function loadSettings() {
   qs('#settingsMaintenanceStart').value = cfg.maintenance_window_start || '02:00';
   qs('#settingsMaintenanceEnd').value = cfg.maintenance_window_end || '03:00';
   qs('#settingsReviewQueueEnabled').value = String(!!cfg.review_queue_enabled);
+  qs('#settingsModSummaryChannel').value = cfg.mod_summary_channel_id || '';
+  qs('#settingsModSummaryHours').value = cfg.mod_summary_interval_hours || 24;
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -853,6 +855,8 @@ async function saveSettings() {
       maintenance_window_start: (qs('#settingsMaintenanceStart').value || '').trim(),
       maintenance_window_end: (qs('#settingsMaintenanceEnd').value || '').trim(),
       review_queue_enabled: qs('#settingsReviewQueueEnabled').value === 'true',
+      mod_summary_channel_id: (qs('#settingsModSummaryChannel').value || '').trim(),
+      mod_summary_interval_hours: parseInt(qs('#settingsModSummaryHours').value || '24', 10) || 24,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2691,6 +2695,17 @@ async function loadHealthDashboard() {
   status.textContent = `Updated at ${new Date().toLocaleTimeString()}`;
 }
 
+async function generateModSummary() {
+  if (!state.guildId) return;
+  const status = qs('#modSummaryStatus');
+  const preview = qs('#modSummaryPreview');
+  if (!status || !preview) return;
+  status.textContent = 'Generating...';
+  const res = await apiFetch(`/api/mod-summary/generate?guild_id=${state.guildId}&hours=24`, { method: 'POST' });
+  preview.textContent = (res && res.summary) || '';
+  status.textContent = `Generated at ${new Date().toLocaleTimeString()}`;
+}
+
 async function loadEvents() {
   const limit = parseInt(qs('#eventsLimit').value, 10) || 200;
   const rows = (await apiFetch(`/api/events?limit=${Math.min(Math.max(limit, 20), 1000)}`)) || [];
@@ -2983,6 +2998,7 @@ function wireEvents() {
   qs('#backfillBtn').onclick = runBackfill;
   qs('#refreshOverview').onclick = loadOverview;
   qs('#healthRefresh').onclick = () => loadHealthDashboard().catch((err) => showToast(`Health load failed: ${err.message}`, 'error'));
+  qs('#modSummaryGenerate').onclick = () => generateModSummary().catch((err) => showToast(`Mod summary failed: ${err.message}`, 'error'));
   qs('#repRefresh').onclick = () => loadReputationLeaderboard().catch((err) => showToast(`Reputation load failed: ${err.message}`, 'error'));
   qs('#repGivePlus').onclick = () => giveReputation(1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));
   qs('#repGiveMinus').onclick = () => giveReputation(-1).catch((err) => showToast(`Give rep failed: ${err.message}`, 'error'));

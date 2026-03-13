@@ -42,6 +42,8 @@ type GuildSettings struct {
 	MaintenanceWindowStart      string              `json:"maintenance_window_start"`
 	MaintenanceWindowEnd        string              `json:"maintenance_window_end"`
 	ReviewQueueEnabled          bool                `json:"review_queue_enabled"`
+	ModSummaryChannelID         string              `json:"mod_summary_channel_id"`
+	ModSummaryIntervalHours     int                 `json:"mod_summary_interval_hours"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -430,6 +432,8 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		MaintenanceWindowStart:      "02:00",
 		MaintenanceWindowEnd:        "03:00",
 		ReviewQueueEnabled:          false,
+		ModSummaryChannelID:         "",
+		ModSummaryIntervalHours:     24,
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,

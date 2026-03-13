@@ -162,6 +162,13 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Awards badges from milestone checks (level, reputation, economy balance).
 - API: `GET /api/modules/achievements?guild_id=...&user_id=...`.
 
+### Mod Summaries
+
+- Generates periodic moderation digest messages (warnings/actions/tickets).
+- Configurable via settings: `mod_summary_channel_id`, `mod_summary_interval_hours`.
+- Supports on-demand generation endpoint:
+- `POST /api/mod-summary/generate?guild_id=...&hours=24`
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

@@ -144,6 +144,14 @@
             <div id="healthTable"></div>
           </div>
         </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Mod Summary</div>
+          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <button id="modSummaryGenerate" class="ghost">Generate now</button>
+            <span id="modSummaryStatus" class="status-line"></span>
+          </div>
+          <pre id="modSummaryPreview" class="event-log" style="min-height: 100px;"></pre>
+        </div>
       </section>
 
       <section id="view-members" class="view">
@@ -412,6 +420,14 @@
                 <option value="false">Disabled</option>
                 <option value="true">Enabled</option>
               </select>
+            </label>
+            <label>
+              Mod summary channel ID
+              <input id="settingsModSummaryChannel" />
+            </label>
+            <label>
+              Mod summary interval (hours)
+              <input id="settingsModSummaryHours" type="number" min="1" />
             </label>
           </div>
           <div class="panel-actions">

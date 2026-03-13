@@ -110,6 +110,7 @@ func (s *Service) StartWorkers(ctx context.Context) {
 	go s.runAnalyticsWorker(ctx)
 	go s.runRemindersWorker(ctx)
 	go s.runRetentionWorker(ctx)
+	go s.runModSummaryWorker(ctx)
 }
 
 func (s *Service) ListGuilds(ctx context.Context) ([]models.GuildInfo, error) {

@@ -225,5 +225,8 @@ func applyGuildSettingDefaults(cfg models.GuildSettings) models.GuildSettings {
 	if cfg.MaintenanceWindowEnd == "" {
 		cfg.MaintenanceWindowEnd = def.MaintenanceWindowEnd
 	}
+	if cfg.ModSummaryIntervalHours <= 0 {
+		cfg.ModSummaryIntervalHours = def.ModSummaryIntervalHours
+	}
 	return cfg
 }
