@@ -183,6 +183,7 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - `member_notes=false`
 - `appeals=false`
 - `custom_commands=false`
+- `birthdays=false`
 - Controls per-guild module enablement (features are off unless enabled for that server).
 
 10. `welcome_channel_id`
@@ -530,6 +531,17 @@ Each schedule contains:
 - Type: string
 - Default: `!appeal`
 
+67. `birthdays_enabled`
+- UI label: `Enabled` (Birthdays module)
+- Type: boolean
+- Default: `false`
+- Mirrors `feature_flags.birthdays`.
+
+68. `birthdays_channel_id`
+- UI label: `Birthday channel ID` (Birthdays module)
+- Type: Discord channel ID (string)
+- Used when `feature_flags.birthdays=true`.
+
 ## Giveaways Records
 
 Configured in the `Giveaways` module UI and stored in `giveaways` / `giveaway_entries`.
@@ -600,6 +612,18 @@ Each command contains:
 
 1. `trigger` (exact message text, case-insensitive match)
 2. `response` (message sent when trigger matches)
+
+## Birthday Records
+
+Configured in the `Birthdays` module UI and stored in `birthdays`.
+
+Each birthday record contains:
+
+1. `user_id`
+2. `birthday_mmdd` (format: `MM-DD`)
+3. `timezone` (string label, default `UTC`)
+4. `created_at`
+5. `updated_at`
 
 ## Advanced Per-Guild Setting (API/DB)
 

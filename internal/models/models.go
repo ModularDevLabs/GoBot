@@ -53,6 +53,8 @@ type GuildSettings struct {
 	ConfessionsEnabled          bool                `json:"confessions_enabled"`
 	ConfessionsChannelID        string              `json:"confessions_channel_id"`
 	ConfessionsRequireReview    bool                `json:"confessions_require_review"`
+	BirthdaysEnabled            bool                `json:"birthdays_enabled"`
+	BirthdaysChannelID          string              `json:"birthdays_channel_id"`
 	FeatureFlags                map[string]bool     `json:"feature_flags"`
 	WelcomeChannelID            string              `json:"welcome_channel_id"`
 	WelcomeMessage              string              `json:"welcome_message"`
@@ -293,6 +295,15 @@ type ReminderRow struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type BirthdayRow struct {
+	GuildID      string    `json:"guild_id"`
+	UserID       string    `json:"user_id"`
+	BirthdayMMDD string    `json:"birthday_mmdd"`
+	Timezone     string    `json:"timezone"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
 type MemberNoteRow struct {
 	ID         int64      `json:"id"`
 	GuildID    string     `json:"guild_id"`
@@ -355,6 +366,7 @@ const (
 	FeatureMemberNotes     = "member_notes"
 	FeatureAppeals         = "appeals"
 	FeatureCustomCommands  = "custom_commands"
+	FeatureBirthdays       = "birthdays"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -452,6 +464,8 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 		ConfessionsEnabled:          false,
 		ConfessionsChannelID:        "",
 		ConfessionsRequireReview:    true,
+		BirthdaysEnabled:            false,
+		BirthdaysChannelID:          "",
 		FeatureFlags: map[string]bool{
 			FeatureWelcomeMessages: false,
 			FeatureGoodbyeMessages: false,
@@ -477,6 +491,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureMemberNotes:     false,
 			FeatureAppeals:         false,
 			FeatureCustomCommands:  false,
+			FeatureBirthdays:       false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

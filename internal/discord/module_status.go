@@ -134,6 +134,10 @@ var modulePermissionRequirements = map[string][]permissionRequirement{
 		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
 		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
 	},
+	models.FeatureBirthdays: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
 }
 
 func (s *Service) GetInviteTrackerStatus(_ context.Context, guildID string) (InviteTrackerStatus, error) {

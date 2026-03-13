@@ -37,6 +37,7 @@ const FEATURE_ACCOUNT_AGE_GUARD = 'account_age_guard';
 const FEATURE_MEMBER_NOTES = 'member_notes';
 const FEATURE_APPEALS = 'appeals';
 const FEATURE_CUSTOM_COMMANDS = 'custom_commands';
+const FEATURE_BIRTHDAYS = 'birthdays';
 const FEATURE_BY_VIEW = {
   welcome: FEATURE_WELCOME,
   goodbye: FEATURE_GOODBYE,
@@ -62,6 +63,7 @@ const FEATURE_BY_VIEW = {
   membernotes: FEATURE_MEMBER_NOTES,
   appeals: FEATURE_APPEALS,
   customcommands: FEATURE_CUSTOM_COMMANDS,
+  birthdays: FEATURE_BIRTHDAYS,
 };
 const NAV_GROUPS_STORAGE_KEY = 'modbot_nav_groups';
 const ACTIVE_VIEW_STORAGE_KEY = 'modbot_active_view';
@@ -91,6 +93,7 @@ const MODULE_GUIDES = {
   membernotes: { title: 'How To Use', points: ['Enable and optionally set notes log channel.', 'Add moderation notes per user from the panel below.', 'Resolve notes when issues are closed out.'] },
   appeals: { title: 'How To Use', points: ['Set appeals intake channel + phrase.', 'Users submit appeals in that channel.', 'Resolve with clear outcome notes for future audits.'] },
   customcommands: { title: 'How To Use', points: ['Enable module and add trigger/response rules below.', 'Triggers are exact matches (case-insensitive).', 'Keep responses concise to avoid channel spam.'] },
+  birthdays: { title: 'How To Use', points: ['Enable the module and set a birthday channel ID.', 'Store birthdays as MM-DD and optional timezone per user.', 'Worker posts birthday mentions automatically each day.'] },
 };
 
 function setModuleBadge(enabled, badgeEl, cardEl) {
@@ -126,6 +129,7 @@ function syncModuleBadges() {
   const memberNotesEnabled = qs('#settingsMemberNotesEnabled').value === 'true';
   const appealsEnabled = qs('#settingsAppealsEnabled').value === 'true';
   const customCommandsEnabled = qs('#settingsCustomCommandsEnabled').value === 'true';
+  const birthdaysEnabled = qs('#settingsBirthdaysEnabled')?.value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
   setModuleBadge(auditEnabled, qs('#moduleAuditBadge'), qs('#moduleAuditCard'));
@@ -150,6 +154,7 @@ function syncModuleBadges() {
   setModuleBadge(memberNotesEnabled, qs('#moduleMemberNotesBadge'), qs('#moduleMemberNotesCard'));
   setModuleBadge(appealsEnabled, qs('#moduleAppealsBadge'), qs('#moduleAppealsCard'));
   setModuleBadge(customCommandsEnabled, qs('#moduleCustomCommandsBadge'), qs('#moduleCustomCommandsCard'));
+  setModuleBadge(birthdaysEnabled, qs('#moduleBirthdaysBadge'), qs('#moduleBirthdaysCard'));
 }
 
 const qs = (sel) => document.querySelector(sel);
@@ -357,6 +362,7 @@ function applyModulePermissionDisabling() {
     appealsSave: FEATURE_APPEALS,
     customCommandsSave: FEATURE_CUSTOM_COMMANDS,
     customCommandAdd: FEATURE_CUSTOM_COMMANDS,
+    birthdaysSave: FEATURE_BIRTHDAYS,
   };
   Object.entries(buttonFeatureMap).forEach(([id, feature]) => {
     const button = qs(`#${id}`);
@@ -646,6 +652,8 @@ async function loadSettings() {
   qs('#settingsConfessionsEnabled').value = String(!!cfg.confessions_enabled);
   qs('#settingsConfessionsChannel').value = cfg.confessions_channel_id || '';
   qs('#settingsConfessionsReview').value = String(cfg.confessions_require_review !== false);
+  qs('#settingsBirthdaysEnabled').value = String(!!cfg.birthdays_enabled);
+  qs('#settingsBirthdaysChannel').value = cfg.birthdays_channel_id || '';
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -740,6 +748,7 @@ async function loadSettings() {
   qs('#settingsAppealsLogChannel').value = cfg.appeals_log_channel_id || '';
   qs('#settingsAppealsPhrase').value = cfg.appeals_open_phrase || '!appeal';
   qs('#settingsCustomCommandsEnabled').value = String(!!flags[FEATURE_CUSTOM_COMMANDS]);
+  qs('#settingsBirthdaysEnabled').value = String(!!flags[FEATURE_BIRTHDAYS]);
   refreshIncidentBanner(cfg);
   syncModuleBadges();
   updateLevelingGuideExamples();
@@ -758,6 +767,7 @@ async function loadSettings() {
   await loadTrivia();
   await loadCalendarEvents();
   await loadConfessions();
+  await loadBirthdays();
   await loadPolls();
   await loadSuggestions();
   await loadReminders();
@@ -878,6 +888,8 @@ async function saveSettings() {
       confessions_enabled: qs('#settingsConfessionsEnabled').value === 'true',
       confessions_channel_id: (qs('#settingsConfessionsChannel').value || '').trim(),
       confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
+      birthdays_enabled: qs('#settingsBirthdaysEnabled').value === 'true',
+      birthdays_channel_id: (qs('#settingsBirthdaysChannel').value || '').trim(),
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2712,6 +2724,82 @@ async function reviewConfession(id, decision) {
   });
 }
 
+async function saveBirthdaysModule() {
+  const restore = setBusy(qs('#birthdaysSave'), 'Saving...');
+  const status = qs('#birthdaysStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_BIRTHDAYS]: qs('#settingsBirthdaysEnabled').value === 'true',
+      },
+      birthdays_enabled: qs('#settingsBirthdaysEnabled').value === 'true',
+      birthdays_channel_id: (qs('#settingsBirthdaysChannel').value || '').trim(),
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Birthday module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Birthday module save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function loadBirthdays() {
+  if (!state.guildId) return;
+  const table = qs('#birthdaysTable');
+  const status = qs('#birthdayListStatus');
+  if (!table || !status) return;
+  const rows = (await apiFetch(`/api/modules/birthdays?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `
+      <div>${row.user_id}</div>
+      <div>${row.birthday_mmdd}</div>
+      <div>${row.timezone || 'UTC'}</div>
+      <div><button class="ghost" data-birthday-del="${row.user_id}">Delete</button></div>
+    `;
+    table.appendChild(div);
+  });
+  status.textContent = `Loaded ${rows.length} birthdays`;
+}
+
+async function addBirthday() {
+  if (!state.guildId) return;
+  const userID = (qs('#birthdayUserId').value || '').trim();
+  const mmdd = (qs('#birthdayMMDD').value || '').trim();
+  const timezone = (qs('#birthdayTimezone').value || '').trim() || 'UTC';
+  if (!userID || !mmdd) {
+    showToast('User ID and MM-DD are required.', 'error');
+    return;
+  }
+  await apiFetch(`/api/modules/birthdays?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userID, birthday_mmdd: mmdd, timezone: timezone }),
+  });
+  await loadBirthdays();
+}
+
+async function deleteBirthday(userID) {
+  if (!state.guildId || !userID) return;
+  await apiFetch(`/api/modules/birthdays?guild_id=${state.guildId}&user_id=${encodeURIComponent(userID)}`, {
+    method: 'DELETE',
+  });
+}
+
 async function reviewQueueDecision(actionID, decision) {
   if (!actionID || !decision) return;
   let reason = '';
@@ -3113,6 +3201,7 @@ function wireEvents() {
   qs('#accountAgeGuardSave').onclick = () => { if (requireModulePermissions(FEATURE_ACCOUNT_AGE_GUARD, 'Save account age guard module')) saveAccountAgeGuardModule(); };
   qs('#memberNotesSave').onclick = () => { if (requireModulePermissions(FEATURE_MEMBER_NOTES, 'Save member notes module')) saveMemberNotesModule(); };
   qs('#customCommandsSave').onclick = () => { if (requireModulePermissions(FEATURE_CUSTOM_COMMANDS, 'Save custom commands module')) saveCustomCommandsModule(); };
+  qs('#birthdaysSave').onclick = () => { if (requireModulePermissions(FEATURE_BIRTHDAYS, 'Save birthdays module')) saveBirthdaysModule(); };
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = () => { if (requireModulePermissions(FEATURE_REACTION_ROLES, 'Add reaction role rule')) addReactionRoleRule(); };
   qs('#warnRefresh').onclick = () => loadWarnings().catch((err) => showToast(`Warnings load failed: ${err.message}`, 'error'));
@@ -3161,6 +3250,7 @@ function wireEvents() {
   qs('#settingsMemberNotesEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAppealsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsCustomCommandsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsBirthdaysEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingCurve').addEventListener('change', updateLevelingGuideExamples);
   qs('#settingsLevelingBase').addEventListener('input', updateLevelingGuideExamples);
   qs('#settingsLevelingXP').addEventListener('input', updateLevelingGuideExamples);
@@ -3191,6 +3281,8 @@ function wireEvents() {
   qs('#triviaNewQuestion').onclick = () => fetchTriviaQuestion().catch((err) => showToast(`Trivia question failed: ${err.message}`, 'error'));
   qs('#triviaSubmit').onclick = () => submitTriviaAnswer().catch((err) => showToast(`Trivia submit failed: ${err.message}`, 'error'));
   qs('#triviaRefresh').onclick = () => loadTrivia().catch((err) => showToast(`Trivia load failed: ${err.message}`, 'error'));
+  qs('#birthdayAdd').onclick = () => addBirthday().catch((err) => showToast(`Birthday save failed: ${err.message}`, 'error'));
+  qs('#birthdayRefresh').onclick = () => loadBirthdays().catch((err) => showToast(`Birthday list failed: ${err.message}`, 'error'));
   qs('#calRefresh').onclick = () => loadCalendarEvents().catch((err) => showToast(`Calendar load failed: ${err.message}`, 'error'));
   qs('#calCreate').onclick = () => createCalendarEvent().catch((err) => showToast(`Create event failed: ${err.message}`, 'error'));
   qs('#confRefresh').onclick = () => loadConfessions().catch((err) => showToast(`Confessions load failed: ${err.message}`, 'error'));
@@ -3287,6 +3379,18 @@ function wireEvents() {
       await loadConfessions();
     } catch (err) {
       showToast(`Confession review failed: ${err.message}`, 'error');
+    }
+  });
+
+  qs('#birthdaysTable').addEventListener('click', async (e) => {
+    const del = e.target.closest('button[data-birthday-del]');
+    if (!del) return;
+    try {
+      await deleteBirthday(del.getAttribute('data-birthday-del'));
+      showToast('Birthday removed.');
+      await loadBirthdays();
+    } catch (err) {
+      showToast(`Birthday delete failed: ${err.message}`, 'error');
     }
   });
 

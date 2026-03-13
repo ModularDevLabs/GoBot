@@ -75,6 +75,7 @@
             <button type="button" class="nav-view-btn" data-view="economy">Economy</button>
             <button type="button" class="nav-view-btn" data-view="achievements">Achievements</button>
             <button type="button" class="nav-view-btn" data-view="trivia">Trivia</button>
+            <button type="button" class="nav-view-btn" data-view="birthdays">Birthdays</button>
             <button type="button" class="nav-view-btn" data-view="calendar">Calendar</button>
             <button type="button" class="nav-view-btn" data-view="giveaways">Giveaways</button>
             <button type="button" class="nav-view-btn" data-view="polls">Polls</button>
@@ -1492,6 +1493,66 @@
               <div>Score</div>
             </div>
             <div id="triviaTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-birthdays" class="view">
+        <div class="panel">
+          <div class="panel-header">Birthday Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleBirthdaysCard">
+              <div class="module-head">
+                <div class="module-title">Birthdays</div>
+                <span class="module-badge off" id="moduleBirthdaysBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Store member birthdays and auto-post celebration messages on matching dates.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsBirthdaysEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Birthday channel ID
+                  <input id="settingsBirthdaysChannel" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="birthdaysSave" class="primary">Save birthday module</button>
+            <span id="birthdaysStatus" class="status-line"></span>
+          </div>
+        </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Birthday Directory</div>
+          <div class="form-grid">
+            <label>
+              User ID
+              <input id="birthdayUserId" />
+            </label>
+            <label>
+              Birthday (MM-DD)
+              <input id="birthdayMMDD" placeholder="03-21" />
+            </label>
+            <label>
+              Timezone
+              <input id="birthdayTimezone" placeholder="UTC" />
+            </label>
+          </div>
+          <div class="panel-actions">
+            <button id="birthdayAdd" class="ghost">Add/update birthday</button>
+            <button id="birthdayRefresh" class="ghost">Refresh</button>
+            <span id="birthdayListStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header">
+              <div>User</div><div>Date</div><div>Timezone</div><div>Action</div>
+            </div>
+            <div id="birthdaysTable"></div>
           </div>
         </div>
       </section>

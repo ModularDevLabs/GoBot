@@ -181,6 +181,21 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Data model:
 - `trivia_scores(guild_id, user_id, score, updated_at)` with one row per guild/user.
 
+### Birthday Module
+
+- Purpose:
+- Track member birthdays and automate celebration posts in a configured channel.
+- Workflow:
+- Add or update a birthday entry per user (`MM-DD`) with optional timezone label.
+- Enable the module and set `birthdays_channel_id`.
+- Birthday worker scans daily and posts a mention for matching entries.
+- APIs:
+- `GET /api/modules/birthdays?guild_id=...`
+- `POST /api/modules/birthdays?guild_id=...`
+- `DELETE /api/modules/birthdays?guild_id=...&user_id=...`
+- Data model:
+- `birthdays(guild_id, user_id, birthday_mmdd, timezone, created_at, updated_at)`
+
 ### Mod Summaries
 
 - Generates periodic moderation digest messages (warnings/actions/tickets).
