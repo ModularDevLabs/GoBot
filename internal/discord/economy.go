@@ -48,6 +48,10 @@ func (s *Service) grantShopItem(ctx context.Context, guildID, userID string, ite
 		if err := s.session.GuildMemberRoleAdd(guildID, userID, strings.TrimSpace(item.RoleID)); err != nil {
 			return "", err
 		}
+		if item.DurationMinutes > 0 {
+			_ = s.repos.RoleRentals.Create(ctx, guildID, userID, strings.TrimSpace(item.RoleID), item.DurationMinutes)
+			return "temporary role rental granted", nil
+		}
 		return "role granted", nil
 	}
 	return "purchase recorded", nil

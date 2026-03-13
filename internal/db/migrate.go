@@ -306,6 +306,17 @@ func Migrate(db *sql.DB) error {
 			updated_at TEXT NOT NULL,
 			PRIMARY KEY (event_id, user_id)
 		);`,
+		`CREATE TABLE IF NOT EXISTS role_rentals (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			guild_id TEXT NOT NULL,
+			user_id TEXT NOT NULL,
+			role_id TEXT NOT NULL,
+			started_at TEXT NOT NULL,
+			expires_at TEXT NOT NULL,
+			status TEXT NOT NULL
+		);`,
+		`CREATE INDEX IF NOT EXISTS idx_role_rentals_due
+		ON role_rentals(status, expires_at);`,
 	}
 
 	for _, stmt := range stmts {

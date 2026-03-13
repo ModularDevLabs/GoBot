@@ -2517,7 +2517,7 @@ async function loadEconomy() {
   items.forEach((item) => {
     const div = document.createElement('div');
     div.className = 'table-row';
-    div.innerHTML = `<div>${item.id}</div><div>${item.name}</div><div>${item.cost}</div><div>${item.role_id || ''}</div><div>${item.enabled ? 'yes' : 'no'}</div>`;
+    div.innerHTML = `<div>${item.id}</div><div>${item.name}</div><div>${item.cost}</div><div>${item.role_id || ''}${item.duration_minutes > 0 ? ` (${item.duration_minutes}m)` : ''}</div><div>${item.enabled ? 'yes' : 'no'}</div>`;
     shop.appendChild(div);
   });
   status.textContent = `Loaded leaderboard (${leaderboard.length}) and shop (${items.length})`;
@@ -2528,6 +2528,7 @@ async function addEconomyItem() {
   const name = (qs('#ecoNewItemName').value || '').trim();
   const cost = parseInt(qs('#ecoNewItemCost').value || '0', 10);
   const roleID = (qs('#ecoNewItemRole').value || '').trim();
+  const duration = parseInt(qs('#ecoNewItemDuration').value || '0', 10) || 0;
   if (!name || cost <= 0) {
     showToast('Item name and cost are required.', 'error');
     return;
@@ -2535,7 +2536,7 @@ async function addEconomyItem() {
   await apiFetch(`/api/modules/economy/shop?guild_id=${state.guildId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, cost, role_id: roleID, enabled: true }),
+    body: JSON.stringify({ name, cost, role_id: roleID, duration_minutes: duration, enabled: true }),
   });
   await loadEconomy();
 }

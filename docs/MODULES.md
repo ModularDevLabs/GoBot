@@ -150,6 +150,7 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Members earn coins from chat activity (1 coin, 60s per-user cooldown).
 - Tracks balances and leaderboard per guild.
 - Supports shop items with optional role grants on purchase.
+- Role items can specify duration minutes for temporary rentals (auto-expire worker).
 - APIs:
 - `GET /api/modules/economy/balance?guild_id=...&user_id=...`
 - `GET /api/modules/economy/leaderboard?guild_id=...`
