@@ -225,6 +225,9 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 			Type:         actionType,
 			PayloadJSON:  toJSON(map[string]any{"reason": payload.Reason, "role_ids": payload.RoleIDs, "remove_all_except_allowlist": payload.RemoveAllExceptAllow, "target_name": targetName}),
 		}
+		if settings.ReviewQueueEnabled && isDestructive {
+			row.Status = "review_pending"
+		}
 		newID, err := s.repos.Actions.Enqueue(r.Context(), row)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -232,8 +235,13 @@ func (s *Server) handleActionCreate(w http.ResponseWriter, r *http.Request) {
 		}
 		ids = append(ids, newID)
 	}
-	s.discord.NotifyActionQueued()
-	writeJSON(w, map[string]any{"action_ids": ids})
+	if !(settings.ReviewQueueEnabled && isDestructive) {
+		s.discord.NotifyActionQueued()
+	}
+	writeJSON(w, map[string]any{
+		"action_ids":      ids,
+		"review_required": settings.ReviewQueueEnabled && isDestructive,
+	})
 }
 
 func (s *Server) handleActionPreflight(w http.ResponseWriter, r *http.Request) {

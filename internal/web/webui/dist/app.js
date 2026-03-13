@@ -634,6 +634,7 @@ async function loadSettings() {
   qs('#settingsMaintenanceEnabled').value = String(!!cfg.maintenance_window_enabled);
   qs('#settingsMaintenanceStart').value = cfg.maintenance_window_start || '02:00';
   qs('#settingsMaintenanceEnd').value = cfg.maintenance_window_end || '03:00';
+  qs('#settingsReviewQueueEnabled').value = String(!!cfg.review_queue_enabled);
   const incidentEndsRaw = (cfg.incident_mode_ends_at || '').trim();
   let incidentDuration = 0;
   if (incidentEndsRaw) {
@@ -849,6 +850,7 @@ async function saveSettings() {
       maintenance_window_enabled: qs('#settingsMaintenanceEnabled').value === 'true',
       maintenance_window_start: (qs('#settingsMaintenanceStart').value || '').trim(),
       maintenance_window_end: (qs('#settingsMaintenanceEnd').value || '').trim(),
+      review_queue_enabled: qs('#settingsReviewQueueEnabled').value === 'true',
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',
@@ -2412,6 +2414,46 @@ async function loadActions() {
     `;
     table.appendChild(div);
   });
+  await loadReviewQueue();
+}
+
+async function loadReviewQueue() {
+  if (!state.guildId) return;
+  const status = qs('#reviewQueueStatus');
+  const table = qs('#reviewQueueTable');
+  if (!status || !table) return;
+  const rows = (await apiFetch(`/api/review-queue?guild_id=${state.guildId}`)) || [];
+  table.innerHTML = '';
+  rows.forEach((row) => {
+    const target = row.target_name || row.target_user_id || 'Unknown';
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `
+      <div>#${row.id}</div>
+      <div>${target}</div>
+      <div>${row.type}</div>
+      <div>${formatDate(row.created_at)}</div>
+      <div>
+        <button class="ghost" data-review-approve="${row.id}">Approve</button>
+        <button class="ghost" data-review-reject="${row.id}">Reject</button>
+      </div>
+    `;
+    table.appendChild(div);
+  });
+  status.textContent = `${rows.length} pending`;
+}
+
+async function reviewQueueDecision(actionID, decision) {
+  if (!actionID || !decision) return;
+  let reason = '';
+  if (decision === 'reject') {
+    reason = prompt('Optional rejection reason:') || '';
+  }
+  await apiFetch(`/api/review-queue?guild_id=${state.guildId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action_id: Number(actionID), decision, reason }),
+  });
 }
 
 async function simulatePolicy() {
@@ -2818,6 +2860,7 @@ function wireEvents() {
     setTimeout(reloadMembersForFilters, 0);
   });
   qs('#actionRefresh').onclick = loadActions;
+  qs('#reviewQueueRefresh').onclick = () => loadReviewQueue().catch((err) => showToast(`Review queue load failed: ${err.message}`, 'error'));
   qs('#policySimulate').onclick = () => simulatePolicy().catch((err) => showToast(`Policy simulation failed: ${err.message}`, 'error'));
   qs('#caseRefresh').onclick = () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error'));
   qs('#caseUserId').addEventListener('change', () => loadCases().catch((err) => showToast(`Cases load failed: ${err.message}`, 'error')));
@@ -2857,6 +2900,22 @@ function wireEvents() {
       await loadScheduledMessages();
     } catch (err) {
       showToast(`Delete schedule failed: ${err.message}`, 'error');
+    }
+  });
+
+  qs('#reviewQueueTable').addEventListener('click', async (e) => {
+    const approve = e.target.closest('button[data-review-approve]');
+    const reject = e.target.closest('button[data-review-reject]');
+    if (!approve && !reject) return;
+    const id = approve ? approve.getAttribute('data-review-approve') : reject.getAttribute('data-review-reject');
+    const decision = approve ? 'approve' : 'reject';
+    try {
+      await reviewQueueDecision(id, decision);
+      showToast(`Review ${decision}d.`);
+      await loadReviewQueue();
+      await loadActions();
+    } catch (err) {
+      showToast(`Review decision failed: ${err.message}`, 'error');
     }
   });
 

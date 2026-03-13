@@ -229,6 +229,23 @@
           </div>
           <pre id="policySimDetails" class="event-log" style="margin-top: 12px; min-height: 100px; max-height: 240px;"></pre>
         </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Review Queue</div>
+          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <button id="reviewQueueRefresh" class="ghost">Refresh queue</button>
+            <span id="reviewQueueStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header">
+              <div>ID</div>
+              <div>Target</div>
+              <div>Type</div>
+              <div>Created</div>
+              <div>Action</div>
+            </div>
+            <div id="reviewQueueTable"></div>
+          </div>
+        </div>
       </section>
 
       <section id="view-cases" class="view">
@@ -385,6 +402,13 @@
             <label>
               Maintenance end (UTC HH:MM)
               <input id="settingsMaintenanceEnd" placeholder="03:00" />
+            </label>
+            <label>
+              Review queue for destructive actions
+              <select id="settingsReviewQueueEnabled">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+              </select>
             </label>
           </div>
           <div class="panel-actions">

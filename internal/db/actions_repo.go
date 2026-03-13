@@ -14,10 +14,14 @@ type ActionsRepo struct {
 
 func (r *ActionsRepo) Enqueue(ctx context.Context, row models.ActionRow) (int64, error) {
 	now := time.Now().UTC()
+	status := row.Status
+	if status == "" {
+		status = "queued"
+	}
 	res, err := r.db.ExecContext(ctx, `INSERT INTO actions(
 		guild_id, actor_user_id, target_user_id, type, payload_json, status, error, created_at, updated_at
 	) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		row.GuildID, row.ActorUserID, row.TargetUserID, row.Type, row.PayloadJSON, "queued", "", now.Format(time.RFC3339), now.Format(time.RFC3339),
+		row.GuildID, row.ActorUserID, row.TargetUserID, row.Type, row.PayloadJSON, status, "", now.Format(time.RFC3339), now.Format(time.RFC3339),
 	)
 	if err != nil {
 		return 0, err

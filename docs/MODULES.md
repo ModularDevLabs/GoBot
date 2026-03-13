@@ -129,6 +129,14 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Pauses scheduled messages, reminders, ticket auto-close, analytics posting, and retention purge passes.
 - Configuration: `maintenance_window_start` and `maintenance_window_end` (`HH:MM` UTC).
 
+### Review Queue (dashboard tool)
+
+- Trigger: `review_queue_enabled=true` and destructive action request.
+- Behavior:
+- New destructive actions are stored as `review_pending`.
+- Reviewers approve (moves to `queued`) or reject (moves to `failed` with reason).
+- API: `GET/POST /api/review-queue?guild_id=...`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

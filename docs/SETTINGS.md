@@ -150,6 +150,12 @@ These are in the **Settings** view and are stored per server (`guild_settings`).
 - Default: `03:00`
 - Supports overnight windows (`23:00` -> `01:00`).
 
+8n. `review_queue_enabled`
+- UI label: `Review queue for destructive actions`
+- Type: boolean
+- Default: `false`
+- When enabled, destructive actions are created with `review_pending` status and require dashboard approval.
+
 9. `feature_flags`
 - Type: object/map of booleans
 - Default:

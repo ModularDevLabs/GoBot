@@ -47,6 +47,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 			MaintenanceWindowEnabled    bool                 `json:"maintenance_window_enabled"`
 			MaintenanceWindowStart      string               `json:"maintenance_window_start"`
 			MaintenanceWindowEnd        string               `json:"maintenance_window_end"`
+			ReviewQueueEnabled          bool                 `json:"review_queue_enabled"`
 			FeatureFlags                map[string]bool      `json:"feature_flags"`
 			WelcomeChannelID            string               `json:"welcome_channel_id"`
 			WelcomeMessage              string               `json:"welcome_message"`
@@ -141,6 +142,7 @@ func (s *Server) handleSettings(w http.ResponseWriter, r *http.Request) {
 		current.MaintenanceWindowEnabled = cfg.MaintenanceWindowEnabled
 		current.MaintenanceWindowStart = cfg.MaintenanceWindowStart
 		current.MaintenanceWindowEnd = cfg.MaintenanceWindowEnd
+		current.ReviewQueueEnabled = cfg.ReviewQueueEnabled
 		current.FeatureFlags = cfg.FeatureFlags
 		current.WelcomeChannelID = cfg.WelcomeChannelID
 		current.WelcomeMessage = cfg.WelcomeMessage
