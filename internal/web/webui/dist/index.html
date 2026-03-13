@@ -398,6 +398,21 @@
             <button id="backupRestore" class="primary">Restore snapshot</button>
           </div>
         </div>
+        <div class="panel" style="margin-top: 16px;">
+          <div class="panel-header">Dependency Checker</div>
+          <div class="panel-actions" style="margin-top: 0; margin-bottom: 10px;">
+            <button id="dependencyCheckRun" class="ghost">Run check</button>
+            <span id="dependencyCheckStatus" class="status-line"></span>
+          </div>
+          <div class="table">
+            <div class="table-row table-header">
+              <div>Module</div>
+              <div>Severity</div>
+              <div>Message</div>
+            </div>
+            <div id="dependencyCheckTable"></div>
+          </div>
+        </div>
       </section>
 
       <section id="view-welcome" class="view">

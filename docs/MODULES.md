@@ -84,6 +84,14 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Includes confirm/approver requirements derived from current safety and incident settings.
 - API: `POST /api/policy/simulate?guild_id=...`.
 
+### Dependency Checker (dashboard tool)
+
+- Trigger: Settings view -> `Dependency Checker`.
+- Behavior:
+- Validates enabled modules against required channels/roles/phrases and basic numeric constraints.
+- Returns `error`, `warn`, or `ok` checks with clear remediation messages.
+- API: `GET /api/dependencies/check?guild_id=...`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

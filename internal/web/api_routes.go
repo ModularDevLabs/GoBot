@@ -30,6 +30,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	api.HandleFunc("/api/actions/preflight", s.handleActionPreflight)
 	api.HandleFunc("/api/actions/", s.handleActionDetail)
 	api.HandleFunc("/api/policy/simulate", s.handlePolicySimulate)
+	api.HandleFunc("/api/dependencies/check", s.handleDependencyCheck)
 	api.HandleFunc("/api/modules/invite/status", s.handleInviteModuleStatus)
 	api.HandleFunc("/api/modules/permissions", s.handleModulePermissions)
 	api.HandleFunc("/api/modules/reaction-roles/rules", s.handleReactionRoleRules)

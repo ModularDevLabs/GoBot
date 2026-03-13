@@ -739,6 +739,7 @@ async function loadSettings() {
   await loadSuggestions();
   await loadReminders();
   await loadMemberNotes();
+  await loadDependencyChecks();
 }
 
 async function loadInvitePermissionStatus() {
@@ -903,6 +904,28 @@ async function restoreBackupSnapshot() {
   } finally {
     restore();
   }
+}
+
+async function loadDependencyChecks() {
+  if (!state.guildId) return;
+  const status = qs('#dependencyCheckStatus');
+  const table = qs('#dependencyCheckTable');
+  if (!status || !table) return;
+  status.textContent = 'Checking...';
+  const res = await apiFetch(`/api/dependencies/check?guild_id=${state.guildId}`);
+  const checks = (res && res.checks) || [];
+  table.innerHTML = '';
+  checks.forEach((row) => {
+    const div = document.createElement('div');
+    div.className = 'table-row';
+    div.innerHTML = `
+      <div>${row.module || ''}</div>
+      <div>${row.severity || ''}</div>
+      <div>${row.message || ''}</div>
+    `;
+    table.appendChild(div);
+  });
+  status.textContent = `Checked at ${new Date().toLocaleTimeString()}`;
 }
 
 async function saveWelcome() {
@@ -2579,6 +2602,7 @@ function wireEvents() {
   qs('#exportDownload').onclick = downloadExport;
   qs('#backupDownload').onclick = downloadBackupSnapshot;
   qs('#backupRestore').onclick = restoreBackupSnapshot;
+  qs('#dependencyCheckRun').onclick = () => loadDependencyChecks().catch((err) => showToast(`Dependency check failed: ${err.message}`, 'error'));
   qs('#welcomeSave').onclick = () => { if (requireModulePermissions(FEATURE_WELCOME, 'Save welcome module')) saveWelcome(); };
   qs('#goodbyeSave').onclick = () => { if (requireModulePermissions(FEATURE_GOODBYE, 'Save goodbye module')) saveGoodbye(); };
   qs('#auditSave').onclick = () => { if (requireModulePermissions(FEATURE_AUDIT, 'Save audit module')) saveAudit(); };
