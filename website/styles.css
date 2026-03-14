@@ -291,6 +291,13 @@ h2 {
   gap: 12px;
 }
 
+.shots-grid {
+  margin-top: 1rem;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .pillars {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -312,12 +319,42 @@ h2 {
 .panel,
 .trust-card,
 .faq article,
-.install-grid article {
+.install-grid article,
+.shot-card {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 16px;
   box-shadow: var(--shadow);
   padding: 0.95rem;
+}
+
+.shot-card {
+  padding: 0.7rem;
+}
+
+.shot-open {
+  display: block;
+  border: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  width: 100%;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.shot-open img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.shot-card figcaption {
+  color: var(--muted);
+  font-size: 0.89rem;
+  margin-top: 0.62rem;
 }
 
 .card h3,
@@ -374,6 +411,50 @@ pre {
   padding: 24px 0;
 }
 
+.shot-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  background: rgba(5, 10, 22, 0.82);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+}
+
+.shot-modal.show {
+  display: flex;
+}
+
+.shot-modal-frame {
+  margin: 0;
+  max-width: min(1200px, 96vw);
+}
+
+.shot-modal-frame img {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+  border: 1px solid #516e95;
+}
+
+.shot-modal-frame figcaption {
+  margin-top: 0.8rem;
+  color: #d8e7ff;
+}
+
+.shot-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  border: 1px solid #6f8cb5;
+  border-radius: 10px;
+  background: #163255;
+  color: #f4f8ff;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+}
+
 .foot-row {
   display: flex;
   align-items: center;
@@ -396,7 +477,8 @@ pre {
 @media (max-width: 1060px) {
   .hero,
   .trust-grid,
-  .faq {
+  .faq,
+  .shots-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -414,7 +496,8 @@ pre {
   .matrix,
   .install-grid,
   .trust-grid,
-  .faq {
+  .faq,
+  .shots-grid {
     grid-template-columns: 1fr;
   }
 

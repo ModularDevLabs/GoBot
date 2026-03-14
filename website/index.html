@@ -48,6 +48,7 @@
       <a href="#top" class="brand">Fundamentum</a>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="#why">Why</a>
+        <a href="#screenshots">Screenshots</a>
         <a href="#modules">Modules</a>
         <a href="#trust">Trust</a>
         <a href="#install">Install</a>
@@ -111,6 +112,31 @@
           <h3>Community growth loop</h3>
           <p>Progression modules (leveling, economy, reputation, streaks, achievements, trivia) pair with moderation workflows.</p>
         </article>
+      </div>
+    </section>
+
+    <section id="screenshots" class="container section reveal">
+      <h2>Dashboard Screens</h2>
+      <p class="sub">Click to expand. Replace these files with real captures anytime: <code>website/screenshots/*.svg</code>.</p>
+      <div class="shots-grid">
+        <figure class="shot-card">
+          <button class="shot-open" type="button" data-full="./screenshots/overview.svg" data-title="Overview Dashboard">
+            <img src="./screenshots/overview.svg" alt="Fundamentum overview dashboard preview" loading="lazy" />
+          </button>
+          <figcaption>Overview: server pulse, health, and action flow.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <button class="shot-open" type="button" data-full="./screenshots/modules.svg" data-title="Module Configuration">
+            <img src="./screenshots/modules.svg" alt="Fundamentum module configuration preview" loading="lazy" />
+          </button>
+          <figcaption>Modules: grouped controls and per-module settings.</figcaption>
+        </figure>
+        <figure class="shot-card">
+          <button class="shot-open" type="button" data-full="./screenshots/settings.svg" data-title="Settings and Safety">
+            <img src="./screenshots/settings.svg" alt="Fundamentum settings and safety controls preview" loading="lazy" />
+          </button>
+          <figcaption>Settings: incident mode, retention, and governance controls.</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -220,6 +246,14 @@ Enable modules as needed</code></pre>
       <small><a href="https://github.com/ModularDevLabs/Fundamentum" target="_blank" rel="noreferrer">GitHub</a></small>
     </div>
   </footer>
+
+  <div id="shotModal" class="shot-modal" aria-hidden="true">
+    <button id="shotClose" class="shot-close" type="button" aria-label="Close screenshot viewer">Close</button>
+    <figure class="shot-modal-frame">
+      <img id="shotModalImage" src="" alt="" />
+      <figcaption id="shotModalCaption"></figcaption>
+    </figure>
+  </div>
 
   <script src="./app.js"></script>
 </body>
