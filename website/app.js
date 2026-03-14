@@ -27,42 +27,6 @@
 
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  const modal = document.getElementById('shotModal');
-  const modalImg = document.getElementById('shotModalImage');
-  const modalCap = document.getElementById('shotModalCaption');
-  const closeBtn = document.getElementById('shotClose');
-  const openers = Array.prototype.slice.call(document.querySelectorAll('.shot-open'));
-
-  function closeModal() {
-    if (!modal) return;
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden', 'true');
-    if (modalImg) modalImg.src = '';
-  }
-
-  openers.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      if (!modal || !modalImg || !modalCap) return;
-      const src = btn.getAttribute('data-full') || '';
-      const title = btn.getAttribute('data-title') || 'Screenshot';
-      modalImg.src = src;
-      modalImg.alt = title;
-      modalCap.textContent = title;
-      modal.classList.add('show');
-      modal.setAttribute('aria-hidden', 'false');
-    });
-  });
-
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  if (modal) {
-    modal.addEventListener('click', function (ev) {
-      if (ev.target === modal) closeModal();
-    });
-  }
-  document.addEventListener('keydown', function (ev) {
-    if (ev.key === 'Escape') closeModal();
-  });
-
   const items = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(function (entries) {
