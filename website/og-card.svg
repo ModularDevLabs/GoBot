@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#12253f"/>
+      <stop offset="1" stop-color="#1d3f64"/>
+    </linearGradient>
+    <linearGradient id="ac" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#4ea7ff"/>
+      <stop offset="1" stop-color="#1ed0ad"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1060" cy="110" r="180" fill="#4ea7ff" opacity="0.18"/>
+  <circle cx="120" cy="560" r="220" fill="#1ed0ad" opacity="0.16"/>
+  <text x="90" y="260" fill="#f3f8ff" font-size="84" font-family="Arial, sans-serif" font-weight="700">Fundamentum</text>
+  <text x="90" y="330" fill="#bfd5ef" font-size="36" font-family="Arial, sans-serif">Discord Operations Bot</text>
+  <rect x="90" y="378" width="540" height="70" rx="14" fill="#1a2f4f" stroke="#3f648d"/>
+  <text x="120" y="423" fill="#e7f1ff" font-size="30" font-family="Arial, sans-serif">Moderation • Incident • Engagement</text>
+  <path d="M850 420V176h220v54h-150v38h118v52h-118v100z" fill="url(#ac)"/>
+</svg>
