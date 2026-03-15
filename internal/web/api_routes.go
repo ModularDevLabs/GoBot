@@ -12,6 +12,7 @@ func (s *Server) registerRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/login", s.handleLogin)
 
 	api := http.NewServeMux()
+	api.HandleFunc("/api/auth/me", s.handleAuthMe)
 	api.HandleFunc("/api/health", s.handleHealth)
 	api.HandleFunc("/api/health/dashboard", s.handleHealthDashboard)
 	api.HandleFunc("/api/pulse", s.handleServerPulse)
@@ -116,18 +117,38 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if payload.Password != s.adminPass {
+	role, ok := s.roleFromSecret(payload.Password)
+	if !ok {
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 	http.SetCookie(w, &http.Cookie{
 		Name:     "modbot_auth",
-		Value:    s.adminPass,
+		Value:    payload.Password,
+		Path:     "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "modbot_role",
+		Value:    role,
 		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 	})
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (s *Server) handleAuthMe(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	role := dashboardRoleFromContext(r.Context())
+	if role == "" {
+		role = "admin"
+	}
+	writeJSON(w, map[string]string{"role": role})
 }
 
 func parseInt(value string, fallback int) int {

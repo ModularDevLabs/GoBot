@@ -2,7 +2,7 @@ const state = {
   token: localStorage.getItem('modbot_token') || '',
   guildId: localStorage.getItem('modbot_guild') || '',
   guilds: [],
-  dashboardRole: localStorage.getItem('modbot_dashboard_role') || 'admin',
+  dashboardRole: 'admin',
   currentSettings: null,
   modulePermissions: {},
   selectedUsers: new Map(),
@@ -676,9 +676,6 @@ async function apiFetch(path, options = {}) {
   if (state.token) {
     headers['Authorization'] = `Bearer ${state.token}`;
   }
-  if (state.dashboardRole) {
-    headers['X-Dashboard-Role'] = state.dashboardRole;
-  }
   const res = await fetch(path, { ...options, headers });
   if (res.status === 401) {
     showLogin();
@@ -709,6 +706,26 @@ async function login() {
   localStorage.setItem('modbot_token', password);
   hideLogin();
   await bootstrap();
+}
+
+async function loadAuthContext() {
+  const res = await apiFetch('/api/auth/me');
+  const role = (res && res.role ? String(res.role) : 'admin').toLowerCase();
+  state.dashboardRole = role || 'admin';
+  const roleSelect = qs('#dashboardRoleSelect');
+  if (!roleSelect) return;
+  let found = false;
+  Array.from(roleSelect.options).forEach((opt) => {
+    if ((opt.value || '').toLowerCase() === state.dashboardRole) found = true;
+  });
+  if (!found) {
+    const opt = document.createElement('option');
+    opt.value = state.dashboardRole;
+    opt.textContent = state.dashboardRole[0].toUpperCase() + state.dashboardRole.slice(1);
+    roleSelect.appendChild(opt);
+  }
+  roleSelect.value = state.dashboardRole;
+  roleSelect.disabled = true;
 }
 
 async function loadGuilds() {
@@ -3841,6 +3858,7 @@ function wireEvents() {
     stopOverviewPolling();
     stopEventsPolling();
     state.token = '';
+    state.dashboardRole = 'admin';
     localStorage.removeItem('modbot_token');
     showLogin();
   };
@@ -3849,14 +3867,7 @@ function wireEvents() {
     themeSelect.onchange = () => applyTheme(themeSelect.value);
   }
   const roleSelect = qs('#dashboardRoleSelect');
-  if (roleSelect) {
-    roleSelect.value = state.dashboardRole || 'admin';
-    roleSelect.onchange = () => {
-      state.dashboardRole = roleSelect.value || 'admin';
-      localStorage.setItem('modbot_dashboard_role', state.dashboardRole);
-      refreshAll().catch((err) => showToast(`Reload failed: ${err.message}`, 'error'));
-    };
-  }
+  if (roleSelect) roleSelect.disabled = true;
   qs('#settingsSave').onclick = saveSettings;
   qs('#settingsApplyProfile').onclick = applySettingsProfile;
   qs('#exportDownload').onclick = downloadExport;
@@ -4332,6 +4343,7 @@ async function refreshAll() {
 }
 
 async function bootstrap() {
+  await loadAuthContext();
   await loadGuilds();
   await refreshAll();
   const preferredView = localStorage.getItem(ACTIVE_VIEW_STORAGE_KEY) || 'overview';

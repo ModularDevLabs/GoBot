@@ -35,6 +35,7 @@ Environment variables:
 - `MODBOT_DB` SQLite path (default: `modbot.sqlite`)
 - `MODBOT_BIND` HTTP bind address (default: `127.0.0.1:8080`)
 - `MODBOT_LOG_LEVEL` Log level: `info` or `debug`
+- `MODBOT_DASHBOARD_ROLE_SECRETS` Optional JSON map for non-admin dashboard login credentials (example: `{"moderator":"mod-pass","support":"support-pass"}`)
 
 Flags override env vars:
 
@@ -43,6 +44,7 @@ Flags override env vars:
 - `--db`
 - `--bind`
 - `--log-level`
+- `--dashboard-role-secrets`
 
 If token/password are not provided, startup prompts for them and saves them to local file `.modbot.config.json` (permissions `0600`) for future runs.
 

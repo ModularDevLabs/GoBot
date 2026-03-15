@@ -20,22 +20,27 @@ type EventLogger interface {
 }
 
 type Server struct {
-	bindAddr  string
-	adminPass string
-	repos     *db.Repositories
-	discord   *discord.Service
-	logger    Logger
+	bindAddr             string
+	adminPass            string
+	dashboardRoleSecrets map[string]string
+	repos                *db.Repositories
+	discord              *discord.Service
+	logger               Logger
 
 	httpServer *http.Server
 }
 
-func NewServer(bindAddr, adminPass string, repos *db.Repositories, discordSvc *discord.Service, logger Logger) *Server {
+func NewServer(bindAddr, adminPass string, dashboardRoleSecrets map[string]string, repos *db.Repositories, discordSvc *discord.Service, logger Logger) *Server {
+	if dashboardRoleSecrets == nil {
+		dashboardRoleSecrets = map[string]string{}
+	}
 	return &Server{
-		bindAddr:  bindAddr,
-		adminPass: adminPass,
-		repos:     repos,
-		discord:   discordSvc,
-		logger:    logger,
+		bindAddr:             bindAddr,
+		adminPass:            adminPass,
+		dashboardRoleSecrets: dashboardRoleSecrets,
+		repos:                repos,
+		discord:              discordSvc,
+		logger:               logger,
 	}
 }
 

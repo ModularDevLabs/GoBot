@@ -24,7 +24,7 @@ Stop: `Ctrl+C`
 - **Action safety controls**: Enable dry-run mode, confirm-token requirement, and optional two-person approval for destructive actions.
 - **Incident mode**: Toggle incident mode in Settings to raise operator visibility and add extra safeguards during active incidents.
 - **Retention + maintenance**: Configure retention purges and maintenance windows in Settings.
-- **Dashboard RBAC**: Use `dashboard_role_policies` with `X-Dashboard-Role` context to restrict which dashboard roles can call module/action/settings APIs.
+- **Dashboard RBAC**: Use `dashboard_role_policies` with credential-bound dashboard roles (admin/moderator/support) to restrict which APIs each role can call.
 - **Exports**: Use Settings -> Exports to download JSON/CSV for members, actions, warnings, tickets, and per-user case timelines.
 - **Backup / Restore**: Use Settings -> Backup / Restore to download a guild snapshot and restore settings + reaction roles + scheduled messages + custom commands.
 - **Module pages**: Every module page has its own enable/disable control, save action, and quick how-to panel.

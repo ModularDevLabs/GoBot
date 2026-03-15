@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"net/http"
 	"strings"
 	"time"
@@ -8,17 +9,24 @@ import (
 	"github.com/ModularDevLabs/Fundamentum/internal/models"
 )
 
+type authContextKey string
+
+const dashboardRoleContextKey authContextKey = "dashboard_role"
+
 func (s *Server) authMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if s.isAuthorized(r) {
-			if !s.authorizeRoleForRequest(w, r) {
-				return
-			}
-			next.ServeHTTP(w, r)
+		role, ok := s.authenticatedRole(r)
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			_, _ = w.Write([]byte("unauthorized"))
 			return
 		}
-		w.WriteHeader(http.StatusUnauthorized)
-		_, _ = w.Write([]byte("unauthorized"))
+		ctx := context.WithValue(r.Context(), dashboardRoleContextKey, role)
+		r = r.WithContext(ctx)
+		if !s.authorizeRoleForRequest(w, r) {
+			return
+		}
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -36,7 +44,7 @@ func (s *Server) authorizeRoleForRequest(w http.ResponseWriter, r *http.Request)
 		w.WriteHeader(http.StatusInternalServerError)
 		return false
 	}
-	role := strings.TrimSpace(strings.ToLower(r.Header.Get("X-Dashboard-Role")))
+	role := strings.TrimSpace(strings.ToLower(dashboardRoleFromContext(r.Context())))
 	if role == "" {
 		role = "admin"
 	}
@@ -55,6 +63,11 @@ func (s *Server) authorizeRoleForRequest(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusForbidden)
 	_, _ = w.Write([]byte("forbidden by role policy"))
 	return false
+}
+
+func dashboardRoleFromContext(ctx context.Context) string {
+	role, _ := ctx.Value(dashboardRoleContextKey).(string)
+	return strings.TrimSpace(strings.ToLower(role))
 }
 
 func rbacPolicyKeyForPath(path string) string {
@@ -116,18 +129,42 @@ func rbacPolicyKeyForPath(path string) string {
 	}
 }
 
-func (s *Server) isAuthorized(r *http.Request) bool {
+func (s *Server) authenticatedRole(r *http.Request) (string, bool) {
+	secret := ""
 	auth := r.Header.Get("Authorization")
 	if strings.HasPrefix(auth, "Bearer ") {
-		if strings.TrimPrefix(auth, "Bearer ") == s.adminPass {
-			return true
+		secret = strings.TrimPrefix(auth, "Bearer ")
+	}
+	if secret == "" {
+		cookie, err := r.Cookie("modbot_auth")
+		if err == nil {
+			secret = cookie.Value
 		}
 	}
-	cookie, err := r.Cookie("modbot_auth")
-	if err == nil && cookie.Value == s.adminPass {
-		return true
+	if secret == "" {
+		return "", false
 	}
-	return false
+	role, ok := s.roleFromSecret(secret)
+	if !ok {
+		return "", false
+	}
+	return role, true
+}
+
+func (s *Server) roleFromSecret(secret string) (string, bool) {
+	if secret == s.adminPass {
+		return "admin", true
+	}
+	for role, candidate := range s.dashboardRoleSecrets {
+		if strings.TrimSpace(secret) == strings.TrimSpace(candidate) {
+			normalized := strings.TrimSpace(strings.ToLower(role))
+			if normalized == "" || normalized == "admin" {
+				continue
+			}
+			return normalized, true
+		}
+	}
+	return "", false
 }
 
 func (s *Server) loggingMiddleware(next http.Handler) http.Handler {

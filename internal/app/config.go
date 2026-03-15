@@ -13,11 +13,12 @@ import (
 )
 
 type ProcessConfig struct {
-	DiscordToken  string
-	DBPath        string
-	BindAddr      string
-	AdminPassword string
-	LogLevel      string
+	DiscordToken        string
+	DBPath              string
+	BindAddr            string
+	AdminPassword       string
+	LogLevel            string
+	DashboardRoleSecret map[string]string
 }
 
 const localConfigPath = ".modbot.config.json"
@@ -38,6 +39,8 @@ func LoadProcessConfig() (ProcessConfig, error) {
 	flag.StringVar(&cfg.BindAddr, "bind", "127.0.0.1:8080", "HTTP bind address")
 	flag.StringVar(&cfg.AdminPassword, "admin-pass", "", "Admin password for dashboard")
 	flag.StringVar(&cfg.LogLevel, "log-level", "info", "Log level: info|debug")
+	var roleSecretRaw string
+	flag.StringVar(&roleSecretRaw, "dashboard-role-secrets", "", "JSON map of non-admin dashboard role credentials (example: {\"moderator\":\"mod-pass\",\"support\":\"support-pass\"})")
 	flag.Parse()
 
 	saved, err := loadPersistedConfig(localConfigPath)
@@ -50,6 +53,7 @@ func LoadProcessConfig() (ProcessConfig, error) {
 	cfg.BindAddr = firstNonEmpty(cfg.BindAddr, os.Getenv("MODBOT_BIND"), saved.BindAddr)
 	cfg.AdminPassword = firstNonEmpty(cfg.AdminPassword, os.Getenv("MODBOT_ADMIN_PASS"), saved.AdminPassword)
 	cfg.LogLevel = firstNonEmpty(cfg.LogLevel, os.Getenv("MODBOT_LOG_LEVEL"), saved.LogLevel)
+	roleSecretRaw = firstNonEmpty(roleSecretRaw, os.Getenv("MODBOT_DASHBOARD_ROLE_SECRETS"))
 
 	reader := bufio.NewReader(os.Stdin)
 	prompted := false
@@ -67,6 +71,12 @@ func LoadProcessConfig() (ProcessConfig, error) {
 	}
 	if cfg.AdminPassword == "" {
 		return cfg, errors.New("missing admin password (flag --admin-pass or MODBOT_ADMIN_PASS)")
+	}
+	cfg.DashboardRoleSecret = map[string]string{}
+	if strings.TrimSpace(roleSecretRaw) != "" {
+		if err := json.Unmarshal([]byte(roleSecretRaw), &cfg.DashboardRoleSecret); err != nil {
+			return cfg, fmt.Errorf("parse dashboard role secrets JSON: %w", err)
+		}
 	}
 	if prompted {
 		if err := savePersistedConfig(localConfigPath, persistedConfig{

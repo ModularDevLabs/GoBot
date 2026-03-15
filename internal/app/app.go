@@ -43,7 +43,7 @@ func New(cfg ProcessConfig) (*App, error) {
 		return nil, err
 	}
 
-	webServer := web.NewServer(cfg.BindAddr, cfg.AdminPassword, repos, discordSvc, logger)
+	webServer := web.NewServer(cfg.BindAddr, cfg.AdminPassword, cfg.DashboardRoleSecret, repos, discordSvc, logger)
 
 	return &App{
 		cfg:     cfg,
