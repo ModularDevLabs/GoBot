@@ -5,10 +5,10 @@ For module-level behavior details (triggers, workflows, and interactions), see `
 
 ## Dashboard Settings (per guild)
 
-These are in the **Settings** view and are stored per server (`guild_settings`).
+These are in the dashboard configuration surfaces (Core Settings + module pages) and are stored per server (`guild_settings`).
 
 1. `inactive_days`
-- UI label: `Inactive days`
+- UI label: `Inactive threshold (days)` (Inactive Pruning module)
 - Type: integer (`>= 1`)
 - Default: `180`
 - Used for active/inactive status. A member is inactive when `last_message_at` is older than now minus this many days.

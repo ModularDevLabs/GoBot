@@ -30,7 +30,7 @@ Stop: `Ctrl+C`
 - **Exports**: Use Settings -> Exports to download JSON/CSV for members, actions, warnings, tickets, and per-user case timelines.
 - **Backup / Restore**: Use Settings -> Backup / Restore to download a guild snapshot and restore settings + reaction roles + scheduled messages + custom commands.
 - **Module pages**: Every module page has its own enable/disable control, save action, and quick how-to panel.
-- **Modules (moderation/safety)**: Welcome, Goodbye, Audit Log, Invite Tracker, AutoMod, Warnings, Verification, Tickets, Anti-Raid, Account Age Guard, Join Screening, Member Notes, Appeals, Custom Commands, Raid Panic.
+- **Modules (moderation/safety)**: Welcome, Goodbye, Audit Log, Invite Tracker, AutoMod, Warnings, Verification, Tickets, Anti-Raid, Inactive Pruning, Account Age Guard, Join Screening, Member Notes, Appeals, Custom Commands, Raid Panic.
 - **Modules (engagement/community)**: Reaction Roles, Scheduled Messages, Analytics, Starboard, Leveling, Role Progression, Giveaways, Polls, Suggestions, Keyword Alerts, AFK, Reminders, Birthdays, Streaks.
 - **Modules (progression/economy)**: Reputation, Economy, Achievements, Trivia.
 - **Modules (utility)**: Calendar, Confessions, Season Resets.

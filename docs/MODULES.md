@@ -76,6 +76,18 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Optional auto-disable timestamp can end incident mode automatically.
 - Config keys: `incident_mode_enabled`, `incident_mode_reason`, `incident_mode_ends_at`.
 
+### Inactive Pruning
+
+- Purpose:
+- Promote inactivity threshold management into a dedicated moderation module.
+- Behavior:
+- Controls whether inactivity pruning workflows are enabled for the guild (`feature_flags.inactive_pruning`).
+- Stores the inactivity threshold in days (`inactive_days`) used by members status, pulse counters, analytics summaries, and member exports.
+- Dashboard:
+- Module path: `Moderation -> Inactive Pruning`.
+- Includes module-level enable/disable and quick how-to guidance.
+- Config keys: `feature_flags.inactive_pruning`, `inactive_days`.
+
 ### Policy Simulator (dashboard tool)
 
 - Trigger: Actions view -> `Policy Simulator`.

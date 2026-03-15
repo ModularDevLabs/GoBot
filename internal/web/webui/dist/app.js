@@ -26,6 +26,7 @@ const FEATURE_SCHEDULED = 'scheduled_messages';
 const FEATURE_VERIFICATION = 'verification';
 const FEATURE_TICKETS = 'tickets';
 const FEATURE_ANTI_RAID = 'anti_raid';
+const FEATURE_INACTIVE_PRUNING = 'inactive_pruning';
 const FEATURE_ANALYTICS = 'analytics';
 const FEATURE_STARBOARD = 'starboard';
 const FEATURE_LEVELING = 'leveling';
@@ -63,6 +64,7 @@ const FEATURE_BY_VIEW = {
   verification: FEATURE_VERIFICATION,
   tickets: FEATURE_TICKETS,
   antiraid: FEATURE_ANTI_RAID,
+  inactivepruning: FEATURE_INACTIVE_PRUNING,
   analytics: FEATURE_ANALYTICS,
   starboard: FEATURE_STARBOARD,
   leveling: FEATURE_LEVELING,
@@ -106,6 +108,7 @@ const VIEW_TITLE_OVERRIDES = {
   roleprogression: 'Role Progression',
   keywordalerts: 'Keyword Alerts',
   accountageguard: 'Account Age Guard',
+  inactivepruning: 'Inactive Pruning',
   joinscreening: 'Join Screening',
   membernotes: 'Member Notes',
   customcommands: 'Custom Commands',
@@ -123,6 +126,7 @@ const MODULE_GUIDES = {
   verification: { title: 'How To Use', points: ['Set verification channel + unverified role ID.', 'Keep phrase short and easy to type.', 'Optionally set verified role for post-verification assignment.'] },
   tickets: { title: 'How To Use', points: ['Configure inbox channel, category, and support role.', 'Users open with the open phrase; staff/creator close via close phrase.', 'Set auto-close minutes to clean stale tickets automatically.'] },
   antiraid: { title: 'How To Use', points: ['Set join threshold/window/cooldown to your server baseline.', 'Use verification_only first, then quarantine if needed.', 'Set alert channel so staff can react quickly during spikes.'] },
+  inactivepruning: { title: 'How To Use', points: ['Enable the module so inactivity-based pruning workflows are active for this guild.', 'Set inactivity threshold days based on your community cadence (for example 30, 60, or 90).', 'Use Members filtering and exports to review inactive users before applying moderation actions.'] },
   analytics: { title: 'How To Use', points: ['Enable module and set report channel ID.', 'Choose a weekly interval first for signal over noise.', 'Use reports to tune inactivity, warnings, and action policies.'] },
   starboard: { title: 'How To Use', points: ['Set starboard channel + emoji + threshold.', 'Avoid setting threshold too low to prevent noise.', 'Verify the configured emoji matches your community usage.'] },
   leveling: { title: 'How To Use', points: ['Set XP per message and cooldown to control XP velocity.', 'Choose curve + base to define XP needed per level.', 'Use leaderboard refresh to verify progression behavior.'] },
@@ -169,6 +173,7 @@ function syncModuleBadges() {
   const verificationEnabled = qs('#settingsVerificationEnabled').value === 'true';
   const ticketsEnabled = qs('#settingsTicketsEnabled').value === 'true';
   const antiRaidEnabled = qs('#settingsAntiRaidEnabled').value === 'true';
+  const inactivePruningEnabled = qs('#settingsInactivePruningEnabled')?.value === 'true';
   const analyticsEnabled = qs('#settingsAnalyticsEnabled').value === 'true';
   const starboardEnabled = qs('#settingsStarboardEnabled').value === 'true';
   const levelingEnabled = qs('#settingsLevelingEnabled').value === 'true';
@@ -204,6 +209,7 @@ function syncModuleBadges() {
   setModuleBadge(verificationEnabled, qs('#moduleVerificationBadge'), qs('#moduleVerificationCard'));
   setModuleBadge(ticketsEnabled, qs('#moduleTicketsBadge'), qs('#moduleTicketsCard'));
   setModuleBadge(antiRaidEnabled, qs('#moduleAntiRaidBadge'), qs('#moduleAntiRaidCard'));
+  setModuleBadge(inactivePruningEnabled, qs('#moduleInactivePruningBadge'), qs('#moduleInactivePruningCard'));
   setModuleBadge(analyticsEnabled, qs('#moduleAnalyticsBadge'), qs('#moduleAnalyticsCard'));
   setModuleBadge(starboardEnabled, qs('#moduleStarboardBadge'), qs('#moduleStarboardCard'));
   setModuleBadge(levelingEnabled, qs('#moduleLevelingBadge'), qs('#moduleLevelingCard'));
@@ -419,6 +425,7 @@ function applyModulePermissionDisabling() {
     verificationSave: FEATURE_VERIFICATION,
     ticketsSave: FEATURE_TICKETS,
     antiRaidSave: FEATURE_ANTI_RAID,
+    inactivePruningSave: FEATURE_INACTIVE_PRUNING,
     analyticsSave: FEATURE_ANALYTICS,
     starboardSave: FEATURE_STARBOARD,
     levelingSave: FEATURE_LEVELING,
@@ -765,7 +772,6 @@ async function loadSettings() {
   const cfg = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
   state.currentSettings = cfg;
   const flags = cfg.feature_flags || {};
-  qs('#settingsInactive').value = cfg.inactive_days;
   qs('#settingsBackfill').value = cfg.backfill_days;
   qs('#settingsConcurrency').value = cfg.backfill_concurrency;
   qs('#settingsAdminPolicy').value = cfg.admin_user_policy;
@@ -863,6 +869,8 @@ async function loadSettings() {
   qs('#settingsAntiRaidCooldown').value = cfg.anti_raid_cooldown_minutes || 10;
   qs('#settingsAntiRaidAction').value = cfg.anti_raid_action || 'verification_only';
   qs('#settingsAntiRaidAlertChannel').value = cfg.anti_raid_alert_channel_id || '';
+  qs('#settingsInactivePruningEnabled').value = String(!!flags[FEATURE_INACTIVE_PRUNING]);
+  qs('#settingsInactivePruningDays').value = cfg.inactive_days || 180;
   qs('#settingsAnalyticsEnabled').value = String(!!flags[FEATURE_ANALYTICS]);
   qs('#settingsAnalyticsChannel').value = cfg.analytics_channel_id || '';
   qs('#settingsAnalyticsIntervalDays').value = cfg.analytics_interval_days || 7;
@@ -1034,7 +1042,6 @@ async function saveSettings() {
     }
     const payload = {
       ...current,
-      inactive_days: parseInt(qs('#settingsInactive').value, 10),
       backfill_days: parseInt(qs('#settingsBackfill').value, 10),
       backfill_concurrency: parseInt(qs('#settingsConcurrency').value, 10),
       admin_user_policy: qs('#settingsAdminPolicy').value,
@@ -1853,6 +1860,40 @@ async function saveAntiRaidModule() {
   } catch (err) {
     status.textContent = 'Save failed.';
     showToast(`Anti-raid save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
+async function saveInactivePruningModule() {
+  const restore = setBusy(qs('#inactivePruningSave'), 'Saving...');
+  const status = qs('#inactivePruningStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const inactiveDays = parseInt(qs('#settingsInactivePruningDays').value, 10);
+    if (!Number.isFinite(inactiveDays) || inactiveDays < 1) {
+      throw new Error('Inactive threshold days must be 1 or greater.');
+    }
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_INACTIVE_PRUNING]: qs('#settingsInactivePruningEnabled').value === 'true',
+      },
+      inactive_days: inactiveDays,
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Inactive pruning module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Inactive pruning save failed: ${err.message}`, 'error');
   } finally {
     restore();
   }
@@ -3955,6 +3996,7 @@ function wireEvents() {
   qs('#verificationSave').onclick = () => { if (requireModulePermissions(FEATURE_VERIFICATION, 'Save verification module')) saveVerificationModule(); };
   qs('#ticketsSave').onclick = () => { if (requireModulePermissions(FEATURE_TICKETS, 'Save tickets module')) saveTicketsModule(); };
   qs('#antiRaidSave').onclick = () => { if (requireModulePermissions(FEATURE_ANTI_RAID, 'Save anti-raid module')) saveAntiRaidModule(); };
+  qs('#inactivePruningSave').onclick = () => { if (requireModulePermissions(FEATURE_INACTIVE_PRUNING, 'Save inactive pruning module')) saveInactivePruningModule(); };
   qs('#analyticsSave').onclick = () => { if (requireModulePermissions(FEATURE_ANALYTICS, 'Save analytics module')) saveAnalyticsModule(); };
   qs('#analyticsTrendsRefresh').onclick = () => loadAnalyticsTrends().catch((err) => showToast(`Analytics trends failed: ${err.message}`, 'error'));
   qs('#analyticsTrendDays').addEventListener('change', () => loadAnalyticsTrends().catch((err) => showToast(`Analytics trends failed: ${err.message}`, 'error')));
@@ -4022,6 +4064,7 @@ function wireEvents() {
   qs('#settingsVerificationEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsTicketsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAntiRaidEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsInactivePruningEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsAnalyticsEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsStarboardEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingEnabled').addEventListener('change', syncModuleBadges);

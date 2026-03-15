@@ -58,6 +58,7 @@
             <button type="button" class="nav-view-btn" data-view="verification">Verification</button>
             <button type="button" class="nav-view-btn" data-view="tickets">Tickets</button>
             <button type="button" class="nav-view-btn" data-view="antiraid">Anti-Raid</button>
+            <button type="button" class="nav-view-btn" data-view="inactivepruning">Inactive Pruning</button>
             <button type="button" class="nav-view-btn" data-view="accountageguard">Account Age Guard</button>
             <button type="button" class="nav-view-btn" data-view="joinscreening">Join Screening</button>
             <button type="button" class="nav-view-btn" data-view="membernotes">Member Notes</button>
@@ -360,10 +361,6 @@
         <div class="panel">
           <div class="panel-header">Settings</div>
           <div class="form-grid">
-            <label>
-              Inactive days
-              <input id="settingsInactive" type="number" min="1" />
-            </label>
             <label>
               Backfill days
               <input id="settingsBackfill" type="number" min="1" />
@@ -1297,6 +1294,38 @@
           <div class="panel-actions">
             <button id="antiRaidSave" class="primary">Save anti-raid module</button>
             <span id="antiRaidStatus" class="status-line"></span>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-inactivepruning" class="view">
+        <div class="panel">
+          <div class="panel-header">Inactive Pruning Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleInactivePruningCard">
+              <div class="module-head">
+                <div class="module-title">Inactive Pruning</div>
+                <span class="module-badge off" id="moduleInactivePruningBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Define the inactivity threshold used to classify members as inactive for pruning workflows and dashboards.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsInactivePruningEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+                <label>
+                  Inactive threshold (days)
+                  <input id="settingsInactivePruningDays" type="number" min="1" />
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions">
+            <button id="inactivePruningSave" class="primary">Save inactive pruning module</button>
+            <span id="inactivePruningStatus" class="status-line"></span>
           </div>
         </div>
       </section>
