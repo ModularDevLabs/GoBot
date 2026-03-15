@@ -126,7 +126,7 @@ const MODULE_GUIDES = {
   verification: { title: 'How To Use', points: ['Set verification channel + unverified role ID.', 'Keep phrase short and easy to type.', 'Optionally set verified role for post-verification assignment.'] },
   tickets: { title: 'How To Use', points: ['Configure inbox channel, category, and support role.', 'Users open with the open phrase; staff/creator close via close phrase.', 'Set auto-close minutes to clean stale tickets automatically.'] },
   antiraid: { title: 'How To Use', points: ['Set join threshold/window/cooldown to your server baseline.', 'Use verification_only first, then quarantine if needed.', 'Set alert channel so staff can react quickly during spikes.'] },
-  inactivepruning: { title: 'How To Use', points: ['Enable the module so inactivity-based pruning workflows are active for this guild.', 'Set inactivity threshold days based on your community cadence (for example 30, 60, or 90).', 'Use Members filtering and exports to review inactive users before applying moderation actions.'] },
+  inactivepruning: { title: 'How To Use', points: ['Enable the module so inactivity-based pruning workflows are active for this guild.', 'Set inactivity threshold days for when members are considered inactive (for example 30, 60, or 90).', 'Set backfill days to control history scan depth and backfill concurrency to control scan speed/API pressure.', 'Effective scan window is max(inactive days, backfill days). Use Members filters and exports before taking bulk actions.'] },
   analytics: { title: 'How To Use', points: ['Enable module and set report channel ID.', 'Choose a weekly interval first for signal over noise.', 'Use reports to tune inactivity, warnings, and action policies.'] },
   starboard: { title: 'How To Use', points: ['Set starboard channel + emoji + threshold.', 'Avoid setting threshold too low to prevent noise.', 'Verify the configured emoji matches your community usage.'] },
   leveling: { title: 'How To Use', points: ['Set XP per message and cooldown to control XP velocity.', 'Choose curve + base to define XP needed per level.', 'Use leaderboard refresh to verify progression behavior.'] },
@@ -1042,8 +1042,6 @@ async function saveSettings() {
     }
     const payload = {
       ...current,
-      backfill_days: parseInt(qs('#settingsBackfill').value, 10),
-      backfill_concurrency: parseInt(qs('#settingsConcurrency').value, 10),
       admin_user_policy: qs('#settingsAdminPolicy').value,
       quarantine_role_id: qs('#settingsQuarantineRole').value.trim(),
       readme_channel_id: qs('#settingsReadmeChannel').value.trim(),
@@ -1872,8 +1870,16 @@ async function saveInactivePruningModule() {
   try {
     const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
     const inactiveDays = parseInt(qs('#settingsInactivePruningDays').value, 10);
+    const backfillDays = parseInt(qs('#settingsBackfill').value, 10);
+    const backfillConcurrency = parseInt(qs('#settingsConcurrency').value, 10);
     if (!Number.isFinite(inactiveDays) || inactiveDays < 1) {
       throw new Error('Inactive threshold days must be 1 or greater.');
+    }
+    if (!Number.isFinite(backfillDays) || backfillDays < 1) {
+      throw new Error('Backfill days must be 1 or greater.');
+    }
+    if (!Number.isFinite(backfillConcurrency) || backfillConcurrency < 1) {
+      throw new Error('Backfill concurrency must be 1 or greater.');
     }
     const payload = {
       ...current,
@@ -1882,6 +1888,8 @@ async function saveInactivePruningModule() {
         [FEATURE_INACTIVE_PRUNING]: qs('#settingsInactivePruningEnabled').value === 'true',
       },
       inactive_days: inactiveDays,
+      backfill_days: backfillDays,
+      backfill_concurrency: backfillConcurrency,
     };
     await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
       method: 'PUT',

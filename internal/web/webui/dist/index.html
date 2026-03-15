@@ -362,14 +362,6 @@
           <div class="panel-header">Settings</div>
           <div class="form-grid">
             <label>
-              Backfill days
-              <input id="settingsBackfill" type="number" min="1" />
-            </label>
-            <label>
-              Backfill concurrency
-              <input id="settingsConcurrency" type="number" min="1" />
-            </label>
-            <label>
               Admin user policy
               <select id="settingsAdminPolicy">
                 <option value="refuse">Refuse</option>
@@ -1319,6 +1311,14 @@
                 <label>
                   Inactive threshold (days)
                   <input id="settingsInactivePruningDays" type="number" min="1" />
+                </label>
+                <label>
+                  Backfill days
+                  <input id="settingsBackfill" type="number" min="1" />
+                </label>
+                <label>
+                  Backfill concurrency
+                  <input id="settingsConcurrency" type="number" min="1" />
                 </label>
               </div>
             </article>

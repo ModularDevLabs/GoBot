@@ -82,11 +82,16 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - Promote inactivity threshold management into a dedicated moderation module.
 - Behavior:
 - Controls whether inactivity pruning workflows are enabled for the guild (`feature_flags.inactive_pruning`).
-- Stores the inactivity threshold in days (`inactive_days`) used by members status, pulse counters, analytics summaries, and member exports.
+- Stores inactivity and scan controls:
+- `inactive_days` for active/inactive classification.
+- `backfill_days` for requested historical scan depth.
+- `backfill_concurrency` for parallel channel scan workers.
+- Effective scan window remains `max(inactive_days, backfill_days)`.
+- Used by members status, pulse counters, analytics summaries, and member exports.
 - Dashboard:
 - Module path: `Moderation -> Inactive Pruning`.
 - Includes module-level enable/disable and quick how-to guidance.
-- Config keys: `feature_flags.inactive_pruning`, `inactive_days`.
+- Config keys: `feature_flags.inactive_pruning`, `inactive_days`, `backfill_days`, `backfill_concurrency`.
 
 ### Policy Simulator (dashboard tool)
 

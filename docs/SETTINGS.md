@@ -14,14 +14,14 @@ These are in the dashboard configuration surfaces (Core Settings + module pages)
 - Used for active/inactive status. A member is inactive when `last_message_at` is older than now minus this many days.
 
 2. `backfill_days`
-- UI label: `Backfill days`
+- UI label: `Backfill days` (Inactive Pruning module)
 - Type: integer (`>= 1`)
 - Default: `60`
 - Requested lookback window for backfill jobs.
 - Effective window is `max(backfill_days, inactive_days)`.
 
 3. `backfill_concurrency`
-- UI label: `Backfill concurrency`
+- UI label: `Backfill concurrency` (Inactive Pruning module)
 - Type: integer (`>= 1`; non-positive values fall back to `2`)
 - Default: `2`
 - Number of channels scanned in parallel during backfill.
