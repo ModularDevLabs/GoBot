@@ -181,8 +181,6 @@ const CORE_SETTINGS_TOOLTIPS = {
   settingsVoiceRewardsEnabled: 'Enable passive coins/XP rewards for tracked voice activity.',
   settingsVoiceCoinsPerMinute: 'Coins granted per minute of eligible voice presence.',
   settingsVoiceXPPerMinute: 'XP granted per minute of eligible voice presence.',
-  settingsConfessionsChannel: 'Destination channel ID where approved confessions are posted.',
-  settingsConfessionsReview: 'When enabled, confessions require moderator review before publishing.',
   settingsProfilePreset: 'Apply a baseline settings profile to speed up initial guild configuration.',
   settingsApplyProfile: 'Apply the selected preset immediately to current guild settings.',
   settingsSave: 'Persist all changes in this Settings panel.',
@@ -1137,8 +1135,6 @@ async function saveSettings() {
       voice_reward_coins_per_minute: parseInt(qs('#settingsVoiceCoinsPerMinute').value || '1', 10) || 1,
       voice_reward_xp_per_minute: parseInt(qs('#settingsVoiceXPPerMinute').value || '2', 10) || 2,
       confessions_enabled: !!current.confessions_enabled,
-      confessions_channel_id: (qs('#settingsConfessionsChannel').value || '').trim(),
-      confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
       birthdays_enabled: qs('#settingsBirthdaysEnabled').value === 'true',
       birthdays_channel_id: (qs('#settingsBirthdaysChannel').value || '').trim(),
       auto_role_progression_enabled: qs('#settingsRoleProgressionEnabled').value === 'true',
@@ -3611,6 +3607,8 @@ async function saveConfessionsModule() {
     const payload = {
       ...current,
       confessions_enabled: enabled,
+      confessions_channel_id: (qs('#settingsConfessionsChannel').value || '').trim(),
+      confessions_require_review: qs('#settingsConfessionsReview').value === 'true',
       feature_flags: {
         ...(current.feature_flags || {}),
         [FEATURE_CONFESSIONS]: enabled,
