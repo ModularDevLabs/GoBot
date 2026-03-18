@@ -86,6 +86,7 @@
             <button type="button" class="nav-view-btn" data-view="polls">Polls</button>
             <button type="button" class="nav-view-btn" data-view="suggestions">Suggestions</button>
             <button type="button" class="nav-view-btn" data-view="customcommands">Custom Commands</button>
+            <button type="button" class="nav-view-btn" data-view="web3intel">Web3 Intel</button>
           </div>
         </div>
         <div class="nav-group expanded" data-group="automation">
@@ -2002,6 +2003,34 @@
               <div>ID</div><div>User</div><div>Content</div><div>Action</div>
             </div>
             <div id="confTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="view-web3intel" class="view">
+        <div class="panel">
+          <div class="panel-header">Web3 Intel Module</div>
+          <div class="modules-grid">
+            <article class="module-card" id="moduleWeb3IntelCard">
+              <div class="module-head">
+                <div class="module-title">Web3 Intel</div>
+                <span class="module-badge off" id="moduleWeb3IntelBadge">Disabled</span>
+              </div>
+              <p class="module-desc">Detect <code>$TOKEN</code> cash tags and contract addresses, then post market snapshots from CoinGecko and Dexscreener.</p>
+              <div class="form-grid module-form">
+                <label>
+                  Enabled
+                  <select id="settingsWeb3IntelEnabled">
+                    <option value="false">Disabled</option>
+                    <option value="true">Enabled</option>
+                  </select>
+                </label>
+              </div>
+            </article>
+          </div>
+          <div class="panel-actions panel-actions-compact">
+            <button id="web3IntelSave" class="ghost">Save web3 intel module</button>
+            <span id="web3IntelStatus" class="status-line"></span>
           </div>
         </div>
       </section>

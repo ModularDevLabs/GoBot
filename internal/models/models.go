@@ -440,6 +440,7 @@ const (
 	FeatureTrivia          = "trivia"
 	FeatureCalendar        = "calendar"
 	FeatureConfessions     = "confessions"
+	FeatureWeb3Intel       = "web3_intel"
 )
 
 func (s GuildSettings) FeatureEnabled(flag string) bool {
@@ -591,6 +592,7 @@ func DefaultGuildSettings(guildID string) GuildSettings {
 			FeatureTrivia:          false,
 			FeatureCalendar:        false,
 			FeatureConfessions:     false,
+			FeatureWeb3Intel:       false,
 		},
 		WelcomeMessage: "Welcome {user} to {server}.",
 		GoodbyeMessage: "Goodbye {user}.",

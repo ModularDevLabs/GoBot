@@ -52,6 +52,7 @@ const FEATURE_ACHIEVEMENTS = 'achievements';
 const FEATURE_TRIVIA = 'trivia';
 const FEATURE_CALENDAR = 'calendar';
 const FEATURE_CONFESSIONS = 'confessions';
+const FEATURE_WEB3_INTEL = 'web3_intel';
 const FEATURE_BY_VIEW = {
   welcome: FEATURE_WELCOME,
   goodbye: FEATURE_GOODBYE,
@@ -89,6 +90,7 @@ const FEATURE_BY_VIEW = {
   trivia: FEATURE_TRIVIA,
   calendar: FEATURE_CALENDAR,
   confessions: FEATURE_CONFESSIONS,
+  web3intel: FEATURE_WEB3_INTEL,
 };
 const NAV_GROUPS_STORAGE_KEY = 'modbot_nav_groups';
 const ACTIVE_VIEW_STORAGE_KEY = 'modbot_active_view';
@@ -113,6 +115,7 @@ const VIEW_TITLE_OVERRIDES = {
   membernotes: 'Member Notes',
   customcommands: 'Custom Commands',
   seasonresets: 'Season Resets',
+  web3intel: 'Web3 Intel',
 };
 const MODULE_GUIDES = {
   welcome: { title: 'How To Use', points: ['Enable the module and set a channel ID.', 'Use {user} and {server} tokens in the message template.', 'Save, then test with a new account join.'] },
@@ -151,6 +154,7 @@ const MODULE_GUIDES = {
   trivia: { title: 'How To Use', points: ['Enable trivia, then generate a question.', 'Submit answers with acting user ID to award score.', 'Refresh leaderboard to track competition.'] },
   calendar: { title: 'How To Use', points: ['Enable calendar before creating events.', 'Create events with ISO start time and creator user ID.', 'Use RSVP controls and view responses per event.'] },
   confessions: { title: 'How To Use', points: ['Enable confessions and set channel/review settings.', 'Review pending items and approve/reject them.', 'Approved confessions are posted anonymously to configured channel.'] },
+  web3intel: { title: 'How To Use', points: ['Enable module to watch for $TOKEN symbols and contract addresses in chat.', 'Users can post Ethereum/L2, Solana, BNB, Hyperliquid, or Monad contract addresses for Dexscreener snapshots.', 'Users can post $cash-tags to resolve token data from CoinGecko.', 'Use module channel scopes if you only want web3 lookups in specific channels.'] },
 };
 const CORE_SETTINGS_TOOLTIPS = {
   settingsAdminPolicy: 'How to handle targets with Administrator permission: refuse, quarantine, or remove admin roles first.',
@@ -250,6 +254,7 @@ function syncModuleBadges() {
   const triviaEnabled = qs('#moduleTriviaEnabled')?.value === 'true';
   const calendarEnabled = qs('#moduleCalendarEnabled')?.value === 'true';
   const confessionsEnabled = qs('#moduleConfessionsEnabled')?.value === 'true';
+  const web3IntelEnabled = qs('#settingsWeb3IntelEnabled')?.value === 'true';
   setModuleBadge(welcomeEnabled, qs('#moduleWelcomeBadge'), qs('#moduleWelcomeCard'));
   setModuleBadge(goodbyeEnabled, qs('#moduleGoodbyeBadge'), qs('#moduleGoodbyeCard'));
   setModuleBadge(auditEnabled, qs('#moduleAuditBadge'), qs('#moduleAuditCard'));
@@ -286,6 +291,7 @@ function syncModuleBadges() {
   setModuleBadge(triviaEnabled, qs('#moduleTriviaBadge'), qs('#moduleTriviaCard'));
   setModuleBadge(calendarEnabled, qs('#moduleCalendarBadge'), qs('#moduleCalendarCard'));
   setModuleBadge(confessionsEnabled, qs('#moduleConfessionsBadge'), qs('#moduleConfessionsCard'));
+  setModuleBadge(web3IntelEnabled, qs('#moduleWeb3IntelBadge'), qs('#moduleWeb3IntelCard'));
 }
 
 const qs = (sel) => document.querySelector(sel);
@@ -531,6 +537,7 @@ function applyModulePermissionDisabling() {
     calendarSave: FEATURE_CALENDAR,
     calCreate: FEATURE_CALENDAR,
     confessionsSave: FEATURE_CONFESSIONS,
+    web3IntelSave: FEATURE_WEB3_INTEL,
   };
   Object.entries(buttonFeatureMap).forEach(([id, feature]) => {
     const button = qs(`#${id}`);
@@ -990,6 +997,7 @@ async function loadSettings() {
   qs('#moduleTriviaEnabled').value = String(!!flags[FEATURE_TRIVIA]);
   qs('#moduleCalendarEnabled').value = String(!!flags[FEATURE_CALENDAR]);
   qs('#moduleConfessionsEnabled').value = String(!!flags[FEATURE_CONFESSIONS]);
+  qs('#settingsWeb3IntelEnabled').value = String(!!flags[FEATURE_WEB3_INTEL]);
   refreshIncidentBanner(cfg);
   syncModuleBadges();
   updateLevelingGuideExamples();
@@ -3630,6 +3638,35 @@ async function saveConfessionsModule() {
   }
 }
 
+async function saveWeb3IntelModule() {
+  const restore = setBusy(qs('#web3IntelSave'), 'Saving...');
+  const status = qs('#web3IntelStatus');
+  status.textContent = 'Saving...';
+  try {
+    const current = await apiFetch(`/api/settings?guild_id=${state.guildId}`);
+    const payload = {
+      ...current,
+      feature_flags: {
+        ...(current.feature_flags || {}),
+        [FEATURE_WEB3_INTEL]: qs('#settingsWeb3IntelEnabled').value === 'true',
+      },
+    };
+    await apiFetch(`/api/settings?guild_id=${state.guildId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    await loadSettings();
+    status.textContent = `Saved at ${new Date().toLocaleTimeString()}`;
+    showToast('Web3 intel module saved.');
+  } catch (err) {
+    status.textContent = 'Save failed.';
+    showToast(`Web3 intel save failed: ${err.message}`, 'error');
+  } finally {
+    restore();
+  }
+}
+
 async function reviewQueueDecision(actionID, decision) {
   if (!actionID || !decision) return;
   let reason = '';
@@ -4097,6 +4134,7 @@ function wireEvents() {
   qs('#triviaSave').onclick = () => { if (requireModulePermissions(FEATURE_TRIVIA, 'Save trivia module')) saveTriviaModule(); };
   qs('#calendarSave').onclick = () => { if (requireModulePermissions(FEATURE_CALENDAR, 'Save calendar module')) saveCalendarModule(); };
   qs('#confessionsSave').onclick = () => { if (requireModulePermissions(FEATURE_CONFESSIONS, 'Save confessions module')) saveConfessionsModule(); };
+  qs('#web3IntelSave').onclick = () => { if (requireModulePermissions(FEATURE_WEB3_INTEL, 'Save web3 intel module')) saveWeb3IntelModule(); };
   qs('#rrRefresh').onclick = () => loadReactionRoleRules().catch((err) => showToast(`Rule load failed: ${err.message}`, 'error'));
   qs('#rrAddRule').onclick = () => { if (requireModulePermissions(FEATURE_REACTION_ROLES, 'Add reaction role rule')) addReactionRoleRule(); };
   qs('#warnRefresh').onclick = () => loadWarnings().catch((err) => showToast(`Warnings load failed: ${err.message}`, 'error'));
@@ -4161,6 +4199,7 @@ function wireEvents() {
   qs('#moduleTriviaEnabled').addEventListener('change', syncModuleBadges);
   qs('#moduleCalendarEnabled').addEventListener('change', syncModuleBadges);
   qs('#moduleConfessionsEnabled').addEventListener('change', syncModuleBadges);
+  qs('#settingsWeb3IntelEnabled').addEventListener('change', syncModuleBadges);
   qs('#settingsLevelingCurve').addEventListener('change', updateLevelingGuideExamples);
   qs('#settingsLevelingBase').addEventListener('input', updateLevelingGuideExamples);
   qs('#settingsLevelingXP').addEventListener('input', updateLevelingGuideExamples);

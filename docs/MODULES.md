@@ -336,6 +336,22 @@ For field-by-field definitions and defaults, see `docs/SETTINGS.md`.
 - `GET /api/modules/confessions?guild_id=...&status=pending`
 - `POST /api/modules/confessions/review?guild_id=...`
 
+### Web3 Intel
+
+- Purpose:
+- Respond with market data when users post `$TOKEN` cash-tags or token contract addresses.
+- Trigger:
+- MessageCreate events in channels allowed by module channel scopes.
+- Behavior:
+- Detects EVM-style (`0x...`) and Solana-style contract strings.
+- Detects `$TOKEN` cash-tags for CoinGecko lookup.
+- Contract lookups query Dexscreener and pick the highest-liquidity pair snapshot.
+- Cash-tag lookups query CoinGecko search + market data.
+- Returns compact price / 24h change / market cap context in-channel.
+- Supported targets:
+- Ethereum and EVM L2 ecosystems, Solana, BNB Chain, Hyperliquid, Monad (as surfaced by Dexscreener data), and CoinGecko-indexed token names.
+- Config keys: `feature_flags.web3_intel`.
+
 ### Welcome Messages (`welcome_messages`)
 
 - Trigger: member joins.

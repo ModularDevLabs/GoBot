@@ -31,7 +31,7 @@ Stop: `Ctrl+C`
 - **Backup / Restore**: Use Settings -> Backup / Restore to download a guild snapshot and restore settings + reaction roles + scheduled messages + custom commands.
 - **Module pages**: Every module page has its own enable/disable control, save action, and quick how-to panel.
 - **Modules (moderation/safety)**: Welcome, Goodbye, Audit Log, Invite Tracker, AutoMod, Warnings, Verification, Tickets, Anti-Raid, Inactive Pruning, Account Age Guard, Join Screening, Member Notes, Appeals, Custom Commands, Raid Panic.
-- **Modules (engagement/community)**: Reaction Roles, Scheduled Messages, Analytics, Starboard, Leveling, Role Progression, Giveaways, Polls, Suggestions, Keyword Alerts, AFK, Reminders, Birthdays, Streaks.
+- **Modules (engagement/community)**: Reaction Roles, Scheduled Messages, Analytics, Starboard, Leveling, Role Progression, Giveaways, Polls, Suggestions, Keyword Alerts, AFK, Reminders, Birthdays, Streaks, Web3 Intel.
 - **Modules (progression/economy)**: Reputation, Economy, Achievements, Trivia.
 - **Modules (utility)**: Calendar, Confessions, Season Resets.
 - **Module permission checks**: Each module card shows missing bot permissions and disables save/run actions until required permissions are granted.
@@ -71,6 +71,7 @@ Stop: `Ctrl+C`
 - **Trivia**: Run question/answer rounds and maintain trivia leaderboard.
 - **Calendar**: Create events and collect RSVP responses.
 - **Confessions**: Intake anonymous-style confessions and optionally require moderator review before posting.
+- **Web3 Intel**: Detect `$TOKEN` symbols and supported contract addresses, then post market snapshots using CoinGecko and Dexscreener.
 - Full field-by-field settings reference: `docs/SETTINGS.md`.
 - Module behavior/configuration guide: `docs/MODULES.md`.
 

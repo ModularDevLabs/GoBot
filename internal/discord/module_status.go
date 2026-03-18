@@ -95,6 +95,10 @@ var modulePermissionRequirements = map[string][]permissionRequirement{
 		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
 		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
 	},
+	models.FeatureWeb3Intel: {
+		{Name: "View Channel", Bit: discordgo.PermissionViewChannel},
+		{Name: "Send Messages", Bit: discordgo.PermissionSendMessages},
+	},
 	models.FeatureWarnings: {
 		{Name: "Manage Roles", Bit: discordgo.PermissionManageRoles},
 		{Name: "Kick Members", Bit: discordgo.PermissionKickMembers},

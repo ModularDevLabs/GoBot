@@ -35,6 +35,8 @@ type Service struct {
 	raidUntil       map[string]time.Time
 	economyMu       sync.Mutex
 	economyLast     map[string]time.Time
+	web3Mu          sync.Mutex
+	web3Last        map[string]time.Time
 	voiceMu         sync.Mutex
 	voiceJoined     map[string]time.Time
 	progressionMu   sync.Mutex
@@ -62,6 +64,7 @@ func NewService(token string, repos *db.Repositories, logger Logger) (*Service, 
 		raidJoins:       make(map[string][]time.Time),
 		raidUntil:       make(map[string]time.Time),
 		economyLast:     make(map[string]time.Time),
+		web3Last:        make(map[string]time.Time),
 		voiceJoined:     make(map[string]time.Time),
 		progressionLast: make(map[string]time.Time),
 		seasonResetRuns: make(map[string]bool),

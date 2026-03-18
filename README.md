@@ -80,7 +80,7 @@ All feature modules are disabled by default on a new guild and enabled per-guild
 - Moderation + safety:
 - Welcome, Goodbye, Audit Log, Invite Tracker, AutoMod, Warnings, Verification, Tickets, Anti-Raid, Account Age Guard, Member Notes, Appeals, Custom Commands.
 - Engagement + community:
-- Reaction Roles, Starboard, Leveling, Role Progression, Giveaways, Polls, Suggestions, AFK, Reminders, Birthdays, Streaks.
+- Reaction Roles, Starboard, Leveling, Role Progression, Giveaways, Polls, Suggestions, AFK, Reminders, Birthdays, Streaks, Web3 Intel.
 - Economy + progression:
 - Reputation, Economy shop, Achievements, Trivia.
 - Operations + incident tooling:

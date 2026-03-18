@@ -680,6 +680,12 @@ Each schedule contains:
 - Type: boolean
 - Default: `true`
 
+92. `feature_flags.web3_intel`
+- UI label: `Enabled` (Web3 Intel module)
+- Type: boolean
+- Default: `false`
+- Notes: when enabled, message parser watches for `$TOKEN` cash-tags and contract addresses and posts CoinGecko/Dexscreener snapshots.
+
 ## Giveaways Records
 
 Configured in the `Giveaways` module UI and stored in `giveaways` / `giveaway_entries`.
